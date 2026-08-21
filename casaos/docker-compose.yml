@@ -120,14 +120,20 @@ x-casaos:
   category: Productivity
   author: Nodedr Infotech Private Limited
   developer: Raktim94
-  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/icon.png
-  thumbnail: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/thumbnail.png
+  # Points at THIS repo, not the CasaOS-AppStore fork — that PR isn't merged
+  # yet, so a jsdelivr URL against it would 404. The copy actually submitted
+  # to the store PR (IceWhaleTech/CasaOS-AppStore, Apps/KinetiRx/) uses the
+  # jsdelivr CDN URLs against that repo instead; this one has to be
+  # self-referencing so "install right now via raw URL" (see README.md in
+  # this directory) actually shows the icon/screenshots today.
+  icon: https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/icon.png
+  thumbnail: https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/thumbnail.png
   screenshot_link:
-    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-1.png
-    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-2.png
-    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-3.png
-    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-4.png
-    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-5.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/screenshot-1.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/screenshot-2.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/screenshot-3.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/screenshot-4.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/screenshot-5.png
   title:
     en_US: KinetiRx
   tagline:

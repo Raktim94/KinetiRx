@@ -80,15 +80,15 @@ no client-side-only access control.
 
 | Dashboard | Smart Pharmacy POS |
 |---|---|
-| ![Dashboard & Analytics](deploy/screenshots/dashboard.png) | ![Smart Pharmacy POS](deploy/screenshots/pos.png) |
+| ![Dashboard & Analytics](casaos/screenshot-1.png) | ![Smart Pharmacy POS](casaos/screenshot-2.png) |
 
 | Medicine Stock Management | Patient Database Profiles |
 |---|---|
-| ![Medicine Stock Management](deploy/screenshots/inventory.png) | ![Patient Database Profiles](deploy/screenshots/patients.png) |
+| ![Medicine Stock Management](casaos/screenshot-3.png) | ![Patient Database Profiles](casaos/screenshot-4.png) |
 
 | Due Register (Due-Khata) |
 |---|
-| ![Due Register](deploy/screenshots/due-khata.png) |
+| ![Due Register](casaos/screenshot-5.png) |
 
 ## Tech stack
 
@@ -127,10 +127,12 @@ the host by default.
 
 ## Self-hosting on CasaOS / ZimaOS
 
-KinetiRx ships a ready-to-use [`deploy/casaos-manifest.yml`](deploy/casaos-manifest.yml)
+KinetiRx ships a ready-to-use [`casaos/docker-compose.yml`](casaos/docker-compose.yml)
 (x-casaos v2 compose-extension spec) for one-click installation from the
 CasaOS/ZimaOS App Store, plus the icon, thumbnail, and screenshots the store
-listing needs (all under [`deploy/`](deploy/)).
+listing needs (all under [`casaos/`](casaos/) — see that directory's own
+[README](casaos/README.md) for the full install-now instructions and
+publishing workflow).
 
 **What it installs:** Postgres + the KinetiRx backend + the nginx-served
 frontend, wired together on an internal Docker network, with persistent
@@ -142,16 +144,22 @@ three before using this beyond a local trial** — the install prompt
 (`tips.before_install`) says so, and each field's own description repeats
 it.
 
-- **Status:** published — the backend/frontend images are built and pushed
-  (multi-arch: `amd64`, `arm64`) to `ghcr.io/raktim94/kinetirx-backend` and
-  `kinetirx-frontend` (tag `1.0.0`), and the manifest is submitted as a PR
-  to [`IceWhaleTech/CasaOS-AppStore`](https://github.com/IceWhaleTech/CasaOS-AppStore)
+- **Status:** images are built and pushed (multi-arch: `amd64`, `arm64`) to
+  `ghcr.io/raktim94/kinetirx-backend` and `kinetirx-frontend` (tag
+  `1.0.0`), and the manifest is submitted as a PR to
+  [`IceWhaleTech/CasaOS-AppStore`](https://github.com/IceWhaleTech/CasaOS-AppStore)
   (`Apps/KinetiRx/`). Not merged into the official store index yet — PR
-  review can take anywhere from about a day to several weeks.
+  review can take anywhere from about a day to several weeks. **Both ghcr.io
+  packages must be flipped to public visibility** (Package settings →
+  Danger Zone, GitHub's REST/GraphQL API cannot do this for a
+  personal-account package) before any install — CasaOS or otherwise — can
+  actually pull them; until that's done, install fails with an
+  `unauthorized` error on the image pull.
 - **Installing today, before the PR merges:** CasaOS's "Custom
   Install" / import-a-compose-file feature accepts
-  `deploy/casaos-manifest.yml` directly — paste its contents in, confirm the
-  pre-filled WebUI port/volume/env fields (pulled from the `x-casaos`
+  `casaos/docker-compose.yml` directly (or its raw GitHub URL — see
+  [`casaos/README.md`](casaos/README.md)) — paste its contents in, confirm
+  the pre-filled WebUI port/volume/env fields (pulled from the `x-casaos`
   block), and install.
 - Category: `Productivity` · Architectures: `amd64`, `arm64` · App ID:
   `com.nodedr.kinetirx`.

@@ -121,7 +121,12 @@ services:
       # call, not the host-published BACKEND_PORT.
       KINETIRX_API_URL: http://backend:8080
       KINETIRX_MCP_USERNAME: ${KINETIRX_MCP_USERNAME:-EMP-ADMIN-1}
-      KINETIRX_MCP_PASSWORD: ${KINETIRX_MCP_PASSWORD:?KINETIRX_MCP_PASSWORD is required to run the mcp-server profile}
+      # Optional here, not required: `${VAR:?...}` would make Compose fail
+      # interpolation for the WHOLE file — including a plain `docker compose
+      # up` that never touches the mcp profile — the instant this var is
+      # unset. mcp-server's own main.go already refuses to start with a
+      # clear error if this is blank when the profile actually runs.
+      KINETIRX_MCP_PASSWORD: ${KINETIRX_MCP_PASSWORD:-}
     stdin_open: true
     tty: false
 

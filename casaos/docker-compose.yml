@@ -29,8 +29,22 @@
 name: kinetirx
 
 services:
-  kinetirx-postgres:
+  # Service KEYS below are plain (postgres/backend/frontend) on purpose —
+  # they're Docker Compose's internal DNS aliases on this app's network, and
+  # the frontend image's baked-in nginx.conf has `proxy_pass
+  # http://backend:8080/api/` hardcoded (see frontend/nginx.conf — it's
+  # copied into the image at build time, not overridable per-deployment).
+  # An earlier draft prefixed the service keys themselves (kinetirx-backend
+  # etc.) to avoid name collisions with other apps on a shared CasaOS host —
+  # that broke nginx's upstream resolution and crash-looped the frontend
+  # container on every install. `container_name`/`hostname` carry the
+  # kinetirx- prefix instead, which is what actually needs to be unique on
+  # the host — matching the same split real accepted Nodedr apps use (see
+  # Nodedr OrderRestro's and NodeDR POS's own CasaOS manifests).
+  postgres:
     image: postgres:16-alpine
+    container_name: kinetirx-postgres
+    hostname: kinetirx-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: kinetirx
@@ -47,14 +61,16 @@ services:
     networks:
       - kinetirx_net
 
-  kinetirx-backend:
+  backend:
     image: ghcr.io/raktim94/kinetirx-backend:1.0.0
+    container_name: kinetirx-backend
+    hostname: kinetirx-backend
     restart: unless-stopped
     depends_on:
-      kinetirx-postgres:
+      postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: "postgres://kinetirx:please-change-this-password@kinetirx-postgres:5432/kinetirx?sslmode=disable"
+      DATABASE_URL: "postgres://kinetirx:please-change-this-password@postgres:5432/kinetirx?sslmode=disable"
       # No auto-generation available at the packaging layer (see the
       # file-level note above) — this is a real default the operator must
       # rotate before exposing the instance beyond their own LAN. Backend
@@ -89,11 +105,13 @@ services:
           description:
             en_US: Optional — enables AI-powered OCR bill scanning and the clinical AI assistant. Leave blank to run those features in offline/fallback mode.
 
-  kinetirx-frontend:
+  frontend:
     image: ghcr.io/raktim94/kinetirx-frontend:1.0.0
+    container_name: kinetirx-frontend
+    hostname: kinetirx-frontend
     restart: unless-stopped
     depends_on:
-      kinetirx-backend:
+      backend:
         condition: service_healthy
     ports:
       - target: 80
@@ -116,7 +134,7 @@ x-casaos:
   architectures:
     - amd64
     - arm64
-  main: kinetirx-frontend
+  main: frontend
   category: Productivity
   author: Nodedr Infotech Private Limited
   developer: Raktim94

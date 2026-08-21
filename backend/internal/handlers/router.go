@@ -18,6 +18,8 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 
 	api := r.Group("/api")
 	api.POST("/auth/login", d.Login)
+	api.GET("/auth/setup-status", d.SetupStatus)
+	api.POST("/auth/setup", d.Setup)
 
 	authed := api.Group("")
 	authed.Use(middleware.Authenticate(d.Tokens))

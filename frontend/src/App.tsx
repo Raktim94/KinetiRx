@@ -38,6 +38,9 @@ import {
   LoginModal,
 } from './components/modals/LoginModal';
 import {
+  SetupModal,
+} from './components/modals/SetupModal';
+import {
   MarketingModal,
   WorksheetModal,
 } from './components/modals/MarketingWorksheetModals';
@@ -222,6 +225,9 @@ export function App() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
+  // null while unknown; only meaningful once !currentUser — decides whether
+  // the auth gate below shows "create the first admin account" or "sign in".
+  const [needsSetup, setNeedsSetup] = useState<boolean | null>(null);
   const prevUserRef = useRef<AuthUser | null>(null);
 
   const showError = useCallback((message: string, err?: unknown) => {
@@ -245,15 +251,24 @@ export function App() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (!getToken()) {
-        setAuthLoading(false);
-        return;
+      if (getToken()) {
+        try {
+          const user = await authApi.me();
+          if (!cancelled) setCurrentUser(user);
+          if (!cancelled) setAuthLoading(false);
+          return;
+        } catch {
+          clearToken();
+        }
       }
+      // No valid session — find out whether this is a fresh instance with
+      // no admin account yet (show the create-account screen) or a normal
+      // logged-out state (show the login form).
       try {
-        const user = await authApi.me();
-        if (!cancelled) setCurrentUser(user);
+        const { needsSetup: needs } = await authApi.setupStatus();
+        if (!cancelled) setNeedsSetup(needs);
       } catch {
-        clearToken();
+        if (!cancelled) setNeedsSetup(false);
       } finally {
         if (!cancelled) setAuthLoading(false);
       }
@@ -794,7 +809,11 @@ export function App() {
   if (!currentUser) {
     return (
       <div className="h-screen w-screen bg-bg">
-        <LoginModal isOpen onClose={() => {}} allowClose={false} onLoginSuccess={user => setCurrentUser(user)} />
+        {needsSetup ? (
+          <SetupModal onSetupSuccess={user => setCurrentUser(user)} />
+        ) : (
+          <LoginModal isOpen onClose={() => {}} allowClose={false} onLoginSuccess={user => setCurrentUser(user)} />
+        )}
       </div>
     );
   }

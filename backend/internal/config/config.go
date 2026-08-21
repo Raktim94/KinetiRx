@@ -63,13 +63,14 @@ func Load() (*Config, error) {
 	return cfg, nil
 }
 
-// RequireAdminBootstrapPassword must be called before seeding the first admin
-// employee. It is separate from Load() because KINETIRX_ADMIN_PASSWORD is only
-// required when the employees table is actually empty (first boot), not on
-// every subsequent restart.
-func (c *Config) RequireAdminBootstrapPassword() (string, error) {
+// ValidatedAdminBootstrapPassword returns KINETIRX_ADMIN_PASSWORD, validated,
+// for env-based first-boot seeding — or ("", nil) if it's unset, in which
+// case the operator sets up the admin account from the UI instead (see
+// POST /api/auth/setup). Only errors when a value was actually supplied but
+// is too short, since that's a real misconfiguration worth failing loudly on.
+func (c *Config) ValidatedAdminBootstrapPassword() (string, error) {
 	if c.AdminBootstrapPassword == "" {
-		return "", fmt.Errorf("KINETIRX_ADMIN_PASSWORD is required to seed the initial admin account on first boot (database has no employees yet)")
+		return "", nil
 	}
 	if len(c.AdminBootstrapPassword) < 8 {
 		return "", fmt.Errorf("KINETIRX_ADMIN_PASSWORD must be at least 8 characters long")

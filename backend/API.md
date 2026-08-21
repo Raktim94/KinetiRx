@@ -40,6 +40,29 @@ Base URL: `http://<host>:<port>/api` (default port `8080`).
 
 ## Authentication
 
+### `GET /api/auth/setup-status`
+No auth required.
+
+Response `200`: `{ "needsSetup": true }` when the `employees` table is
+empty (no admin account exists yet) — the frontend shows a "Create Admin
+Account" screen instead of the login form in this case. `false` once any
+employee exists.
+
+### `POST /api/auth/setup`
+No auth required. Only succeeds once — creates the first admin employee
+(id `EMP-ADMIN-1`, role `admin`, every permission) and logs them in. Always
+`409 conflict` once any employee row exists; use login instead. This is the
+UI-driven alternative to setting `KINETIRX_ADMIN_PASSWORD` before first
+boot (see the backend README/`.env.example`) — whichever happens first
+wins.
+
+Request:
+```json
+{ "name": "Jane Doe", "password": "plaintext-password (min 8 chars)" }
+```
+
+Response `201`: same shape as `POST /api/auth/login`'s `200`.
+
 ### `POST /api/auth/login`
 No auth required.
 

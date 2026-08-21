@@ -57,16 +57,20 @@ func main() {
 		log.Fatalf("startup: failed to check employee count: %v", err)
 	}
 	if employeeCount == 0 {
-		adminPassword, err := cfg.RequireAdminBootstrapPassword()
+		adminPassword, err := cfg.ValidatedAdminBootstrapPassword()
 		if err != nil {
 			log.Fatalf("startup: %v", err)
 		}
-		seeded, err := seed.SeedAdminIfEmpty(ctx, pool, adminPassword)
-		if err != nil {
-			log.Fatalf("startup: failed to seed admin account: %v", err)
-		}
-		if seeded {
-			log.Println("startup: seeded initial admin employee 'Master Admin' (id=EMP-ADMIN-1)")
+		if adminPassword == "" {
+			log.Println("startup: no employees yet and KINETIRX_ADMIN_PASSWORD is unset — visit the app to create the first admin account")
+		} else {
+			seeded, err := seed.SeedAdminIfEmpty(ctx, pool, adminPassword)
+			if err != nil {
+				log.Fatalf("startup: failed to seed admin account: %v", err)
+			}
+			if seeded {
+				log.Println("startup: seeded initial admin employee 'Master Admin' (id=EMP-ADMIN-1)")
+			}
 		}
 	}
 

@@ -360,6 +360,12 @@ export const authApi = {
       body: JSON.stringify({ identifier, password }),
     }),
   me: () => request<AuthUser>('/api/auth/me'),
+  setupStatus: () => request<{ needsSetup: boolean }>('/api/auth/setup-status'),
+  setup: (name: string, password: string) =>
+    request<LoginResponse>('/api/auth/setup', {
+      method: 'POST',
+      body: JSON.stringify({ name, password }),
+    }),
 };
 
 // ---------------------------------------------------------------------------

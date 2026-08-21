@@ -110,15 +110,17 @@ cp deploy/.env.example deploy/.env
 # Edit deploy/.env and set at minimum:
 #   POSTGRES_PASSWORD
 #   JWT_SECRET              (openssl rand -hex 32)
-#   KINETIRX_ADMIN_PASSWORD (used only on first boot, to seed the admin account)
 #   GEMINI_API_KEY          (optional — enables AI OCR + assistant)
 
 docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
 ```
 
-Open **http://localhost:3080** in a browser. Log in with employee ID
-`EMP-ADMIN-1` and the `KINETIRX_ADMIN_PASSWORD` you set — there is no
-password-reset flow yet, so keep it safe.
+Open **http://localhost:3080** in a browser. On first visit you'll land on
+a "Create Admin Account" screen — name + password, no manual configuration
+needed. (You can instead set `KINETIRX_ADMIN_PASSWORD` in `deploy/.env`
+before first boot to pre-seed employee ID `EMP-ADMIN-1` with that password
+and skip the screen — whichever happens first wins.) There is no
+password-reset flow yet, so keep your password safe.
 
 The backend API is also published directly on **http://localhost:8080**
 (for curl/health checks/admin scripts); the browser SPA never needs this
@@ -172,7 +174,7 @@ Requires Go 1.26+, Node.js, and a local Postgres instance (or run
 **Backend:**
 ```bash
 cd backend
-cp .env.example .env   # set DATABASE_URL, JWT_SECRET, KINETIRX_ADMIN_PASSWORD
+cp .env.example .env   # set DATABASE_URL, JWT_SECRET
 go run ./cmd/server
 ```
 Runs on `:8080` by default; migrations in `backend/migrations/` run automatically on start.
@@ -194,7 +196,7 @@ Other scripts: `npm run build` (production build), `npm run preview` (serve the 
 |---|---|---|---|
 | `DATABASE_URL` | yes | — | Postgres connection string |
 | `JWT_SECRET` | yes | — | Signs JWT access tokens; min 16 chars enforced at startup, use 32+ random bytes |
-| `KINETIRX_ADMIN_PASSWORD` | first boot only | — | Plaintext password for the seeded "Master Admin" account (`EMP-ADMIN-1`); bcrypt-hashed on first boot, never read again once the employees table has a row |
+| `KINETIRX_ADMIN_PASSWORD` | no | unset | Optional. If set, pre-seeds the "Master Admin" account (`EMP-ADMIN-1`) with this password on first boot; bcrypt-hashed, never read again once the employees table has a row. If unset, create the admin account from the app's own first-run screen instead (`POST /api/auth/setup`) — whichever happens first wins |
 | `GEMINI_API_KEY` | no | unset | Enables AI OCR (`/api/ocr/parse-bill`) and the clinical assistant (`/api/ai/ask`); both degrade to a fallback response when unset |
 | `PORT` | no | `8080` | Backend listen port |
 | `GIN_MODE` | no | `release` | Gin mode (`debug`/`release`) |
@@ -265,8 +267,13 @@ docker compose -f deploy/docker-compose.yml --env-file deploy/.env \
 - Postgres is never published to the host in the Docker Compose or CasaOS
   deployment paths — only reachable from other containers on the same
   Compose network.
-- There is currently no password-reset flow for the seeded admin account —
-  store `KINETIRX_ADMIN_PASSWORD` somewhere safe before first boot.
+- There is currently no password-reset flow for the admin account — keep
+  whatever password you choose (either at the first-run signup screen, or
+  via `KINETIRX_ADMIN_PASSWORD`) somewhere safe.
+- `POST /api/auth/setup` (first-run account creation) only ever succeeds
+  once — it's permanently rejected the instant any employee row exists,
+  same one-time gate `KINETIRX_ADMIN_PASSWORD`-based seeding already
+  enforces on the backend.
 
 ## Documentation
 

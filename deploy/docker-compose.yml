@@ -47,7 +47,9 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-kinetirx}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kinetirx}?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      KINETIRX_ADMIN_PASSWORD: ${KINETIRX_ADMIN_PASSWORD:?KINETIRX_ADMIN_PASSWORD is required on first boot to seed the admin account}
+      # Optional — if unset, sign in for the first time in the app itself
+      # to create the admin account instead (POST /api/auth/setup).
+      KINETIRX_ADMIN_PASSWORD: ${KINETIRX_ADMIN_PASSWORD:-}
       PORT: 8080
       GIN_MODE: ${GIN_MODE:-release}
       # The frontend is same-origin from the browser's point of view (nginx

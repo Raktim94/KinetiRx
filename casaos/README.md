@@ -30,11 +30,12 @@ don't need to wait for this to land in the official app store:
    images must be public on ghcr.io** for this to succeed; a private image
    fails the pull with an unauthorized error and the app never starts.
 4. Open it from the CasaOS dashboard, or go straight to
-   `http://<your-casaos-box>:3080`. Log in with employee ID `EMP-ADMIN-1`
-   and the default admin password shipped in the manifest (see the
-   `KINETIRX_ADMIN_PASSWORD` field's own description in the install form) —
-   **change it immediately** from Employee Control; there is no
-   password-reset flow.
+   `http://<your-casaos-box>:3080`. On first visit you'll land on a
+   "Create Admin Account" screen — name + password, no manual configuration
+   needed. There is no password-reset flow, so keep the password safe.
+   (`KINETIRX_ADMIN_PASSWORD` is left blank in this manifest on purpose so
+   the screen shows up; setting it before install pre-seeds employee ID
+   `EMP-ADMIN-1` instead and skips the screen.)
 
 Your data (the Postgres database) persists at
 `/DATA/AppData/kinetirx/postgres` on the CasaOS box, following the same
@@ -48,11 +49,13 @@ app itself (see `backend/internal/config/config.go` — "no hardcoded
 secrets... for anything security-sensitive" is the stated design). CasaOS
 also has no mechanism to auto-generate a value for you at install time
 (verified against 189 real apps already in the store — none do this).  So
-this manifest ships **real default values** for the Postgres password, JWT
-secret, and admin password, each flagged in its own field description and
-in the install-time `tips.before_install` notice. Change all three before
-using this beyond a local trial — leaving them as-is is fine for kicking
-the tyres on your LAN, not for anything internet-facing.
+this manifest ships **real default values** for the Postgres password and
+JWT secret, each flagged in its own field description and in the
+install-time `tips.before_install` notice. Change both before using this
+beyond a local trial — leaving them as-is is fine for kicking the tyres on
+your LAN, not for anything internet-facing. The admin account has no such
+default — it's created from the app's own first-run signup screen instead
+(see "Install it right now" above).
 
 ## Why three containers
 

@@ -7,7 +7,6 @@ import {
   CreditCard,
   FileCheck2,
   FileText,
-  Hospital,
   IdCard,
   LogOut,
   Megaphone,
@@ -106,12 +105,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header */}
         <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-primary-hover text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/25">
-              <Hospital className="w-5 h-5" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="KinetiRx logo"
+              className="w-10 h-10 rounded-xl shadow-lg shadow-primary/25 object-cover"
+            />
             <div>
               <h1 className="text-base font-bold text-text tracking-tight flex items-center gap-1.5">
-                Pharma Care Pro
+                KinetiRx
               </h1>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />
@@ -461,6 +462,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             v11.0
           </span>
         </div>
+
+        {/* Brand Footer — bottom-left, nodedr branding (consistent across all Nodedr apps) */}
+        <a
+          href="https://kinetirx.nodedr.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block px-4 py-2.5 border-t border-border bg-surface text-center text-[11px] leading-tight text-text-muted/70 hover:text-text-muted hover:underline transition"
+        >
+          KinetiRx · made by Nodedr Infotech Private Limited
+        </a>
       </aside>
     </>
   );

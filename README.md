@@ -1,11 +1,31 @@
-# KinetiRx
+<p align="center">
+  <img src="assets/branding/logo.png" alt="KinetiRx logo" width="140" />
+</p>
 
-**Pharma Care Pro** — a self-hosted pharmacy & small-clinic management system.
+<h1 align="center">KinetiRx</h1>
 
-![Status](https://img.shields.io/badge/status-active--development-blue)
-![License](https://img.shields.io/badge/license-unspecified-lightgrey)
-![Backend](https://img.shields.io/badge/backend-Go%20%2B%20Gin-00ADD8)
-![Frontend](https://img.shields.io/badge/frontend-React%2019%20%2B%20Vite-646CFF)
+<p align="center"><strong>Pharma Care Pro</strong> — a self-hosted pharmacy &amp; small-clinic management system.</p>
+
+<p align="center">
+  <img src="assets/branding/banner.png" alt="KinetiRx — Dashboard & Analytics, POS Billing, Inventory Management, Patient Records, OPD Scheduling, Expense Tracking, Role-based Staff Accounts, AI Purchase-bill OCR" width="100%" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/status-active--development-blue" alt="Status" />
+  <img src="https://img.shields.io/badge/license-unspecified-lightgrey" alt="License" />
+  <img src="https://img.shields.io/badge/backend-Go%20%2B%20Gin-00ADD8" alt="Backend" />
+  <img src="https://img.shields.io/badge/frontend-React%2019%20%2B%20Vite-646CFF" alt="Frontend" />
+  <img src="https://img.shields.io/badge/self--hosted-CasaOS%20%7C%20ZimaOS%20%7C%20Docker-1f6feb" alt="Self-hosted" />
+</p>
+
+<p align="center">
+  <a href="https://kinetirx.nodedr.com">Website</a> ·
+  <a href="backend/API.md">API Docs</a> ·
+  <a href="https://github.com/Raktim94/KinetiRx/wiki">Wiki</a> ·
+  <a href="https://github.com/Raktim94/KinetiRx/issues">Report an Issue</a>
+</p>
+
+---
 
 KinetiRx runs your pharmacy's day-to-day operations — point-of-sale billing,
 medicine inventory, patient records, OPD scheduling, a due-khata (credit
@@ -20,26 +40,55 @@ Built for independent pharmacies and small clinics that want a real,
 auditable system of record instead of a spreadsheet — and that would rather
 self-host than hand patient and financial data to a SaaS vendor.
 
+## Table of contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Tech stack](#tech-stack)
+- [Quick start (Docker Compose)](#quick-start-docker-compose)
+- [Self-hosting on CasaOS / ZimaOS](#self-hosting-on-casaos--zimaos)
+- [Development setup](#development-setup)
+- [Environment variables](#environment-variables)
+- [Architecture](#architecture)
+- [MCP server (AI assistant integration)](#mcp-server-ai-assistant-integration)
+- [Security notes](#security-notes)
+- [Documentation](#documentation)
+- [License](#license)
+
 ## Features
 
-- **Dashboard** — daily/period overview and analytics
-- **Daily Sales** — sales register with cash-drawer reconciliation (daily register: opening cash, denominations, cash/UPI/card split, closing difference)
-- **POS** — point-of-sale billing with GST invoicing
-- **Due-Khata** — patient credit ledger (dues, payment history)
+- **Dashboard** — daily/period overview and analytics: today's sales, total dues, drawer cash, stock valuation, revenue-vs-expense and inventory-turnover charts
+- **Daily Sales** — sales register with cash-drawer reconciliation (opening cash, denominations, cash/UPI/card split, closing difference)
+- **POS** — point-of-sale billing with GST invoicing, strip/loose dispensing, discounts, and mixed payment modes (cash, UPI, card, due, partial)
+- **Due-Khata** — patient credit ledger (dues, payment history, WhatsApp reminders)
 - **Medicine Orders** — track medicines needed/ordered from distributors
-- **Inventory** — medicine & lab-test stock, batch/expiry, distributor tracking
-- **Inward OCR** — AI-powered purchase-bill scanning (Gemini) that extracts line items into inventory
+- **Inventory** — medicine & lab-test stock, batch/expiry tracking, rack location, distributor tracking, low-stock and short-expiry alerts
+- **Inward OCR** — AI-powered purchase-bill scanning (Gemini) that extracts line items straight into inventory
 - **OPD** — outpatient visit scheduling and follow-up reminders
 - **Patients** — patient records, visit history, purchase history, blood-test tracking
 - **Expenses** — day-to-day expense logging by category
 - **Business Development** — doctor outreach / marketing campaigns and worksheet tasks
 - **Employee Management** — role-based staff accounts with per-tab permissions
 - **Invoice Settings** — store letterhead, GST/DL numbers, invoice retention policy, printer config
-- **System Reset** — administrative data-reset tooling
+- **System Reset** — administrative data-reset tooling with a 5-day rolling backup
 
 Every route above (except health check and login) requires a valid JWT and
 is authorized server-side against the employee's role/permissions — there is
 no client-side-only access control.
+
+## Screenshots
+
+| Dashboard | Smart Pharmacy POS |
+|---|---|
+| ![Dashboard & Analytics](deploy/screenshots/dashboard.png) | ![Smart Pharmacy POS](deploy/screenshots/pos.png) |
+
+| Medicine Stock Management | Patient Database Profiles |
+|---|---|
+| ![Medicine Stock Management](deploy/screenshots/inventory.png) | ![Patient Database Profiles](deploy/screenshots/patients.png) |
+
+| Due Register (Due-Khata) |
+|---|
+| ![Due Register](deploy/screenshots/due-khata.png) |
 
 ## Tech stack
 
@@ -48,7 +97,8 @@ no client-side-only access control.
 | Backend | Go + [Gin](https://gin-gonic.com/), PostgreSQL, JWT auth, bcrypt password hashing |
 | Frontend | React 19 + Vite + TypeScript + Tailwind CSS v4, dark/light mode |
 | AI | Google Gemini (`gemini-3.7-flash`) for invoice OCR and a clinical assistant — optional, degrades to offline fallback if unconfigured |
-| Deployment | Docker Compose (Postgres + backend + nginx-served SPA), CasaOS App Store manifest for one-click NAS install |
+| Deployment | Docker Compose (Postgres + backend + nginx-served SPA); one-click install via the CasaOS/ZimaOS App Store |
+| AI tooling | Optional MCP (Model Context Protocol) server — lets Claude or any MCP-aware assistant operate a running KinetiRx instance through tool calls |
 
 ## Quick start (Docker Compose)
 
@@ -75,15 +125,32 @@ The backend API is also published directly on **http://localhost:8080**
 since nginx proxies `/api/*` internally. Postgres itself is not published to
 the host by default.
 
-### CasaOS
+## Self-hosting on CasaOS / ZimaOS
 
-A ready-to-submit [`deploy/casaos-manifest.yml`](deploy/casaos-manifest.yml)
-(x-casaos v2 compose-extension spec) is included for one-click installation
-from the CasaOS App Store. It is not yet submitted/published — the manifest
-currently points at `ghcr.io/raktim94/kinetirx-backend` and
-`kinetirx-frontend` images that still need to be built and pushed before
-store submission. Once available, install will be a single click from the
-CasaOS App Store UI.
+KinetiRx ships a ready-to-use [`deploy/casaos-manifest.yml`](deploy/casaos-manifest.yml)
+(x-casaos v2 compose-extension spec) for one-click installation from the
+CasaOS/ZimaOS App Store, plus the icon, thumbnail, and screenshots the store
+listing needs (all under [`deploy/`](deploy/)).
+
+**What it installs:** Postgres + the KinetiRx backend + the nginx-served
+frontend, wired together on an internal Docker network, with persistent
+storage under `/DATA/AppData/$AppID`. The password, JWT secret, and admin
+password fields are auto-generated by CasaOS on install (or editable before
+first boot) — the same three secrets the plain Compose quick-start above
+asks you to set by hand.
+
+- **Status:** the manifest is complete and validated against the CasaOS App
+  Store's compose-and-x-casaos spec. It is **not yet published** to the
+  official store — that requires building and pushing the two images it
+  references (`ghcr.io/raktim94/kinetirx-backend` and
+  `kinetirx-frontend`) to a registry first, then opening a PR against
+  [`IceWhaleTech/CasaOS-AppStore`](https://github.com/IceWhaleTech/CasaOS-AppStore).
+- **Installing today, before it's in the store:** CasaOS's "Custom
+  Install" / import-a-compose-file feature accepts
+  `deploy/casaos-manifest.yml` directly — paste its contents in, confirm the
+  pre-filled WebUI port/volume/env fields (pulled from the `x-casaos`
+  block), and install.
+- Category: `Productivity` · Architectures: `amd64`, `arm64`.
 
 ## Development setup
 
@@ -140,9 +207,54 @@ Other scripts: `npm run build` (production build), `npm run preview` (serve the 
 Secrets are never committed — `.env` files are gitignored; only the
 `.env.example` templates are tracked.
 
-## Screenshots
+## Architecture
 
-Screenshots coming soon.
+```
+┌─────────────┐        ┌──────────────────┐        ┌─────────────┐
+│   Browser   │──HTTP─▶│  frontend (nginx) │──/api─▶│   backend   │──▶  PostgreSQL
+│   (React    │        │  serves the SPA,  │        │  (Go + Gin, │      (data of
+│   19 SPA)   │◀───────│  reverse-proxies  │◀───────│  JWT auth)  │       record)
+└─────────────┘        │  /api/* same-     │        └──────┬──────┘
+                        │  origin           │               │
+                        └──────────────────┘               ▼
+                                                     Google Gemini
+                                                (optional — OCR + AI assistant,
+                                                 falls back offline if unset)
+```
+
+The frontend never talks to the backend cross-origin in production: nginx
+proxies `/api/*` to the backend container over the internal Compose network,
+so the browser only ever sees one origin. The backend is the sole source of
+truth for authorization — every route (bar health-check and login) checks
+the caller's JWT and role/permissions server-side, regardless of what the
+SPA renders.
+
+## MCP server (AI assistant integration)
+
+`mcp-server/` is a [Model Context Protocol](https://modelcontextprotocol.io)
+server that lets an MCP-aware AI assistant (Claude Desktop, Claude Code,
+etc.) operate a running KinetiRx instance through tool calls — inventory
+lookup, patient/due-khata lookup, daily register, recording sales/expenses,
+and more. See [`mcp-server/README.md`](mcp-server/README.md) for the full
+tool list and a ready-to-paste client config. It's gated behind the `mcp`
+Compose profile (not part of the always-on stack) since it speaks MCP over
+stdio, not a network port:
+
+```bash
+docker compose -f deploy/docker-compose.yml --env-file deploy/.env \
+  --profile mcp run --rm -T mcp-server
+```
+
+## Security notes
+
+- Passwords are bcrypt-hashed; nothing sensitive is logged.
+- JWT access tokens are the only auth mechanism — every non-public route is
+  authorized server-side against the caller's role/permissions.
+- Postgres is never published to the host in the Docker Compose or CasaOS
+  deployment paths — only reachable from other containers on the same
+  Compose network.
+- There is currently no password-reset flow for the seeded admin account —
+  store `KINETIRX_ADMIN_PASSWORD` somewhere safe before first boot.
 
 ## Documentation
 
@@ -154,3 +266,14 @@ Screenshots coming soon.
 No license file is currently included in this repository — all rights
 reserved by default until one is added. Contact the maintainer before reuse
 or redistribution.
+
+---
+
+<p align="center">
+  <sub>
+    <img src="assets/branding/logo.png" alt="" width="16" height="16" style="vertical-align:middle;border-radius:3px" />
+    KinetiRx · made by
+    <a href="https://www.nodedr.com">Nodedr Infotech Private Limited</a>
+    · <a href="https://kinetirx.nodedr.com">kinetirx.nodedr.com</a>
+  </sub>
+</p>

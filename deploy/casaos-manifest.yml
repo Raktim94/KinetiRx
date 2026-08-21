@@ -113,12 +113,16 @@ x-casaos:
     - amd64
     - arm64
   main: kinetirx-frontend
-  category: Business
+  category: Productivity
   author: Raktim94
   developer: Raktim94
   icon: https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/icon.png
-  screenshot_link: []
-  thumbnail: ""
+  screenshot_link:
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/dashboard.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/pos.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/inventory.png
+    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/patients.png
+  thumbnail: https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/thumbnail.png
   title:
     en_us: KinetiRx
   tagline:

@@ -1,0 +1,127 @@
+# KinetiRx (Pharma Care Pro) — full stack: Postgres + Go backend + nginx-served React SPA.
+#
+# Usage:
+#   cp deploy/.env.example deploy/.env   # then fill in real secrets
+#   docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
+#
+# Ports on the host:
+#   - Frontend (the app you actually visit):  http://localhost:${HTTP_PORT:-3080}
+#   - Backend API (direct access, e.g. for curl/health checks/admin scripts):
+#     http://localhost:${BACKEND_PORT:-8080}
+#   Both are distinct on purpose — the frontend container's nginx also
+#   reverse-proxies /api/* to the backend service internally over the
+#   Compose network (frontend/nginx.conf), so the browser never needs the
+#   backend's port directly; it's published separately only for direct
+#   operator/verification access (curl, admin tooling, etc.).
+#
+# Postgres is NOT published to the host by default — only reachable from
+# other containers on this Compose network — since it has no reason to be
+# internet- or host-reachable in a normal deployment.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kinetirx}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-kinetirx}
+    volumes:
+      - kinetirx_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kinetirx} -d ${POSTGRES_DB:-kinetirx}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-kinetirx}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kinetirx}?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      KINETIRX_ADMIN_PASSWORD: ${KINETIRX_ADMIN_PASSWORD:?KINETIRX_ADMIN_PASSWORD is required on first boot to seed the admin account}
+      PORT: 8080
+      GIN_MODE: ${GIN_MODE:-release}
+      # The frontend is same-origin from the browser's point of view (nginx
+      # proxies /api there), so it never sends a browser Origin header that
+      # needs CORS allowance for normal use. localhost:${HTTP_PORT} is
+      # allowed anyway for direct-to-backend testing/debugging from a
+      # browser (e.g. hitting :8080 directly during development).
+      ALLOWED_ORIGINS: http://localhost:${HTTP_PORT:-3080},http://localhost:${BACKEND_PORT:-8080}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+      args:
+        # Empty on purpose: keeps the SPA's API calls same-origin-relative
+        # (/api/...) so nginx's reverse proxy (frontend/nginx.conf) handles
+        # them — see the comment in frontend/src/lib/api.ts. Override only
+        # if the frontend will be served from a different origin than the
+        # backend and can't route through this nginx proxy.
+        VITE_API_URL: ""
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${HTTP_PORT:-3080}:80"
+
+  # MCP (Model Context Protocol) server — lets an MCP-aware AI assistant
+  # (e.g. Claude) operate this pharmacy instance through tool calls
+  # (inventory lookup, patient/due-khata lookup, daily register, recording
+  # sales/expenses, etc). See ../mcp-server/README.md for the full tool list.
+  #
+  # Deliberately NOT part of the always-on stack: this server speaks MCP
+  # over stdio (stdin/stdout), not a network protocol — an MCP client
+  # launches it as a subprocess and talks to it over that single pipe, the
+  # same way it would launch a local binary. There is nothing here for a
+  # `ports:` mapping or HEALTHCHECK to attach to, and running it detached
+  # under `restart: unless-stopped` would just spin up a process whose
+  # stdin is immediately closed, with no client ever connected to its
+  # stdout. It is gated behind the "mcp" Compose profile so a plain
+  # `docker compose up` (postgres+backend+frontend) is completely
+  # unaffected; invoke it on demand instead:
+  #
+  #   docker compose -f deploy/docker-compose.yml --env-file deploy/.env \
+  #     --profile mcp run --rm -T mcp-server
+  #
+  # (`-T` disables Compose's pseudo-TTY allocation so stdin/stdout stay a
+  # clean, unbuffered JSON-RPC stream — required for MCP to work at all.)
+  # Point an MCP client (Claude Desktop/Code) at exactly that command; see
+  # the README for a ready-to-paste client config snippet.
+  mcp-server:
+    profiles: ["mcp"]
+    build:
+      context: ../mcp-server
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      # Internal compose network address — same-network container-to-container
+      # call, not the host-published BACKEND_PORT.
+      KINETIRX_API_URL: http://backend:8080
+      KINETIRX_MCP_USERNAME: ${KINETIRX_MCP_USERNAME:-EMP-ADMIN-1}
+      KINETIRX_MCP_PASSWORD: ${KINETIRX_MCP_PASSWORD:?KINETIRX_MCP_PASSWORD is required to run the mcp-server profile}
+    stdin_open: true
+    tty: false
+
+volumes:
+  kinetirx_postgres_data:

@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS invoice_config;
+DROP TABLE IF EXISTS daily_register;
+DROP TABLE IF EXISTS worksheet_tasks;
+DROP TABLE IF EXISTS marketing_campaigns;
+DROP TABLE IF EXISTS opd_visits;
+DROP TABLE IF EXISTS needed_meds;
+DROP TABLE IF EXISTS expenses;
+DROP TABLE IF EXISTS sales_history;
+DROP TABLE IF EXISTS patients_due;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS medicines;
+DROP TABLE IF EXISTS distributors;
+DROP TABLE IF EXISTS employees;

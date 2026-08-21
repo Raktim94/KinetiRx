@@ -1,0 +1,20 @@
+# Local environment configuration — never commit real secrets.
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/bin/
+/dist/
+kinetirx-server
+*.exe
+
+# Go
+*.test
+*.out
+vendor/
+
+# Editor / OS cruft
+.DS_Store
+.idea/
+.vscode/

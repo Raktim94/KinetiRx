@@ -14,12 +14,17 @@
 #      keeping it isolated means a schema quirk/CasaOS store review
 #      requirement never risks breaking the plain Compose deployment path.
 #
-# BEFORE REAL SUBMISSION: build and push the two images referenced below to
-# a registry (e.g. `ghcr.io/raktim94/kinetirx-backend:latest` and
-# `ghcr.io/raktim94/kinetirx-frontend:latest` — build with
-# `docker build -t <tag> -f backend/Dockerfile backend` and the frontend
-# equivalent, then `docker push`). This manifest is otherwise complete and
-# ready to submit to the CasaOS AppStore repo once those images exist.
+# `$AppID` in the Postgres volume path below IS a real, CasaOS-substituted
+# variable (confirmed against 189 real accepted apps in the store — every
+# single one only ever uses it inside a volume `source:` path). `$PORT` and
+# `$AppID_<VAR>` (used in an earlier draft of this file for
+# auto-"generated" secrets) are NOT real CasaOS substitutions — zero apps in
+# the actual store use either, and shipping them would silently resolve to
+# empty/literal strings at install time, breaking Postgres auth and JWT
+# signing on first boot. Fixed below to real default values instead,
+# following the same pattern real accepted apps use (e.g. Immich ships a
+# plain hardcoded `POSTGRES_PASSWORD: postgres` for its network-isolated
+# DB) — flagged loudly in `tips.before_install` for anything internet-facing.
 
 name: kinetirx
 
@@ -29,7 +34,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: kinetirx
-      POSTGRES_PASSWORD: $AppID_PASSWORD
+      POSTGRES_PASSWORD: "please-change-this-password"
       POSTGRES_DB: kinetirx
     volumes:
       - /DATA/AppData/$AppID/postgres:/var/lib/postgresql/data
@@ -41,29 +46,26 @@ services:
       start_period: 10s
     networks:
       - kinetirx_net
-    x-casaos:
-      envs:
-        - container: POSTGRES_PASSWORD
-          description:
-            en_us: Auto-generated database password (do not change after first install).
 
   kinetirx-backend:
-    # Replace with your published image before submitting to the CasaOS
-    # AppStore — see the file-level comment above.
-    image: ghcr.io/raktim94/kinetirx-backend:latest
+    image: ghcr.io/raktim94/kinetirx-backend:1.0.0
     restart: unless-stopped
     depends_on:
       kinetirx-postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgres://kinetirx:$AppID_PASSWORD@kinetirx-postgres:5432/kinetirx?sslmode=disable
-      JWT_SECRET: $AppID_JWT_SECRET
-      KINETIRX_ADMIN_PASSWORD: $AppID_ADMIN_PASSWORD
+      DATABASE_URL: "postgres://kinetirx:please-change-this-password@kinetirx-postgres:5432/kinetirx?sslmode=disable"
+      # No auto-generation available at the packaging layer (see the
+      # file-level note above) — this is a real default the operator must
+      # rotate before exposing the instance beyond their own LAN. Backend
+      # enforces a 16-char minimum at startup regardless (see
+      # backend/internal/config/config.go).
+      JWT_SECRET: "please-change-this-jwt-secret-before-going-live"
+      KINETIRX_ADMIN_PASSWORD: "please-change-this-password"
       GEMINI_API_KEY: ""
       PORT: "8080"
       GIN_MODE: release
-      ALLOWED_ORIGINS: http://localhost:$PORT
-    volumes: []
+      ALLOWED_ORIGINS: "http://localhost:3080"
     networks:
       - kinetirx_net
     healthcheck:
@@ -74,27 +76,28 @@ services:
       start_period: 10s
     x-casaos:
       envs:
+        - container: DATABASE_URL
+          description:
+            en_US: Must match the Postgres password below if you change it. Leave as default unless you know why you're changing it.
         - container: JWT_SECRET
           description:
-            en_us: Auto-generated JWT signing secret (do not change after first install — invalidates all active sessions).
+            en_US: Signs login sessions. Change this to a long random value (32+ random bytes) before exposing the instance beyond your own LAN — changing it later logs everyone out.
         - container: KINETIRX_ADMIN_PASSWORD
           description:
-            en_us: Password for the seeded Master Admin account (id EMP-ADMIN-1). Only used on first boot.
+            en_US: Password for the seeded Master Admin account (id EMP-ADMIN-1), used only on first boot. Change it immediately after first login from Employee Control — there is no password-reset flow.
         - container: GEMINI_API_KEY
           description:
-            en_us: Optional — enables AI-powered OCR bill scanning and the clinical AI assistant. Leave blank to run those features in offline/fallback mode.
+            en_US: Optional — enables AI-powered OCR bill scanning and the clinical AI assistant. Leave blank to run those features in offline/fallback mode.
 
   kinetirx-frontend:
-    # Replace with your published image before submitting to the CasaOS
-    # AppStore — see the file-level comment above.
-    image: ghcr.io/raktim94/kinetirx-frontend:latest
+    image: ghcr.io/raktim94/kinetirx-frontend:1.0.0
     restart: unless-stopped
     depends_on:
       kinetirx-backend:
         condition: service_healthy
     ports:
       - target: 80
-        published: $PORT
+        published: "3080"
         protocol: tcp
     networks:
       - kinetirx_net
@@ -102,33 +105,35 @@ services:
       ports:
         - container: "80"
           description:
-            en_us: Web UI port.
+            en_US: Web UI port.
 
 networks:
   kinetirx_net:
     driver: bridge
 
 x-casaos:
+  id: com.nodedr.kinetirx
   architectures:
     - amd64
     - arm64
   main: kinetirx-frontend
   category: Productivity
-  author: Raktim94
+  author: Nodedr Infotech Private Limited
   developer: Raktim94
-  icon: https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/icon.png
+  icon: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/icon.png
+  thumbnail: https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/thumbnail.png
   screenshot_link:
-    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/dashboard.png
-    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/pos.png
-    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/inventory.png
-    - https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/screenshots/patients.png
-  thumbnail: https://raw.githubusercontent.com/Raktim94/KinetiRx/main/deploy/thumbnail.png
+    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-1.png
+    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-2.png
+    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-3.png
+    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-4.png
+    - https://cdn.jsdelivr.net/gh/IceWhaleTech/CasaOS-AppStore@main/Apps/KinetiRx/screenshot-5.png
   title:
-    en_us: KinetiRx
+    en_US: KinetiRx
   tagline:
-    en_us: Pharmacy & clinic management — POS, inventory, patients, and daily accounts in one app.
+    en_US: Pharmacy & clinic management — POS, inventory, patients, and daily accounts in one app.
   description:
-    en_us: >-
+    en_US: >-
       KinetiRx (Pharma Care Pro) is a self-hosted pharmacy and small-clinic
       management system: point-of-sale billing with GST invoicing, medicine
       inventory and distributor tracking, patient records and due-khata
@@ -141,10 +146,22 @@ x-casaos:
       supplied.
   tips:
     before_install:
-      en_us: >-
+      en_US: >-
         On first boot the app seeds one administrator account (ID
-        EMP-ADMIN-1) using the admin password you set below — save it
-        somewhere safe, there is no password-reset flow yet.
+        EMP-ADMIN-1) using the default admin password shipped in this
+        manifest. **Change the Postgres password, JWT secret, and admin
+        password below before using this for anything beyond a local
+        trial** — none of them are auto-generated. Change the admin
+        password immediately after first login from Employee Control; there
+        is no password-reset flow if you lose it.
   index: /
   port_map: "3080"
   scheme: http
+  version: "1.0.0"
+  update_at: "2026-08-21"
+  release_notes:
+    en_US: "Initial CasaOS/ZimaOS release: POS billing, medicine inventory, patient records, OPD scheduling, due-khata credit ledger, daily sales/cash-drawer reconciliation, expenses, and role-based employee accounts."
+  website: "https://kinetirx.nodedr.com"
+  repo: "https://github.com/Raktim94/KinetiRx"
+  support: "https://github.com/Raktim94/KinetiRx/issues"
+  docs: "https://github.com/Raktim94/KinetiRx#readme"

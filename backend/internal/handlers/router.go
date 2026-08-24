@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 
 	"kinetirx/backend/internal/middleware"
@@ -16,15 +18,23 @@ import (
 func RegisterRoutes(r *gin.Engine, d *Deps) {
 	r.GET("/api/health", d.Health)
 
+	// Login and first-run setup are unauthenticated by nature, which makes
+	// them the routes most exposed to brute-force/credential-stuffing —
+	// rate-limit them per IP on top of the generic-error-message defense
+	// already in Login.
+	loginLimit := middleware.RateLimit(10, time.Minute)
+	setupLimit := middleware.RateLimit(5, time.Minute)
+
 	api := r.Group("/api")
-	api.POST("/auth/login", d.Login)
+	api.POST("/auth/login", loginLimit, d.Login)
 	api.GET("/auth/setup-status", d.SetupStatus)
-	api.POST("/auth/setup", d.Setup)
+	api.POST("/auth/setup", setupLimit, d.Setup)
 
 	authed := api.Group("")
 	authed.Use(middleware.Authenticate(d.Tokens))
 	{
 		authed.GET("/auth/me", d.Me)
+		authed.PUT("/auth/password", middleware.RateLimit(10, time.Minute), d.ChangePassword)
 
 		// Medicines / inventory
 		inv := authed.Group("/medicines")
@@ -35,6 +45,17 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 			inv.POST("", d.CreateMedicine)
 			inv.PUT("/:id", d.UpdateMedicine)
 			inv.DELETE("/:id", d.DeleteMedicine)
+		}
+
+		// Medicine groups (managed picklist for medicines.group)
+		medGroups := authed.Group("/medicine-groups")
+		medGroups.Use(middleware.RequirePermission(models.TabType("inventory")))
+		{
+			medGroups.GET("", d.ListMedicineGroups)
+			medGroups.GET("/:id", d.GetMedicineGroup)
+			medGroups.POST("", d.CreateMedicineGroup)
+			medGroups.PUT("/:id", d.UpdateMedicineGroup)
+			medGroups.DELETE("/:id", d.DeleteMedicineGroup)
 		}
 
 		// Patients

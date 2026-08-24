@@ -6,6 +6,7 @@ import {
   IdCard,
   MapPin,
   MessageCircle,
+  Pencil,
   Phone,
   Plus,
   Search,
@@ -19,6 +20,7 @@ import {
 import { PatientRecord } from '../../types';
 import { exportToCSV, formatWhatsAppPhone } from '../../utils/exportCsv';
 import { AddPatientModal } from '../modals/AddPatientModal';
+import { EditPatientModal } from '../modals/EditPatientModal';
 
 interface PatientsTabProps {
   patients: PatientRecord[];
@@ -37,6 +39,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
+  const [patientToEdit, setPatientToEdit] = useState<PatientRecord | null>(null);
   const [filterDueOnly, setFilterDueOnly] = useState(false);
 
   const filtered = patients.filter(p => {
@@ -280,6 +283,15 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                         </button>
                         {setPatients && (
                           <button
+                            onClick={() => setPatientToEdit(p)}
+                            className="p-1.5 hover:bg-sky-500/20 text-slate-500 hover:text-sky-300 rounded-xl transition"
+                            title="Edit Patient Profile"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        {setPatients && (
+                          <button
                             onClick={() => handleDeletePatient(p.id, p.name)}
                             className="p-1.5 hover:bg-rose-500/20 text-slate-500 hover:text-rose-300 rounded-xl transition"
                             title="Delete Patient Record"
@@ -305,6 +317,18 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
         onSavePatient={newP => {
           if (setPatients) {
             setPatients(prev => [newP, ...prev]);
+          }
+        }}
+      />
+
+      {/* 5B. EDIT PATIENT MODAL */}
+      <EditPatientModal
+        isOpen={patientToEdit !== null}
+        onClose={() => setPatientToEdit(null)}
+        patient={patientToEdit}
+        onUpdatePatient={updated => {
+          if (setPatients) {
+            setPatients(prev => prev.map(p => (p.id === updated.id ? updated : p)));
           }
         }}
       />

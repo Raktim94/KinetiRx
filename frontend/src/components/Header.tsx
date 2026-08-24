@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, LogOut, Menu, Moon, PlusCircle, Sparkles, Sun, User, Zap } from 'lucide-react';
+import { Calendar, KeyRound, LogOut, Menu, Moon, PlusCircle, Sparkles, Sun, User, Zap } from 'lucide-react';
 import { CurrentUser, TabId } from '../types';
 import { useTheme } from '../hooks/useTheme';
 
@@ -12,6 +12,7 @@ interface HeaderProps {
   onOpenAddStock?: () => void;
   onOpenAIFinder?: () => void;
   onOpenLoginModal?: () => void;
+  onOpenChangePassword?: () => void;
   onLogout?: () => void;
   todayDate?: string;
 }
@@ -42,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAddStock,
   onOpenAIFinder,
   onOpenLoginModal,
+  onOpenChangePassword,
   onLogout,
   todayDate = new Date().toLocaleDateString('en-IN', {
     day: '2-digit',
@@ -57,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       id="app-header"
-      className="bg-surface/80 backdrop-blur-2xl border-b border-border px-4 sm:px-6 py-3 flex justify-between items-center shadow-lg shrink-0 z-20 text-text"
+      className="glass-panel-subtle border-b border-border px-4 sm:px-6 py-3 flex justify-between items-center shrink-0 z-20 text-text"
     >
       <div className="flex items-center space-x-3">
         {onOpenMobileMenu && (
@@ -90,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center space-x-2 sm:space-x-3">
+      <div className="flex items-center flex-wrap justify-end gap-2 sm:gap-3">
         {/* Theme Toggle */}
         <button
           id="theme-toggle-btn"
@@ -147,6 +149,20 @@ export const Header: React.FC<HeaderProps> = ({
             className="text-xs text-text-muted hover:text-text border border-border px-2.5 py-1.5 rounded-xl font-medium hover:bg-bg transition backdrop-blur-md cursor-pointer"
           >
             Switch User
+          </button>
+        )}
+
+        {/* Change Own Password — available to any signed-in employee, not
+            just from the admin-only Employee Control tab. */}
+        {onOpenChangePassword && (
+          <button
+            id="header-change-password-btn"
+            onClick={onOpenChangePassword}
+            title="Change your password"
+            aria-label="Change your password"
+            className="p-2 rounded-xl text-text-muted hover:text-primary border border-border hover:bg-bg transition cursor-pointer"
+          >
+            <KeyRound className="w-4 h-4" />
           </button>
         )}
 

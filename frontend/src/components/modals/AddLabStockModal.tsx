@@ -180,7 +180,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-elevated backdrop-blur-2xl rounded-3xl shadow-2xl max-w-2xl w-full p-6 space-y-4 border border-border text-xs text-text max-h-[92vh] overflow-y-auto animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-2xl w-full p-6 space-y-4 text-xs text-text max-h-[92vh] overflow-y-auto animate-in zoom-in-95">
         {/* Header */}
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">

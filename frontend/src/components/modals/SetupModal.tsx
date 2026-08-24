@@ -48,7 +48,7 @@ export const SetupModal: React.FC<SetupModalProps> = ({ onSetupSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-elevated backdrop-blur-2xl rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-4 border border-border text-xs text-text animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-sm w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">

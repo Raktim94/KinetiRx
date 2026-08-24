@@ -3,6 +3,7 @@ import {
   Clock,
   Download,
   FileCheck2,
+  Pencil,
   Phone,
   Plus,
   Search,
@@ -10,8 +11,9 @@ import {
   User,
   UserCheck,
 } from 'lucide-react';
-import { NeededMedOrder, PatientRecord } from '../../types';
+import { Distributor, NeededMedOrder, PatientRecord } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
+import { EditNeedMedModal } from '../modals/EditNeedMedModal';
 
 interface MedicineOrdersTabProps {
   neededMeds: NeededMedOrder[];
@@ -19,6 +21,7 @@ interface MedicineOrdersTabProps {
   onOpenAddNeedModal: () => void;
   patients?: PatientRecord[];
   onViewPatientProfile?: (p: PatientRecord) => void;
+  distributors?: Distributor[];
 }
 
 export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
@@ -27,9 +30,11 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
   onOpenAddNeedModal,
   patients = [],
   onViewPatientProfile,
+  distributors = [],
 }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [orderToEdit, setOrderToEdit] = useState<NeededMedOrder | null>(null);
 
   const handleUpdateStatus = (id: string, newStatus: NeededMedOrder['status']) => {
     setNeededMeds(prev =>
@@ -171,6 +176,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                 <th className="p-3.5 text-emerald-400 font-bold">Commitment Delivery Time</th>
                 <th className="p-3.5 text-center">Quantity</th>
                 <th className="p-3.5">Order Status</th>
+                <th className="p-3.5 text-center">Edit</th>
               </tr>
             </thead>
             <tbody id="need-med-rows" className="divide-y divide-border text-text">
@@ -250,6 +256,15 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                         <option value="Cancelled">Cancelled</option>
                       </select>
                     </td>
+                    <td className="p-3.5 text-center">
+                      <button
+                        onClick={() => setOrderToEdit(n)}
+                        className="p-1.5 hover:bg-sky-500/20 text-text-muted hover:text-sky-300 rounded-xl transition cursor-pointer"
+                        title="Edit Order"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -257,6 +272,14 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
           </table>
         </div>
       </div>
+
+      <EditNeedMedModal
+        isOpen={orderToEdit !== null}
+        onClose={() => setOrderToEdit(null)}
+        order={orderToEdit}
+        distributors={distributors}
+        onUpdateNeedMed={updated => setNeededMeds(prev => prev.map(o => (o.id === updated.id ? updated : o)))}
+      />
     </div>
   );
 };

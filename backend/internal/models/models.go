@@ -233,18 +233,31 @@ type Distributor struct {
 	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
+// MedicineGroup is a managed picklist entry (e.g. "Dr. Sayan Majumdar") that
+// backs Medicine.Group — labeled "Doctor Specific Group" in the UI — which
+// stays free-text on the medicine itself.
+type MedicineGroup struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // Employee is a staff account. PasswordHash/PinHash are never serialized to JSON.
 type Employee struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Desig        string    `json:"desig"`
-	PasswordHash string    `json:"-"`
-	Phone        *string   `json:"phone,omitempty"`
-	Role         string    `json:"role"`
-	PinHash      *string   `json:"-"`
-	Permissions  []string  `json:"permissions"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Desig        string   `json:"desig"`
+	PasswordHash string   `json:"-"`
+	Phone        *string  `json:"phone,omitempty"`
+	Role         string   `json:"role"`
+	PinHash      *string  `json:"-"`
+	Permissions  []string `json:"permissions"`
+	// MustChangePassword is set true whenever an admin creates or resets this
+	// employee's password, forcing them to pick their own on next login.
+	MustChangePassword bool      `json:"mustChangePassword"`
+	CreatedAt          time.Time `json:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt"`
 }
 
 // InvoiceConfig is the singleton-per-org invoice/branding configuration.

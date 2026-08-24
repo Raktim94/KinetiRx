@@ -50,7 +50,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface/90 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-border text-xs text-text animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-md w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400">

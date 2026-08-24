@@ -64,7 +64,7 @@ Request:
 Response `201`: same shape as `POST /api/auth/login`'s `200`.
 
 ### `POST /api/auth/login`
-No auth required.
+No auth required. Rate-limited per IP (10 requests/minute) against brute-force.
 
 Request:
 ```json
@@ -82,11 +82,17 @@ Response `200`:
     "name": "Master Admin",
     "desig": "Director & Admin",
     "role": "admin",
-    "permissions": ["dashboard", "pos", "..."]
+    "permissions": ["dashboard", "pos", "..."],
+    "mustChangePassword": false
   }
 }
 ```
 `401 unauthorized` for any wrong identifier or password (identical error for both, to prevent account enumeration).
+
+`mustChangePassword: true` means this account's current password was set by
+an admin (on create, or via a reset through `PUT /api/employees/:id`) and is
+treated as temporary — the frontend blocks the rest of the app behind a
+forced password-change screen until `PUT /api/auth/password` is called.
 
 ### `GET /api/auth/me`
 Auth required (any authenticated employee). Re-reads the employee record from
@@ -98,6 +104,21 @@ Response `200`: same `user` shape as login's `user` field.
 
 Access tokens expire after **12 hours**. There is no refresh-token endpoint
 in this version — the client must re-login after expiry.
+
+### `PUT /api/auth/password`
+Auth required (any authenticated employee — self-service only, no admin
+override; identity comes from the JWT, never from the request body). Rate-
+limited per IP (10 requests/minute).
+
+Request:
+```json
+{ "currentPassword": "plaintext", "newPassword": "plaintext (min 8 chars)" }
+```
+
+Verifies `currentPassword` against the caller's own stored hash before
+accepting the change (a valid-but-hijacked session token alone isn't
+enough). On success, clears `mustChangePassword` and responds `204`.
+`401 unauthorized` if `currentPassword` doesn't match.
 
 ---
 
@@ -415,17 +436,49 @@ Create request:
 }
 ```
 Update request: same shape, but `password`/`pin` are only changed if
-non-empty — omit them to leave the existing credentials untouched.
+non-empty — omit them to leave the existing credentials untouched. Setting a
+new `password` here (an admin resetting someone else's password) marks it
+temporary the same as create does — see `mustChangePassword` below.
 
 Response (both, and GET):
 ```json
 {
   "id": "string", "name": "string", "desig": "string", "phone": "string | null",
-  "role": "string", "permissions": ["string"], "createdAt": "...", "updatedAt": "..."
+  "role": "string", "permissions": ["string"], "mustChangePassword": true,
+  "createdAt": "...", "updatedAt": "..."
 }
 ```
 `password`/`pin` are **never** returned — the underlying bcrypt hashes are
 marked `json:"-"` in the Go model and cannot leak through this or any other endpoint.
+
+`mustChangePassword` is always `true` on create, and set back to `true`
+whenever an admin sets a new `password` via update — it's cleared only by
+the employee themselves via `PUT /api/auth/password`.
+
+---
+
+## Medicine Groups — `/api/medicine-groups`
+Permission: `inventory` (or `admin` role). A managed picklist backing
+`medicines.group` (labeled "Doctor Specific Group" in the UI — e.g. tagging
+stock tied to a particular prescribing doctor's preference); `medicines.group`
+itself stays free-text with no FK, so this is purely picker/management UI.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/medicine-groups` | List all, ordered by name |
+| GET | `/api/medicine-groups/:id` | Get one |
+| POST | `/api/medicine-groups` | Create |
+| PUT | `/api/medicine-groups/:id` | Rename |
+| DELETE | `/api/medicine-groups/:id` | Delete |
+
+```json
+{
+  "id": "string (optional on create)", "name": "string (required, unique)",
+  "createdAt": "...", "updatedAt": "..."
+}
+```
+Seeded on first migration with the values already in use before this list
+was admin-managed: `General`, `Dr. Sayan Majumdar`, `Dr. T.K. Khan`.
 
 Safety rails (all return `409 conflict`):
 - Cannot delete or demote (`role` != `admin`) the **last remaining** admin account.

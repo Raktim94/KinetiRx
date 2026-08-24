@@ -12,6 +12,7 @@ import {
   InvoiceConfig,
   MarketingCampaign,
   Medicine,
+  MedicineGroup,
   NeededMedOrder,
   OPDVisit,
   PatientDue,
@@ -212,6 +213,7 @@ function crud<T extends { id?: string }>(basePath: string): CrudClient<T> {
 }
 
 export const medicinesApi = crud<Medicine>('/api/medicines');
+export const medicineGroupsApi = crud<MedicineGroup>('/api/medicine-groups');
 export const patientsApi = crud<PatientRecord>('/api/patients');
 export const dueKhataApi = crud<PatientDue>('/api/due-khata');
 
@@ -345,6 +347,7 @@ export interface AuthUser {
   desig?: string;
   role: 'admin' | string;
   permissions: TabType[];
+  mustChangePassword?: boolean;
 }
 
 export interface LoginResponse {
@@ -365,6 +368,11 @@ export const authApi = {
     request<LoginResponse>('/api/auth/setup', {
       method: 'POST',
       body: JSON.stringify({ name, password }),
+    }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<void>('/api/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword }),
     }),
 };
 

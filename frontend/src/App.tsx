@@ -20,6 +20,8 @@ import {
 import {
   AddStockModal,
 } from './components/modals/AddStockModal';
+import { ManageMedicineGroupsModal } from './components/modals/ManageMedicineGroupsModal';
+import { LowStockReorderModal } from './components/modals/LowStockReorderModal';
 import {
   AIFinderModal,
 } from './components/modals/AIFinderModal';
@@ -37,6 +39,7 @@ import {
 import {
   LoginModal,
 } from './components/modals/LoginModal';
+import { ForcedPasswordChangeScreen } from './components/ForcedPasswordChangeScreen';
 import {
   SetupModal,
 } from './components/modals/SetupModal';
@@ -101,6 +104,7 @@ import {
   InvoicePrintData,
   MarketingCampaign,
   Medicine,
+  MedicineGroup,
   NeededMedOrder,
   OPDVisit,
   OrganizationOnboardingData,
@@ -125,6 +129,7 @@ import {
   getToken,
   invoiceConfigApi,
   marketingCampaignsApi,
+  medicineGroupsApi,
   medicinesApi,
   neededMedsApi,
   opdVisitsApi,
@@ -291,6 +296,7 @@ export function App() {
   // create/update/delete REST call.
   // ---------------------------------------------------------------------
   const [medicines, setMedicines, setMedicinesRaw] = useSyncedList<Medicine>(medicinesApi, showError);
+  const [medicineGroups, setMedicineGroups, setMedicineGroupsRaw] = useSyncedList<MedicineGroup>(medicineGroupsApi, showError);
   const [distributors, setDistributors, setDistributorsRaw] = useSyncedList<Distributor>(distributorsApi, showError);
   const [patients, setPatients, setPatientsRaw] = useSyncedList<PatientRecord>(patientsApi, showError);
   // NOTE: `patientsDue` is, at runtime, actually shaped like PatientRecord
@@ -361,6 +367,7 @@ export function App() {
 
     Promise.allSettled([
       safeList(medicinesApi.list, setMedicinesRaw, 'medicines'),
+      safeList(medicineGroupsApi.list, setMedicineGroupsRaw, 'medicine groups'),
       safeList(distributorsApi.list, setDistributorsRaw, 'distributors'),
       safeList(patientsApi.list, setPatientsRaw, 'patients'),
       safeList(dueKhataAsPatientRecordApi.list, setPatientsDueRaw, 'due khata'),
@@ -388,6 +395,7 @@ export function App() {
   useEffect(() => {
     if (prevUserRef.current && !currentUser) {
       setMedicinesRaw([]);
+      setMedicineGroupsRaw([]);
       setDistributorsRaw([]);
       setPatientsRaw([]);
       setPatientsDueRaw([]);
@@ -417,6 +425,8 @@ export function App() {
   const [aiFinderQuery, setAiFinderQuery] = useState('');
   const [distributorModalOpen, setDistributorModalOpen] = useState(false);
   const [addStockModalOpen, setAddStockModalOpen] = useState(false);
+  const [manageGroupsModalOpen, setManageGroupsModalOpen] = useState(false);
+  const [lowStockReorderModalOpen, setLowStockReorderModalOpen] = useState(false);
   const [addLabStockModalOpen, setAddLabStockModalOpen] = useState(false);
   const [addNeedMedModalOpen, setAddNeedMedModalOpen] = useState(false);
   const [prefillNeedMed, setPrefillNeedMed] = useState('');
@@ -818,6 +828,16 @@ export function App() {
     );
   }
 
+  if (currentUser.mustChangePassword) {
+    return (
+      <ForcedPasswordChangeScreen
+        currentUser={currentUser}
+        onPasswordChanged={() => setCurrentUser({ ...currentUser, mustChangePassword: false })}
+        onLogout={handleLogout}
+      />
+    );
+  }
+
   if (dataLoading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-bg text-text">
@@ -859,6 +879,7 @@ export function App() {
             setAiFinderOpen(true);
           }}
           onOpenLoginModal={() => setLoginModalOpen(true)}
+          onOpenChangePassword={() => setChangeAdminPassModalOpen(true)}
           onLogout={handleLogout}
           currentUserName={currentUser.name}
         />
@@ -939,6 +960,7 @@ export function App() {
               <MedicineOrdersTab
                 neededMeds={neededMeds}
                 setNeededMeds={setNeededMeds}
+                distributors={distributors}
                 patients={patients}
                 onViewPatientProfile={p => {
                   setSelectedPatientForCV(p);
@@ -959,6 +981,8 @@ export function App() {
                 onOpenAddStockModal={() => setAddStockModalOpen(true)}
                 onOpenAddLabStockModal={() => setAddLabStockModalOpen(true)}
                 onOpenDistributorsModal={() => setDistributorModalOpen(true)}
+                onOpenManageGroupsModal={() => setManageGroupsModalOpen(true)}
+                onOpenLowStockReorderModal={() => setLowStockReorderModalOpen(true)}
               />
             )}
 
@@ -1035,9 +1059,18 @@ export function App() {
                   setEditEmployeeModalOpen(true);
                 }}
                 onOpenChangeAdminPassModal={() => setChangeAdminPassModalOpen(true)}
-                onDeleteEmployee={id => {
-                  if (confirm('Are you sure you want to remove this employee?')) {
-                    setEmployees(prev => prev.filter(e => e.id !== id));
+                onDeleteEmployee={async id => {
+                  if (!confirm('Are you sure you want to remove this employee?')) return;
+                  try {
+                    // employeesApi.remove already performs the real DELETE here — update
+                    // local state with the Raw setter (no diffing) so it isn't re-sent.
+                    await employeesApi.remove(id);
+                    setEmployeesRaw(prev => prev.filter(e => e.id !== id));
+                  } catch (err) {
+                    showError(
+                      err instanceof ApiError ? err.describe() : 'Could not reach the KinetiRx server. Check your connection and try again.',
+                      err
+                    );
                   }
                 }}
               />
@@ -1116,7 +1149,25 @@ export function App() {
         onClose={() => setAddStockModalOpen(false)}
         distributors={distributors}
         setDistributors={setDistributors}
+        medicineGroups={medicineGroups}
         onSaveMedicine={m => setMedicines(prev => [m, ...prev])}
+      />
+
+      {/* 4C. Manage Doctor / Stock Groups Modal */}
+      <ManageMedicineGroupsModal
+        isOpen={manageGroupsModalOpen}
+        onClose={() => setManageGroupsModalOpen(false)}
+        groups={medicineGroups}
+        setGroups={setMedicineGroups}
+      />
+
+      {/* 4D. Low Stock Bulk Reorder Modal */}
+      <LowStockReorderModal
+        isOpen={lowStockReorderModalOpen}
+        onClose={() => setLowStockReorderModalOpen(false)}
+        medicines={medicines}
+        distributors={distributors}
+        onCreateNeededMeds={orders => setNeededMeds(prev => [...orders, ...prev])}
       />
 
       {/* 4B. Add New Lab Stock / Test Modal */}
@@ -1203,11 +1254,14 @@ export function App() {
         }}
       />
 
-      {/* 10. Employee Add / Edit Modals */}
+      {/* 10. Employee Add / Edit Modals — both call the API themselves and
+          hand back the server-confirmed record, so wire them to the Raw
+          setter (no diffing) instead of the syncing one to avoid re-POSTing
+          / re-PUTting what's already persisted. */}
       <AddEmployeeModal
         isOpen={addEmployeeModalOpen}
         onClose={() => setAddEmployeeModalOpen(false)}
-        onSaveEmployee={emp => setEmployees(prev => [emp, ...prev])}
+        onSaveEmployee={emp => setEmployeesRaw(prev => [emp, ...prev])}
       />
 
       <EditEmployeeModal
@@ -1218,7 +1272,7 @@ export function App() {
         }}
         emp={empToEdit}
         onUpdateEmployee={emp => {
-          setEmployees(prev => prev.map(e => (e.id === emp.id ? emp : e)));
+          setEmployeesRaw(prev => prev.map(e => (e.id === emp.id ? emp : e)));
         }}
       />
 
@@ -1226,7 +1280,6 @@ export function App() {
       <ChangeAdminPassModal
         isOpen={changeAdminPassModalOpen}
         onClose={() => setChangeAdminPassModalOpen(false)}
-        currentUserId={currentUser.id}
       />
 
       {/* 12. Switch User / Login Modal */}

@@ -24,11 +24,11 @@ type employeeInput struct {
 	Permissions []string `json:"permissions"`
 }
 
-const employeeColumns = `id, name, desig, phone, role, permissions, created_at, updated_at`
+const employeeColumns = `id, name, desig, phone, role, permissions, must_change_password, created_at, updated_at`
 
 func scanEmployee(row pgx.Row) (models.Employee, error) {
 	var e models.Employee
-	err := row.Scan(&e.ID, &e.Name, &e.Desig, &e.Phone, &e.Role, &e.Permissions, &e.CreatedAt, &e.UpdatedAt)
+	err := row.Scan(&e.ID, &e.Name, &e.Desig, &e.Phone, &e.Role, &e.Permissions, &e.MustChangePassword, &e.CreatedAt, &e.UpdatedAt)
 	return e, err
 }
 
@@ -130,8 +130,8 @@ func (d *Deps) CreateEmployee(c *gin.Context) {
 	}
 
 	row := d.DB.QueryRow(c.Request.Context(),
-		`INSERT INTO employees (id, name, desig, password_hash, phone, role, pin_hash, permissions)
-		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING `+employeeColumns,
+		`INSERT INTO employees (id, name, desig, password_hash, phone, role, pin_hash, permissions, must_change_password)
+		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,true) RETURNING `+employeeColumns,
 		id, in.Name, in.Desig, passwordHash, in.Phone, in.Role, pinHash, in.Permissions)
 	e, err := scanEmployee(row)
 	if err != nil {
@@ -196,7 +196,10 @@ func (d *Deps) UpdateEmployee(c *gin.Context) {
 			httpx.Internal(c, "Failed to hash password")
 			return
 		}
-		if _, err := d.DB.Exec(ctx, `UPDATE employees SET password_hash = $2, updated_at = now() WHERE id = $1`, id, passwordHash); err != nil {
+		// A password set here is an admin resetting it for someone else, so
+		// treat it the same as account creation: it's temporary until the
+		// employee picks their own via PUT /api/auth/password.
+		if _, err := d.DB.Exec(ctx, `UPDATE employees SET password_hash = $2, must_change_password = true, updated_at = now() WHERE id = $1`, id, passwordHash); err != nil {
 			httpx.Internal(c, "Failed to update password")
 			return
 		}

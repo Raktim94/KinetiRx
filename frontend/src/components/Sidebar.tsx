@@ -98,12 +98,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <aside
         id="app-sidebar"
-        className={`fixed lg:static top-0 left-0 bottom-0 z-40 w-72 bg-surface backdrop-blur-2xl border-r border-border text-text-muted flex flex-col shrink-0 transition-transform duration-200 ease-in-out ${
+        className={`glass-panel-subtle glass-sheen fixed lg:static top-0 left-0 bottom-0 z-40 w-72 border-r border-border text-text-muted flex flex-col shrink-0 transition-transform duration-200 ease-in-out ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Brand Header */}
-        <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface">
+        <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <img
               src="/logo.png"
@@ -447,7 +447,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Sidebar Footer with Switch User Button */}
-        <div className="p-3 border-t border-border bg-surface backdrop-blur-md text-[11px] flex items-center justify-between">
+        <div className="p-3 border-t border-border text-[11px] flex items-center justify-between">
           {onOpenSwitchUser && (
             <button
               id="switch-user-btn"
@@ -468,7 +468,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           href="https://kinetirx.nodedr.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="block px-4 py-2.5 border-t border-border bg-surface text-center text-[11px] leading-tight text-text-muted/70 hover:text-text-muted hover:underline transition"
+          className="block px-4 py-2.5 border-t border-border text-center text-[11px] leading-tight text-text-muted/70 hover:text-text-muted hover:underline transition"
         >
           KinetiRx · made by Nodedr Infotech Private Limited
         </a>

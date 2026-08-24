@@ -242,7 +242,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
       <div
-        className={`bg-surface-elevated backdrop-blur-2xl rounded-3xl shadow-2xl w-full p-6 space-y-4 border border-border max-h-[92vh] overflow-y-auto text-xs text-text animate-in zoom-in-95 transition-all duration-300 ${
+        className={`glass-panel rounded-3xl w-full p-6 space-y-4 max-h-[92vh] overflow-y-auto text-xs text-text animate-in zoom-in-95 transition-all duration-300 ${
           cleanInvoiceOnly ? 'max-w-3xl' : 'max-w-2xl'
         }`}
       >

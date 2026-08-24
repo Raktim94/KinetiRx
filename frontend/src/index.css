@@ -30,6 +30,11 @@
   --color-danger: #e11d48;
   /* Not exposed as a Tailwind utility; used directly via bg-[var(--color-overlay)] */
   --color-overlay: rgb(15 23 42 / 0.6);
+  /* Glass material tokens — see the .glass-panel family below. */
+  --glass-tint: var(--color-surface);
+  --glass-highlight: rgb(255 255 255 / 0.65);
+  --glass-shadow: rgb(15 23 42 / 0.16);
+  --glass-shadow-soft: rgb(15 23 42 / 0.08);
 }
 
 .dark {
@@ -47,6 +52,10 @@
   --color-warning: #fbbf24;
   --color-danger: #fb7185;
   --color-overlay: rgb(0 0 0 / 0.7);
+  --glass-tint: var(--color-surface-elevated);
+  --glass-highlight: rgb(255 255 255 / 0.08);
+  --glass-shadow: rgb(0 0 0 / 0.55);
+  --glass-shadow-soft: rgb(0 0 0 / 0.3);
 }
 
 @theme inline {
@@ -89,37 +98,93 @@
   background: var(--color-text-muted);
 }
 
-/* Glass helper utilities — token-based so they render correctly in both themes */
-.glass-panel {
-  background-color: var(--color-surface);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--color-border);
-}
+/*
+  Glass material — token-based so it renders correctly in both themes.
+  Wrapped in @layer utilities so it participates in Tailwind's cascade
+  layers correctly: unlayered CSS always beats layered CSS regardless of
+  source order or specificity, which previously made these rules silently
+  override Tailwind utilities like `fixed` or `border-t-0` on any element
+  that combined them (that's exactly what broke the mobile sidebar — see
+  git history — `.glass-sheen`'s unlayered `position: relative` was beating
+  Tailwind's layered `.fixed`, turning a fixed off-screen sidebar back into
+  a normal-flow 288px-wide flex child).
 
-.glass-panel-subtle {
-  background-color: var(--color-surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--color-border);
-}
+  The previous version also set a fully opaque background-color behind
+  backdrop-filter: blur(), which gave blur() nothing to actually blur —
+  visually indistinguishable from a plain card. Real depth here comes from
+  three things layered together, all token-driven:
+    1. Genuine translucency (color-mix against transparent, not a solid hex)
+       so blur has something behind it to soften.
+    2. saturate() alongside blur() — boosts the color of whatever shows
+       through, the actual source of "vibrancy" in frosted-glass materials.
+    3. An inset top highlight + layered outer shadow, standing in for a
+       light source catching the upper edge of a physical pane.
+  Reserve .glass-sheen (a soft top-left light catch) for one or two hero
+  surfaces per screen — applied everywhere it stops reading as intentional.
 
-.glass-input {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
+  .glass-panel-subtle deliberately does NOT set `border` (unlike
+  .glass-panel) — it's used on structural chrome (header/sidebar) that only
+  wants a border on one side, which the consumer sets itself via an
+  ordinary `border-b`/`border-r` Tailwind utility; a shorthand `border` here
+  would fight that the same way `position` did above. .glass-sheen also
+  deliberately does NOT set `position` — the host element must already be
+  `relative`/`fixed`/`absolute`/`sticky` itself (add a plain `relative`
+  utility alongside it if it isn't already positioned some other way).
+*/
+@layer utilities {
+  .glass-panel {
+    background-color: color-mix(in srgb, var(--glass-tint) 78%, transparent);
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    border: 1px solid var(--color-border);
+    box-shadow:
+      0 24px 60px -20px var(--glass-shadow),
+      0 8px 24px -12px var(--glass-shadow-soft),
+      inset 0 1px 0 0 var(--glass-highlight);
+  }
 
-.glass-input:focus {
-  border-color: var(--color-primary);
-  outline: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
-}
+  .glass-panel-subtle {
+    background-color: color-mix(in srgb, var(--glass-tint) 62%, transparent);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
+  }
 
-.glass-card-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.glass-card-hover:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
+  .glass-input {
+    background-color: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+  }
+
+  .glass-input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
+  }
+
+  .glass-card-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glass-card-hover:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+  }
+
+  /* The one recurring "signature" glass cue — a faint light catching the
+     upper-left of a pane. Apply to a handful of hero surfaces (the login
+     card, the sidebar), never as a blanket rule on every panel. */
+  .glass-sheen {
+    overflow: hidden;
+  }
+  .glass-sheen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      120% 90% at 12% -10%,
+      color-mix(in srgb, var(--glass-highlight) 70%, transparent) 0%,
+      transparent 55%
+    );
+  }
 }

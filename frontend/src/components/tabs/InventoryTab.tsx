@@ -8,8 +8,10 @@ import {
   FlaskConical,
   Plus,
   Search,
+  ShoppingCart,
   Sparkles,
   Stethoscope,
+  Tags,
   Trash2,
   Truck,
 } from 'lucide-react';
@@ -22,6 +24,8 @@ interface InventoryTabProps {
   onOpenAddStockModal: () => void;
   onOpenAddLabStockModal: () => void;
   onOpenDistributorsModal: () => void;
+  onOpenManageGroupsModal: () => void;
+  onOpenLowStockReorderModal: () => void;
 }
 
 export const InventoryTab: React.FC<InventoryTabProps> = ({
@@ -30,6 +34,8 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
   onOpenAddStockModal,
   onOpenAddLabStockModal,
   onOpenDistributorsModal,
+  onOpenManageGroupsModal,
+  onOpenLowStockReorderModal,
 }) => {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'meds' | 'labs' | 'low' | 'expiry'>('all');
@@ -159,6 +165,14 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           </button>
 
           <button
+            onClick={onOpenManageGroupsModal}
+            className="bg-surface-elevated hover:bg-border text-text border border-border font-semibold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 backdrop-blur-md transition cursor-pointer"
+          >
+            <Tags className="w-3.5 h-3.5 text-primary" />
+            <span>Manage Groups</span>
+          </button>
+
+          <button
             onClick={handleExportCSV}
             className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
           >
@@ -282,6 +296,15 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           >
             Low Stock (&le; 10 units)
           </button>
+          {filterType === 'low' && (
+            <button
+              onClick={onOpenLowStockReorderModal}
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-text shadow-md shadow-rose-600/30 flex items-center gap-1.5 cursor-pointer"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>Bulk Reorder</span>
+            </button>
+          )}
           <button
             onClick={() => setFilterType('expiry')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${

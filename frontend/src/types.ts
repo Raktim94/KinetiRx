@@ -16,6 +16,11 @@ export type TabType =
 
 export type TabId = TabType;
 
+export interface MedicineGroup {
+  id: string;
+  name: string;
+}
+
 export interface Medicine {
   id: string;
   name: string;

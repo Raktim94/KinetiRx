@@ -53,7 +53,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-elevated backdrop-blur-2xl rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-4 border border-border text-xs text-text animate-in zoom-in-95">
+      <div className="glass-panel glass-sheen relative rounded-3xl max-w-sm w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
@@ -84,7 +84,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                 setError('');
               }}
               placeholder="e.g. EMP-ADMIN-1 or Master Admin"
-              className="w-full p-2.5 bg-surface border border-border rounded-2xl outline-none text-text focus:border-primary font-medium backdrop-blur-md"
+              className="glass-input w-full p-2.5 rounded-2xl outline-none font-medium"
               autoFocus
               required
             />
@@ -101,7 +101,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   setError('');
                 }}
                 placeholder="••••••••"
-                className="w-full pl-4 pr-10 py-3 bg-surface border border-border rounded-2xl font-mono text-center text-base font-bold text-text placeholder:text-text-muted outline-none focus:border-primary focus:bg-bg tracking-widest backdrop-blur-md"
+                className="glass-input w-full pl-4 pr-10 py-3 rounded-2xl font-mono text-center text-base font-bold placeholder:text-text-muted outline-none tracking-widest"
                 required
               />
               <button

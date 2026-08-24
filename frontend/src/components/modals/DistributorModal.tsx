@@ -167,7 +167,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
-      <div className="bg-surface-elevated backdrop-blur-2xl rounded-3xl shadow-2xl max-w-4xl w-full p-5 sm:p-6 space-y-4 border border-border text-xs text-text max-h-[90vh] flex flex-col justify-between animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-4xl w-full p-5 sm:p-6 space-y-4 text-xs text-text max-h-[90vh] flex flex-col justify-between animate-in zoom-in-95">
         {/* Header */}
         <div className="flex justify-between items-center border-b border-border pb-3">
           <div className="flex items-center gap-3">

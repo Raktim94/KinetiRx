@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Boxes, Plus, X } from 'lucide-react';
-import { Distributor, Medicine } from '../../types';
+import { Distributor, Medicine, MedicineGroup } from '../../types';
 
 interface AddStockModalProps {
   isOpen: boolean;
   onClose: () => void;
   distributors: Distributor[];
   setDistributors: React.Dispatch<React.SetStateAction<Distributor[]>>;
+  medicineGroups: MedicineGroup[];
   onSaveMedicine: (medicine: Medicine) => void;
 }
 
@@ -15,6 +16,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
   onClose,
   distributors,
   setDistributors,
+  medicineGroups,
   onSaveMedicine,
 }) => {
   const [name, setName] = useState('');
@@ -89,7 +91,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface/90 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-border text-xs text-text max-h-[92vh] overflow-y-auto animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-lg w-full p-6 space-y-4 text-xs text-text max-h-[92vh] overflow-y-auto animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
@@ -221,9 +223,14 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
                 onChange={e => setGroup(e.target.value)}
                 className="w-full p-2.5 bg-surface border border-border rounded-xl text-text outline-none focus:border-primary"
               >
-                <option value="General" className="bg-surface text-text">General Stock</option>
-                <option value="Dr. Sayan Majumdar" className="bg-surface text-text">Dr. Sayan Majumdar Group</option>
-                <option value="Dr. T.K. Khan" className="bg-surface text-text">Dr. T.K. Khan Group</option>
+                {(medicineGroups.length > 0
+                  ? medicineGroups.map(g => g.name)
+                  : ['General', 'Dr. Sayan Majumdar', 'Dr. T.K. Khan']
+                ).map(name => (
+                  <option key={name} value={name} className="bg-surface text-text">
+                    {name}
+                  </option>
+                ))}
               </select>
             </div>
 

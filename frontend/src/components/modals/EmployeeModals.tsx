@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle2, Eye, EyeOff, KeyRound, Lock, Plus, ShieldCheck, Users, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Copy, Eye, EyeOff, KeyRound, Lock, Plus, ShieldCheck, Users, X } from 'lucide-react';
 import { Employee, TabType } from '../../types';
 import { ApiError, authApi, employeesApi } from '../../lib/api';
 
@@ -39,6 +39,21 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     'daily-sales',
     'inventory',
   ]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [created, setCreated] = useState<{ name: string; pass: string } | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setName('');
+      setDesig('Pharmacist / Staff');
+      setPass('changeme123');
+      setSelectedPermissions(['dashboard', 'pos', 'daily-sales', 'inventory']);
+      setSubmitting(false);
+      setError(null);
+      setCreated(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -50,32 +65,78 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!name.trim()) {
-      alert('Please enter employee name');
+      setError('Please enter employee name.');
       return;
     }
-    if (pass.trim().length < 8) {
-      alert('Login password must be at least 8 characters (server requirement).');
+    const cleanPass = pass.trim();
+    if (cleanPass.length < 8) {
+      setError('Login password must be at least 8 characters (server requirement).');
       return;
     }
 
-    const newEmp: Employee = {
-      id: 'EMP-' + Date.now(),
-      name: name.trim(),
-      desig: desig.trim(),
-      pass: pass.trim(),
-      permissions: selectedPermissions,
-    };
-
-    onSaveEmployee(newEmp);
-    onClose();
+    setSubmitting(true);
+    try {
+      const createdEmp = await employeesApi.create({
+        id: '',
+        name: name.trim(),
+        desig: desig.trim(),
+        pass: cleanPass,
+        permissions: selectedPermissions,
+      } as Employee);
+      onSaveEmployee(createdEmp);
+      // Show the temp password back once — the server never returns it again.
+      setCreated({ name: createdEmp.name, pass: cleanPass });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.describe() : 'Could not reach the KinetiRx server. Check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  if (created) {
+    return (
+      <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="glass-panel rounded-3xl max-w-sm w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
+          <div className="flex items-center gap-2 text-emerald-400">
+            <CheckCircle2 className="w-5 h-5" />
+            <h3 className="text-sm font-bold text-text">Employee account created</h3>
+          </div>
+          <p className="text-text-muted">
+            Share this temporary password with <span className="font-semibold text-text">{created.name}</span>. They'll be
+            required to set their own password the first time they log in — the server won't show this again.
+          </p>
+          <div className="flex items-center justify-between gap-2 p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-text">
+            <span>{created.pass}</span>
+            <button
+              type="button"
+              onClick={() => navigator.clipboard?.writeText(created.pass).catch(() => undefined)}
+              className="text-text-muted hover:text-text p-1 rounded-lg transition cursor-pointer"
+              title="Copy password"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="flex justify-end pt-2 border-t border-border">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg shadow-pink-950/40 transition cursor-pointer"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface/90 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-border text-xs text-text max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-lg w-full p-6 space-y-4 text-xs text-text max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
@@ -148,6 +209,13 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             </div>
           </div>
 
+          {error && (
+            <div className="p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[11px] flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-3 border-t border-border">
             <button
               type="button"
@@ -158,10 +226,11 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg shadow-pink-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              disabled={submitting}
+              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg shadow-pink-950/40 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Plus className="w-4 h-4" />
-              <span>Save Employee</span>
+              <span>{submitting ? 'Saving…' : 'Save Employee'}</span>
             </button>
           </div>
         </form>
@@ -186,12 +255,19 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
   const [desig, setDesig] = useState('');
   const [pass, setPass] = useState('');
   const [permissions, setPermissions] = useState<TabType[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (emp) {
       setDesig(emp.desig);
-      setPass(emp.pass);
+      // Never prefill a password field from local state — the server never
+      // sends the hash back, and this stays blank unless the admin is
+      // deliberately resetting it (see the field's helper text below).
+      setPass('');
       setPermissions(emp.permissions);
+      setSubmitting(false);
+      setError(null);
     }
   }, [emp, isOpen]);
 
@@ -205,20 +281,34 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateEmployee({
-      ...emp,
-      desig,
-      pass,
-      permissions,
-    });
-    onClose();
+    setError(null);
+    if (pass.trim() !== '' && pass.trim().length < 8) {
+      setError('New password must be at least 8 characters long, or leave it blank to keep the existing one.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const updated = await employeesApi.update(emp.id, {
+        ...emp,
+        desig,
+        pass: pass.trim(),
+        permissions,
+      });
+      onUpdateEmployee(updated);
+      onClose();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.describe() : 'Could not reach the KinetiRx server. Check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface/90 backdrop-blur-2xl rounded-3xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-border text-xs text-text max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-lg w-full p-6 space-y-4 text-xs text-text max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400">
@@ -277,6 +367,13 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             </div>
           </div>
 
+          {error && (
+            <div className="p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-[11px] flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="flex justify-end gap-3 pt-3 border-t border-border">
             <button
               type="button"
@@ -287,9 +384,10 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-2xl shadow-lg shadow-sky-950/40 transition cursor-pointer"
+              disabled={submitting}
+              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-2xl shadow-lg shadow-sky-950/40 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Update Permissions
+              {submitting ? 'Saving…' : 'Update Permissions'}
             </button>
           </div>
         </form>
@@ -301,18 +399,12 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
 interface ChangeAdminPassModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Employee id (and login identifier) whose password is being changed —
-   * the currently authenticated admin. Changing another employee's password
-   * isn't exposed through this modal since the backend only lets the
-   * `role: admin` account itself invoke this update (see API.md). */
-  currentUserId: string;
   onPasswordChanged?: () => void;
 }
 
 export const ChangeAdminPassModal: React.FC<ChangeAdminPassModalProps> = ({
   isOpen,
   onClose,
-  currentUserId,
   onPasswordChanged,
 }) => {
   const [oldPass, setOldPass] = useState('');
@@ -358,11 +450,7 @@ export const ChangeAdminPassModal: React.FC<ChangeAdminPassModalProps> = ({
     const cleanNewPass = newPass.trim();
     setSubmitting(true);
     try {
-      // The client never holds a plaintext password to compare the old one
-      // against locally — verify it for real via a login round-trip first.
-      await authApi.login(currentUserId, oldPass);
-      const emp = await employeesApi.get(currentUserId);
-      await employeesApi.update(currentUserId, { ...emp, pass: cleanNewPass } as Employee);
+      await authApi.changePassword(oldPass, cleanNewPass);
     } catch (err) {
       setSubmitting(false);
       if (err instanceof ApiError && err.status === 401) {
@@ -385,7 +473,7 @@ export const ChangeAdminPassModal: React.FC<ChangeAdminPassModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-surface-elevated backdrop-blur-2xl rounded-3xl shadow-2xl max-w-sm w-full p-6 space-y-4 border border-border text-xs text-text animate-in zoom-in-95">
+      <div className="glass-panel rounded-3xl max-w-sm w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">

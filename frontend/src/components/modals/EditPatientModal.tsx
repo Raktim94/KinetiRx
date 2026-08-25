@@ -67,7 +67,7 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
       ...patient,
       name: name.trim(),
       phone: phone.trim(),
-      age: age ? parseInt(age, 10) : patient.age,
+      age: age.trim() ? age.trim() : patient.age,
       gender,
       ageGender: formattedAgeGender,
       addr: addr.trim(),

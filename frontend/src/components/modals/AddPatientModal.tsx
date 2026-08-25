@@ -71,7 +71,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
       id: patientId.trim() || getNextPatientId(),
       name: name.trim(),
       phone: phone.trim(),
-      age: age ? parseInt(age, 10) : 35,
+      age: age.trim() ? age.trim() : '35',
       gender,
       ageGender: formattedAgeGender,
       addr: addr.trim() || 'Local Area',

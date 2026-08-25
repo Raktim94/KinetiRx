@@ -31,7 +31,7 @@ services:
       - kinetirx_net
 
   backend:
-    image: ghcr.io/raktim94/kinetirx-backend:1.1.1
+    image: ghcr.io/raktim94/kinetirx-backend:1.2.1
     container_name: kinetirx-backend
     hostname: kinetirx-backend
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
             en_US: Optional — enables AI-powered OCR bill scanning and the clinical AI assistant. Leave blank to run those features in offline/fallback mode.
 
   frontend:
-    image: ghcr.io/raktim94/kinetirx-frontend:1.1.1
+    image: ghcr.io/raktim94/kinetirx-frontend:1.2.1
     container_name: kinetirx-frontend
     hostname: kinetirx-frontend
     restart: unless-stopped
@@ -140,14 +140,21 @@ x-casaos:
   index: /
   port_map: "3080"
   scheme: http
-  version: "1.1.1"
+  version: "1.2.1"
   update_at: "2026-08-25"
   release_notes:
     en_US: |-
-      1.1.1: Fixed text/badge contrast across the app that made stock
+      1.2.1: Fixed text/badge contrast across the app that made stock
       levels, expiry warnings, and the Daily Sales Register hard to read,
       and fixed a bug where completing a POS sale with the patient's age
       filled in could fail to generate the bill.
+
+      1.2.0: Updated the UI with a calmer color palette, refreshed
+      typography, and a consistent button/card style throughout the app.
+      Also adds doctor/stock groups management, a low-stock reorder
+      workflow, editable patient records and needed-medicine orders, and a
+      forced password-change flow for employee accounts (self-service
+      password change, not the old admin-driven reset hack).
 
       1.1.0: On first launch, create the admin account from a proper
       sign-up screen in the app instead of pre-setting a password via

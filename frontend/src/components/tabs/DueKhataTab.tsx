@@ -97,7 +97,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
       <div className="p-6 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center flex-wrap gap-4 text-text">
         <div>
           <h3 className="text-base font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <div className="w-8 h-8 rounded-xl bg-danger/15 border border-danger/30 flex items-center justify-center text-danger">
               <CreditCard className="w-4 h-4" />
             </div>
             <span>Patient Due Register</span>
@@ -108,13 +108,13 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="bg-rose-500/20 border border-rose-500/30 px-3.5 py-2 rounded-2xl text-xs font-bold text-rose-300 backdrop-blur-md">
-            Total Outstanding: <span className="font-mono text-sm text-rose-200">₹ {totalDueSum.toFixed(2)}</span>
+          <div className="bg-danger/15 border border-danger/30 px-3.5 py-2 rounded-2xl text-xs font-bold text-danger backdrop-blur-md">
+            Total Outstanding: <span className="font-mono text-sm text-danger">₹ {totalDueSum.toFixed(2)}</span>
           </div>
 
           <button
             onClick={handleExportCSV}
-            className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
+            className="bg-success hover:brightness-105 text-primary-foreground font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Excel</span>
@@ -145,7 +145,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                 <th className="p-3.5">Doctor / Reference</th>
                 <th className="p-3.5">Reason For Due</th>
                 <th className="p-3.5">Last Transaction</th>
-                <th className="p-3.5 text-rose-400 font-bold">Total Due (₹)</th>
+                <th className="p-3.5 text-danger font-bold">Total Due (₹)</th>
                 <th className="p-3.5 text-center">Fast Actions</th>
               </tr>
             </thead>
@@ -170,7 +170,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                     <td className="p-3.5 text-text-muted font-medium">{p.doc || 'Self Prescribed'}</td>
                     <td className="p-3.5 text-text-muted">{p.reason}</td>
                     <td className="p-3.5 text-text-muted font-mono">{p.lastDate}</td>
-                    <td className="p-3.5 font-extrabold text-rose-400 font-mono text-sm">
+                    <td className="p-3.5 font-extrabold text-danger font-mono text-sm">
                       ₹ {p.totalDue.toFixed(2)}
                     </td>
                     <td className="p-3.5 text-center">
@@ -183,7 +183,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                         </button>
                         <button
                           onClick={() => handleCollectDue(p.id)}
-                          className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition backdrop-blur-sm cursor-pointer"
+                          className="bg-danger/15 hover:bg-danger/25 text-danger border border-danger/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition backdrop-blur-sm cursor-pointer"
                         >
                           <HandCoins className="w-3.5 h-3.5" /> Collect
                         </button>

@@ -110,37 +110,34 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
   return (
     <div className="space-y-6">
       {/* 1. HEADER & ACTIONS BAR */}
-      <div className="p-6 rounded-3xl bg-slate-900/90 backdrop-blur-2xl border border-white/15 shadow-2xl flex justify-between items-center flex-wrap gap-4 text-slate-100">
+      <div className="p-6 rounded-3xl glass-panel flex justify-between items-center flex-wrap gap-4 text-text">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <h2 className="text-xl sm:text-2xl font-bold text-text flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
                 <IdCard className="w-5 h-5" />
               </div>
               <span>Patient Profile Master Database</span>
             </h2>
-            <span className="bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-mono px-3 py-0.5 rounded-full font-bold">
+            <span className="bg-primary/15 border border-primary/30 text-primary text-xs font-mono px-3 py-0.5 rounded-full font-bold">
               {totalPatientsCount} Registered Patients
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+          <p className="text-xs text-text-muted mt-1 max-w-2xl">
             Create and maintain master patient profiles with doctor assignments, address, mobile numbers, and comprehensive medical visit histories.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
-          <button
-            onClick={handleExportCSV}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5 text-teal-400" />
+          <button onClick={handleExportCSV} className="btn-secondary btn-sm">
+            <Download className="w-3.5 h-3.5 text-primary" />
             <span>Export Excel</span>
           </button>
 
           <button
             id="btn-add-patient-profile"
             onClick={() => setIsAddPatientOpen(true)}
-            className="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
+            className="btn-primary px-4 py-2 rounded-2xl text-xs"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Register Patient Profile</span>
@@ -150,45 +147,45 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
 
       {/* 2. STATS KPIS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-        <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl space-y-1">
-          <p className="text-slate-400 flex items-center gap-1.5">
-            <Users className="w-4 h-4 text-teal-400" />
+        <div className="p-4 rounded-3xl bg-surface border border-border shadow-xl space-y-1">
+          <p className="text-text-muted flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-primary" />
             <span>Total Registered Profiles</span>
           </p>
-          <h3 className="text-2xl font-bold text-white font-mono">{totalPatientsCount}</h3>
-          <p className="text-[11px] text-teal-300">Active medical profiles in pharmacy</p>
+          <h3 className="text-2xl font-bold text-text font-mono">{totalPatientsCount}</h3>
+          <p className="text-[11px] text-primary">Active medical profiles in pharmacy</p>
         </div>
 
-        <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl space-y-1">
-          <p className="text-slate-400 flex items-center gap-1.5">
-            <TrendingDown className="w-4 h-4 text-rose-400" />
+        <div className="p-4 rounded-3xl bg-surface border border-border shadow-xl space-y-1">
+          <p className="text-text-muted flex items-center gap-1.5">
+            <TrendingDown className="w-4 h-4 text-danger" />
             <span>Total Outstanding Dues</span>
           </p>
-          <h3 className="text-2xl font-bold text-rose-400 font-mono">₹ {totalDuesSum.toFixed(2)}</h3>
-          <p className="text-[11px] text-slate-400">{patientsWithDueCount} Patients with pending balance</p>
+          <h3 className="text-2xl font-bold text-danger font-mono">₹ {totalDuesSum.toFixed(2)}</h3>
+          <p className="text-[11px] text-text-muted">{patientsWithDueCount} Patients with pending balance</p>
         </div>
 
-        <div className="p-4 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl space-y-1">
-          <p className="text-slate-400 flex items-center gap-1.5">
-            <UserCheck className="w-4 h-4 text-indigo-400" />
+        <div className="p-4 rounded-3xl bg-surface border border-border shadow-xl space-y-1">
+          <p className="text-text-muted flex items-center gap-1.5">
+            <UserCheck className="w-4 h-4 text-accent" />
             <span>Auto-Linked to Special Orders</span>
           </p>
-          <h3 className="text-2xl font-bold text-indigo-300 font-mono">Instant Fetch</h3>
-          <p className="text-[11px] text-slate-400">Type Patient ID to auto-populate orders & POS</p>
+          <h3 className="text-2xl font-bold text-accent font-mono">Instant Fetch</h3>
+          <p className="text-[11px] text-text-muted">Type Patient ID to auto-populate orders & POS</p>
         </div>
       </div>
 
       {/* 3. SEARCH & FILTERS BAR */}
-      <div className="flex justify-between items-center gap-3 flex-wrap bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-md">
+      <div className="flex justify-between items-center gap-3 flex-wrap bg-surface p-3 rounded-2xl border border-border backdrop-blur-md">
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             id="patient-search-input"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by Patient ID (e.g. P/101), Name, Mobile Number, Address, Doctor..."
-            className="w-full pl-9 pr-3 py-2 bg-slate-950/70 border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 outline-none focus:border-teal-400"
+            className="w-full pl-9 pr-3 py-2 glass-input rounded-xl text-xs"
           />
         </div>
 
@@ -198,8 +195,8 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
             onClick={() => setFilterDueOnly(!filterDueOnly)}
             className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
               filterDueOnly
-                ? 'bg-rose-600 text-white shadow-md'
-                : 'bg-white/5 text-slate-300 hover:text-white border border-white/10'
+                ? 'bg-danger text-primary-foreground shadow-md'
+                : 'bg-surface-elevated text-text-muted hover:text-text border border-border'
             }`}
           >
             <Coins className="w-3.5 h-3.5" />
@@ -209,10 +206,10 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
       </div>
 
       {/* 4. PATIENT PROFILES TABLE */}
-      <div className="bg-slate-900/90 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl overflow-hidden text-xs text-slate-100">
+      <div className="glass-panel rounded-3xl overflow-hidden text-xs text-text">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-white/10 border-b border-white/10 text-[11px] font-bold text-slate-300 uppercase backdrop-blur-md">
+            <thead className="bg-surface-elevated border-b border-border text-[11px] font-bold text-text-muted uppercase backdrop-blur-md">
               <tr>
                 <th className="p-3.5">Patient ID</th>
                 <th className="p-3.5">Full Name</th>
@@ -220,47 +217,47 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                 <th className="p-3.5">Age / Gender</th>
                 <th className="p-3.5">Address</th>
                 <th className="p-3.5">Assigned Doctor</th>
-                <th className="p-3.5 text-rose-400 font-bold">Outstanding Due (₹)</th>
+                <th className="p-3.5 text-danger font-bold">Outstanding Due (₹)</th>
                 <th className="p-3.5 text-center">Profile & WhatsApp</th>
               </tr>
             </thead>
-            <tbody id="patient-profile-rows" className="divide-y divide-white/5 text-slate-200">
+            <tbody id="patient-profile-rows" className="divide-y divide-border text-text">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-slate-400">
+                  <td colSpan={8} className="p-8 text-center text-text-muted">
                     No matching patient profiles found. Click "+ Register Patient Profile" to add one.
                   </td>
                 </tr>
               ) : (
                 filtered.map(p => (
-                  <tr key={p.id} className="hover:bg-white/5 transition group">
-                    <td className="p-3.5 font-mono font-bold text-teal-300">
-                      <span className="bg-teal-500/15 border border-teal-500/30 px-2 py-0.5 rounded-md">
+                  <tr key={p.id} className="hover:bg-bg transition group">
+                    <td className="p-3.5 font-mono font-bold text-primary">
+                      <span className="bg-primary/12 border border-primary/30 px-2 py-0.5 rounded-md">
                         {p.id}
                       </span>
                     </td>
-                    <td className="p-3.5 font-bold text-white text-sm">
+                    <td className="p-3.5 font-bold text-text text-sm">
                       {p.name}
                       {p.reason && (
-                        <span className="text-[10px] text-slate-400 block font-normal mt-0.5">
+                        <span className="text-[10px] text-text-muted block font-normal mt-0.5">
                           {p.reason}
                         </span>
                       )}
                     </td>
-                    <td className="p-3.5 font-mono text-slate-300 font-medium">{p.phone}</td>
-                    <td className="p-3.5 text-slate-400">
+                    <td className="p-3.5 font-mono text-text-muted font-medium">{p.phone}</td>
+                    <td className="p-3.5 text-text-muted">
                       {p.age || '50'} Yrs / {p.gender || 'M'}
                     </td>
-                    <td className="p-3.5 text-slate-300">
+                    <td className="p-3.5 text-text-muted">
                       <div className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-text-muted shrink-0" />
                         <span>{p.addr || p.address || 'Local Area'}</span>
                       </div>
                     </td>
-                    <td className="p-3.5 font-medium text-slate-200">
+                    <td className="p-3.5 font-medium text-text">
                       {p.doc || p.doctor || 'Self Prescribed / OTC'}
                     </td>
-                    <td className="p-3.5 font-bold text-rose-400 font-mono text-sm">
+                    <td className="p-3.5 font-bold text-danger font-mono text-sm">
                       ₹ {(p.totalDue || 0).toFixed(2)}
                     </td>
                     <td className="p-3.5 text-center">
@@ -275,16 +272,16 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                         </button>
                         <button
                           onClick={() => onViewPatientProfile(p)}
-                          className="text-teal-200 bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/30 px-2.5 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1 transition backdrop-blur-sm cursor-pointer"
+                          className="text-primary bg-primary/15 hover:bg-primary/25 border border-primary/30 px-2.5 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1 transition backdrop-blur-sm cursor-pointer"
                           title="View Complete Patient CV & History"
                         >
-                          <Eye className="w-3.5 h-3.5 text-teal-400" />
+                          <Eye className="w-3.5 h-3.5 text-primary" />
                           <span>Profile CV</span>
                         </button>
                         {setPatients && (
                           <button
                             onClick={() => setPatientToEdit(p)}
-                            className="p-1.5 hover:bg-sky-500/20 text-slate-500 hover:text-sky-300 rounded-xl transition"
+                            className="p-1.5 hover:bg-primary/15 text-text-muted hover:text-primary rounded-xl transition"
                             title="Edit Patient Profile"
                           >
                             <Pencil className="w-3.5 h-3.5" />
@@ -293,7 +290,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                         {setPatients && (
                           <button
                             onClick={() => handleDeletePatient(p.id, p.name)}
-                            className="p-1.5 hover:bg-rose-500/20 text-slate-500 hover:text-rose-300 rounded-xl transition"
+                            className="p-1.5 hover:bg-danger/15 text-text-muted hover:text-danger rounded-xl transition"
                             title="Delete Patient Record"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

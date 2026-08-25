@@ -145,47 +145,47 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
         </div>
 
         <div className="relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
+          <Search className="w-3.5 h-3.5 text-text-muted absolute left-3 top-3" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search description, category..."
-            className="pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-2xl text-xs w-64 text-white placeholder:text-slate-500 outline-none focus:border-orange-400 backdrop-blur-md"
+            className="pl-9 pr-3 py-2 glass-input rounded-2xl text-xs w-64"
           />
         </div>
       </div>
 
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-xl overflow-hidden text-xs text-slate-100">
+      <div className="glass-panel rounded-3xl overflow-hidden text-xs text-text">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-white/10 border-b border-white/10 text-[11px] font-semibold text-slate-300 uppercase backdrop-blur-md">
+            <thead className="bg-surface-elevated border-b border-border text-[11px] font-semibold text-text-muted uppercase backdrop-blur-md">
               <tr>
                 <th className="p-3.5">Expense Date</th>
                 <th className="p-3.5">Category</th>
                 <th className="p-3.5">Description / Remarks</th>
-                <th className="p-3.5 font-bold text-white text-right">Amount (₹)</th>
+                <th className="p-3.5 font-bold text-text text-right">Amount (₹)</th>
                 {setExpenses && <th className="p-3.5 text-center">Action</th>}
               </tr>
             </thead>
-            <tbody id="expense-table-rows" className="divide-y divide-white/5 text-slate-200">
+            <tbody id="expense-table-rows" className="divide-y divide-border text-text">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={setExpenses ? 5 : 4} className="p-8 text-center text-slate-400">
+                  <td colSpan={setExpenses ? 5 : 4} className="p-8 text-center text-text-muted">
                     No expense records found.
                   </td>
                 </tr>
               ) : (
                 filtered.map(e => (
-                  <tr key={e.id} className="hover:bg-white/5 transition">
-                    <td className="p-3.5 font-mono text-slate-400">{e.date}</td>
+                  <tr key={e.id} className="hover:bg-bg transition">
+                    <td className="p-3.5 font-mono text-text-muted">{e.date}</td>
                     <td className="p-3.5">
-                      <span className="bg-orange-500/20 text-orange-300 border border-orange-500/30 font-semibold px-2.5 py-1 rounded-full text-[11px]">
+                      <span className="bg-warning/15 text-warning border border-warning/30 font-semibold px-2.5 py-1 rounded-full text-[11px]">
                         {e.cat}
                       </span>
                     </td>
-                    <td className="p-3.5 text-slate-200 font-medium">{e.desc}</td>
-                    <td className="p-3.5 font-mono font-bold text-orange-400 text-right text-sm">
+                    <td className="p-3.5 text-text font-medium">{e.desc}</td>
+                    <td className="p-3.5 font-mono font-bold text-warning text-right text-sm">
                       ₹ {Number(e.amt).toFixed(2)}
                     </td>
                     {setExpenses && (
@@ -193,7 +193,7 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
                         <button
                           type="button"
                           onClick={() => handleDeleteExpense(e.id, Number(e.amt))}
-                          className="p-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg transition cursor-pointer"
+                          className="p-1.5 bg-danger/15 hover:bg-danger/25 text-danger border border-danger/30 rounded-lg transition cursor-pointer"
                           title="Delete Expense Record"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

@@ -157,7 +157,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-2xl shadow-lg shadow-sky-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-2xl shadow-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save OPD Patient</span>

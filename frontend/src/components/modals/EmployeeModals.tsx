@@ -124,7 +124,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg shadow-pink-950/40 transition cursor-pointer"
+              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg transition cursor-pointer"
             >
               Done
             </button>
@@ -227,7 +227,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg shadow-pink-950/40 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-text font-bold rounded-2xl shadow-lg transition flex items-center gap-1.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Plus className="w-4 h-4" />
               <span>{submitting ? 'Saving…' : 'Save Employee'}</span>
@@ -385,7 +385,7 @@ export const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-2xl shadow-lg shadow-sky-950/40 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-2xl shadow-lg transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? 'Saving…' : 'Update Permissions'}
             </button>
@@ -593,7 +593,7 @@ export const ChangeAdminPassModal: React.FC<ChangeAdminPassModalProps> = ({
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-primary hover:bg-primary text-text font-bold rounded-xl shadow-lg shadow-primary/40 transition cursor-pointer flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/40 transition cursor-pointer flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <KeyRound className="w-3.5 h-3.5" />
               <span>{submitting ? 'Saving…' : 'Save & Update'}</span>

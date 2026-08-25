@@ -845,7 +845,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
                 setActiveInputMethod('upload');
               }}
               className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer ${
-                activeInputMethod === 'upload' ? 'bg-primary text-text shadow-md' : 'text-text-muted hover:text-text'
+                activeInputMethod === 'upload' ? 'bg-primary text-primary-foreground shadow-md' : 'text-text-muted hover:text-text'
               }`}
             >
               <UploadCloud className="w-3.5 h-3.5" />
@@ -858,7 +858,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
                 handleStartCamera();
               }}
               className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer ${
-                activeInputMethod === 'camera' ? 'bg-primary text-text shadow-md' : 'text-text-muted hover:text-text'
+                activeInputMethod === 'camera' ? 'bg-primary text-primary-foreground shadow-md' : 'text-text-muted hover:text-text'
               }`}
             >
               <Camera className="w-3.5 h-3.5" />
@@ -871,7 +871,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
                 setActiveInputMethod('paste');
               }}
               className={`px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer ${
-                activeInputMethod === 'paste' ? 'bg-primary text-text shadow-md' : 'text-text-muted hover:text-text'
+                activeInputMethod === 'paste' ? 'bg-primary text-primary-foreground shadow-md' : 'text-text-muted hover:text-text'
               }`}
             >
               <Clipboard className="w-3.5 h-3.5" />
@@ -926,7 +926,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
               <button
                 type="button"
                 onClick={handleCaptureSnapshot}
-                className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text rounded-2xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-primary/30 transition cursor-pointer"
+                className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-2xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-primary/30 transition cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
                 <span>Capture & Scan Invoice</span>
@@ -966,7 +966,7 @@ INV NO: A002223, Date: 2026-08-19
               <button
                 type="button"
                 onClick={handlePasteProcess}
-                className="px-5 py-2 bg-primary hover:bg-primary-hover text-text rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                className="px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Parse & Extract Lines</span>
@@ -1018,7 +1018,7 @@ INV NO: A002223, Date: 2026-08-19
               <button
                 type="button"
                 onClick={handleExportCSV}
-                className="px-3 py-1.5 bg-surface hover:bg-surface-elevated border border-border text-text-muted rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                className="px-3 py-1.5 bg-surface hover:bg-border-elevated border border-border text-text-muted rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                 title="Download CSV report"
               >
                 <Download className="w-3.5 h-3.5 text-primary" />
@@ -1180,7 +1180,7 @@ INV NO: A002223, Date: 2026-08-19
                 type="button"
                 onClick={() => setStatusFilter('existing')}
                 className={`px-2.5 py-1 rounded-lg transition ${
-                  statusFilter === 'existing' ? 'bg-primary text-text font-bold' : 'text-primary hover:text-text'
+                  statusFilter === 'existing' ? 'bg-primary text-primary-foreground font-bold' : 'text-primary hover:text-text'
                 }`}
               >
                 Updated ({existingMedsCount})
@@ -1300,9 +1300,9 @@ INV NO: A002223, Date: 2026-08-19
           </div>
 
           {/* TOTAL FOOTER BAR */}
-          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-emerald-950/40 via-surface/60 to-emerald-950/40 border border-emerald-500/30 rounded-2xl text-xs font-bold text-emerald-300 backdrop-blur-md flex-wrap gap-3">
+          <div className="flex justify-between items-center p-4 bg-success/10 border border-success/30 rounded-2xl text-xs font-bold text-success backdrop-blur-md flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <PackageCheck className="w-5 h-5 text-emerald-400" />
+              <PackageCheck className="w-5 h-5 text-success" />
               <span>Total Inward Purchase Value:</span>
             </div>
             <div className="flex items-center gap-4">
@@ -1433,14 +1433,14 @@ INV NO: A002223, Date: 2026-08-19
               <button
                 type="button"
                 onClick={() => setEditingItemIdx(null)}
-                className="px-4 py-2 bg-surface hover:bg-surface-elevated text-text-muted rounded-xl transition cursor-pointer"
+                className="px-4 py-2 bg-surface hover:bg-border-elevated text-text-muted rounded-xl transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveEditRow}
-                className="px-5 py-2 bg-primary hover:bg-primary-hover text-text font-bold rounded-xl shadow-lg transition cursor-pointer"
+                className="px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg transition cursor-pointer"
               >
                 Save & Update Stock
               </button>

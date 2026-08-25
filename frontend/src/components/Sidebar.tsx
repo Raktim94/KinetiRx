@@ -434,7 +434,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Sidebar Status Pill (Storage / System Health) */}
         <div className="px-3 py-2">
-          <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-border backdrop-blur-xl">
+          <div className="p-3 rounded-2xl bg-primary/8 border border-border backdrop-blur-xl">
             <div className="flex justify-between items-center mb-1.5">
               <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Cloud Sync & DB</p>
               <span className="text-[10px] font-mono text-success font-semibold">Online</span>

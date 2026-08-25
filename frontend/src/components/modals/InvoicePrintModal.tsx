@@ -273,8 +273,8 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
               onClick={() => setCleanInvoiceOnly(prev => !prev)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                 cleanInvoiceOnly
-                  ? 'bg-emerald-600 text-text shadow-md shadow-emerald-950/40'
-                  : 'bg-bg hover:bg-bg text-text-muted border border-border'
+                  ? 'bg-emerald-600 text-text shadow-md'
+                  : 'bg-bg hover:bg-border text-text-muted border border-border'
               }`}
               title="Show only the pure bill invoice without extraneous controls"
             >
@@ -464,7 +464,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-text font-bold rounded-2xl flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+              className="btn text-primary-foreground bg-success border border-success hover:brightness-105"
             >
               <Printer className="w-4 h-4" />
               <span>Generate & Print PDF</span>

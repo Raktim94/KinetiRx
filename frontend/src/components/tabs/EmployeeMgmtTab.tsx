@@ -55,7 +55,7 @@ export const EmployeeMgmtTab: React.FC<EmployeeMgmtTabProps> = ({
 
           <button
             onClick={onOpenAddEmployeeModal}
-            className="bg-pink-600 hover:bg-pink-500 text-text px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-pink-600/30 transition cursor-pointer"
+            className="bg-pink-600 hover:bg-pink-500 text-text px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ Add New Employee</span>
@@ -64,7 +64,7 @@ export const EmployeeMgmtTab: React.FC<EmployeeMgmtTabProps> = ({
       </div>
 
       {/* Admin Master Key Status Banner */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-surface border border-primary/25 flex items-center justify-between flex-wrap gap-4">
+      <div className="p-4 rounded-2xl bg-primary/8 border border-primary/25 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shrink-0">
             <ShieldCheck className="w-5 h-5" />

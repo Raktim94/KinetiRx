@@ -292,7 +292,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
                 onClick={() => setTrackStock(false)}
                 className={`p-3 rounded-xl border flex items-start gap-2.5 cursor-pointer transition ${
                   !trackStock
-                    ? 'bg-purple-600/20 border-purple-500 text-text shadow-md shadow-purple-950/40'
+                    ? 'bg-purple-600/20 border-purple-500 text-text shadow-md'
                     : 'bg-surface border-border text-text-muted hover:bg-bg'
                 }`}
               >
@@ -318,7 +318,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
                 onClick={() => setTrackStock(true)}
                 className={`p-3 rounded-xl border flex items-start gap-2.5 cursor-pointer transition ${
                   trackStock
-                    ? 'bg-purple-600/20 border-purple-500 text-text shadow-md shadow-purple-950/40'
+                    ? 'bg-purple-600/20 border-purple-500 text-text shadow-md'
                     : 'bg-surface border-border text-text-muted hover:bg-bg'
                 }`}
               >
@@ -433,7 +433,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-text font-bold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition cursor-pointer"
+              className="px-5 py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-text font-bold flex items-center gap-2 shadow-lg transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save Lab Stock Item</span>

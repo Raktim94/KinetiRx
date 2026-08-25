@@ -43,7 +43,7 @@ export const BusinessDevTab: React.FC<BusinessDevTabProps> = ({
             </div>
             <button
               onClick={() => onOpenMarketingModal()}
-              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-text font-bold rounded-2xl shadow-lg shadow-purple-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-text font-bold rounded-2xl shadow-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" /> + Add Campaign
             </button>
@@ -109,7 +109,7 @@ export const BusinessDevTab: React.FC<BusinessDevTabProps> = ({
             </div>
             <button
               onClick={() => onOpenWorksheetModal()}
-              className="px-3.5 py-2 bg-primary hover:bg-primary-hover text-text font-bold rounded-2xl shadow-lg shadow-primary/30 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-2xl shadow-lg shadow-primary/30 transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" /> + Add Task
             </button>

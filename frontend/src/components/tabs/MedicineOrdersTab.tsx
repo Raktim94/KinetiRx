@@ -117,7 +117,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={handleExportCSV}
-            className="bg-surface hover:bg-surface-elevated border border-border text-text-muted font-semibold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition cursor-pointer"
+            className="bg-surface hover:bg-border-elevated border border-border text-text-muted font-semibold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-primary" />
             <span>Export Excel</span>
@@ -126,7 +126,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
           <button
             id="btn-add-need-order"
             onClick={onOpenAddNeedModal}
-            className="bg-primary hover:bg-primary-hover text-text px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ Note Special Medicine Order</span>

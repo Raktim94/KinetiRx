@@ -130,7 +130,7 @@ export const MarketingModal: React.FC<MarketingModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-text font-bold rounded-2xl shadow-lg shadow-purple-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-text font-bold rounded-2xl shadow-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save Campaign</span>
@@ -271,7 +271,7 @@ export const WorksheetModal: React.FC<WorksheetModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-primary hover:bg-primary text-text font-bold rounded-2xl shadow-lg shadow-primary/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-2xl shadow-lg shadow-primary/40 transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save Task</span>

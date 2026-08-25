@@ -305,7 +305,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <button
             id="btn-dash-open-pos"
             onClick={() => navigate('pos')}
-            className="h-10 px-5 bg-emerald-600 hover:bg-emerald-500 text-text rounded-full flex items-center gap-2 text-xs font-bold shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+            className="h-10 px-5 bg-success hover:brightness-105 text-primary-foreground rounded-full flex items-center gap-2 text-xs font-bold shadow-lg transition cursor-pointer"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>+ POS Billing Counter</span>
@@ -319,18 +319,18 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div
           id="dash-expiry-alert-card"
           onClick={handleExpiryClick}
-          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-amber-500/30 hover:border-amber-400/50 transition-all cursor-pointer shadow-lg shadow-amber-950/20 group"
+          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-warning/30 hover:border-warning/50 transition-all cursor-pointer shadow-lg group"
         >
-          <div className="flex items-center justify-between font-bold text-amber-200">
+          <div className="flex items-center justify-between font-bold text-warning">
             <span className="flex items-center gap-2.5 text-sm">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="w-8 h-8 rounded-xl bg-warning/20 border border-warning/30 flex items-center justify-center text-warning">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <span>6-Month Short Expiry Alert</span>
             </span>
             <span
               id="dash-expiry-count"
-              className="bg-amber-500/20 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-full text-xs font-bold font-mono"
+              className="bg-warning/20 border border-warning/30 text-warning px-3 py-1 rounded-full text-xs font-bold font-mono"
             >
               {expiringItems.length} Batches
             </span>
@@ -338,7 +338,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           <p id="dash-expiry-preview" className="text-text-muted text-xs mt-2.5 truncate">
             {expiringItems.map(e => `${e.name} (${e.expiry})`).join(', ') || 'No critical expiring medicines'}
           </p>
-          <div className="text-[11px] text-amber-300 font-semibold flex items-center gap-1 mt-3 group-hover:text-amber-200 transition">
+          <div className="text-[11px] text-warning font-semibold flex items-center gap-1 mt-3 group-hover:text-warning transition">
             <span>View expiring batches & return list</span>
             <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
@@ -380,11 +380,11 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div
           id="dash-kpi-sales"
           onClick={handleSalesClick}
-          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-emerald-400/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-success/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-text-muted">
             <p className="text-xs font-medium text-text-muted">Today's Sales</p>
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-text transition">
+            <div className="w-9 h-9 rounded-xl bg-success/15 border border-success/30 flex items-center justify-center text-success group-hover:bg-success group-hover:text-primary-foreground transition">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -392,7 +392,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             <h3 id="dash-revenue" className="text-2xl font-bold font-mono text-text">
               ₹ {computedTodaySales.toFixed(2)}
             </h3>
-            <p className="text-[11px] text-emerald-400 font-medium mt-1 flex items-center gap-1">
+            <p className="text-[11px] text-success font-medium mt-1 flex items-center gap-1">
               <span>{todaySalesList.length} Billed Orders</span>
               <ArrowUpRight className="w-3 h-3" />
             </p>
@@ -403,19 +403,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div
           id="dash-kpi-due"
           onClick={handleDueClick}
-          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-rose-400/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-danger/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-text-muted">
             <p className="text-xs font-medium text-text-muted">Total Due</p>
-            <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400 group-hover:bg-rose-500 group-hover:text-text transition">
+            <div className="w-9 h-9 rounded-xl bg-danger/15 border border-danger/30 flex items-center justify-center text-danger group-hover:bg-danger group-hover:text-primary-foreground transition">
               <HandCoins className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 id="dash-due" className="text-2xl font-bold font-mono text-rose-400">
+            <h3 id="dash-due" className="text-2xl font-bold font-mono text-danger">
               ₹ {totalDueAmount.toFixed(2)}
             </h3>
-            <p className="text-[11px] text-rose-400 font-medium mt-1 flex items-center gap-1">
+            <p className="text-[11px] text-danger font-medium mt-1 flex items-center gap-1">
               <span>{patientsDue.length} Patients with Dues</span>
               <ArrowUpRight className="w-3 h-3" />
             </p>
@@ -430,7 +430,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         >
           <div className="flex items-center justify-between text-text-muted">
             <p className="text-xs font-medium text-text-muted">Drawer Cash</p>
-            <div className="w-9 h-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-text transition">
+            <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition">
               <Vault className="w-4 h-4" />
             </div>
           </div>
@@ -449,19 +449,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div
           id="dash-kpi-skus"
           onClick={handleStockClick}
-          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-blue-400/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-accent/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-text-muted">
             <p className="text-xs font-medium text-text-muted">Stock SKUs</p>
-            <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-text transition">
+            <div className="w-9 h-9 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-primary-foreground transition">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 id="dash-skus" className="text-2xl font-bold font-mono text-blue-300">
+            <h3 id="dash-skus" className="text-2xl font-bold font-mono text-text">
               {medicines.length} SKUs
             </h3>
-            <p className="text-[11px] text-blue-400 font-medium mt-1 flex items-center gap-1">
+            <p className="text-[11px] text-accent font-medium mt-1 flex items-center gap-1">
               <span>{totalStockUnits} Total Units ({lowStockCount} Low)</span>
               <ArrowUpRight className="w-3 h-3" />
             </p>
@@ -472,19 +472,19 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
         <div
           id="dash-kpi-val"
           onClick={() => navigate('inventory')}
-          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-purple-400/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border hover:border-warning/40 transition-all cursor-pointer shadow-lg group flex flex-col justify-between"
         >
           <div className="flex items-center justify-between text-text-muted">
             <p className="text-xs font-medium text-text-muted">Stock Valuation</p>
-            <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:bg-purple-500 group-hover:text-text transition">
+            <div className="w-9 h-9 rounded-xl bg-warning/15 border border-warning/30 flex items-center justify-center text-warning group-hover:bg-warning group-hover:text-primary-foreground transition">
               <Coins className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 id="dash-stock-value" className="text-2xl font-bold font-mono text-purple-300">
+            <h3 id="dash-stock-value" className="text-2xl font-bold font-mono text-text">
               ₹ {totalStockValuation.toFixed(2)}
             </h3>
-            <p className="text-[11px] text-purple-400 font-medium mt-1 flex items-center gap-1">
+            <p className="text-[11px] text-warning font-medium mt-1 flex items-center gap-1">
               <span>Purchase valuation</span>
               <ArrowUpRight className="w-3 h-3" />
             </p>

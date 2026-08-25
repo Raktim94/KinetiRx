@@ -148,7 +148,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
             <button
               id="btn-clear-all-stock"
               onClick={handleClearAllInventory}
-              className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold px-3 py-2 rounded-2xl text-xs flex items-center gap-1.5 backdrop-blur-md transition cursor-pointer"
+              className="bg-danger/15 hover:bg-danger/25 text-danger border border-danger/30 font-semibold px-3 py-2 rounded-2xl text-xs flex items-center gap-1.5 backdrop-blur-md transition cursor-pointer"
               title="Delete all medicine records"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -174,7 +174,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 
           <button
             onClick={handleExportCSV}
-            className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+            className="bg-success hover:brightness-105 text-primary-foreground font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Excel</span>
@@ -184,7 +184,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           <button
             id="btn-add-new-stock"
             onClick={onOpenAddStockModal}
-            className="bg-primary hover:bg-primary-hover text-text px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ Add New Stock</span>
@@ -194,9 +194,9 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           <button
             id="btn-add-new-lab-stock"
             onClick={onOpenAddLabStockModal}
-            className="bg-gradient-to-r from-purple-600 to-primary hover:from-purple-500 hover:to-primary-hover text-text px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-purple-600/30 border border-purple-400/30 transition cursor-pointer"
+            className="bg-accent hover:brightness-105 text-primary-foreground px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg border border-accent/40 transition cursor-pointer"
           >
-            <FlaskConical className="w-4 h-4 text-purple-200" />
+            <FlaskConical className="w-4 h-4" />
             <span>+ Add New Lab Stock</span>
           </button>
         </div>
@@ -211,19 +211,19 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
               {physicalMeds.length} Items ({totalStockUnits} Units)
             </h4>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-2xl bg-primary/15 border border-primary/30 text-primary flex items-center justify-center">
             <Boxes className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-purple-500/20 shadow-xl flex justify-between items-center text-text">
+        <div className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center text-text">
           <div>
-            <p className="text-xs font-medium text-purple-300">Lab Test SKUs</p>
-            <h4 className="text-lg font-bold text-purple-200 font-mono mt-1">
+            <p className="text-xs font-medium text-text-muted">Lab Test SKUs</p>
+            <h4 className="text-lg font-bold text-text font-mono mt-1">
               {labItems.length} Tests / Services
             </h4>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-2xl bg-accent/15 border border-accent/30 text-accent flex items-center justify-center">
             <FlaskConical className="w-5 h-5" />
           </div>
         </div>
@@ -231,11 +231,11 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         <div className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center text-text">
           <div>
             <p className="text-xs font-medium text-text-muted">Purchase Stock Valuation</p>
-            <h4 className="text-lg font-bold text-purple-300 font-mono mt-1">
+            <h4 className="text-lg font-bold text-warning font-mono mt-1">
               ₹ {totalValuation.toFixed(2)}
             </h4>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-2xl bg-warning/15 border border-warning/30 text-warning flex items-center justify-center">
             <Coins className="w-5 h-5" />
           </div>
         </div>
@@ -243,11 +243,11 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         <div className="p-5 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center text-text">
           <div>
             <p className="text-xs font-medium text-text-muted">Total MRP Retail Value</p>
-            <h4 className="text-lg font-bold text-emerald-400 font-mono mt-1">
+            <h4 className="text-lg font-bold text-success font-mono mt-1">
               ₹ {totalRetailValue.toFixed(2)}
             </h4>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-2xl bg-success/15 border border-success/30 text-success flex items-center justify-center">
             <Coins className="w-5 h-5" />
           </div>
         </div>
@@ -260,7 +260,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
             onClick={() => setFilterType('all')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               filterType === 'all'
-                ? 'bg-primary text-text shadow-md shadow-primary/30'
+                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
                 : 'text-text-muted hover:text-text'
             }`}
           >
@@ -270,7 +270,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
             onClick={() => setFilterType('meds')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               filterType === 'meds'
-                ? 'bg-blue-600 text-text shadow-md shadow-blue-600/30'
+                ? 'bg-blue-600 text-text shadow-md'
                 : 'text-text-muted hover:text-text'
             }`}
           >
@@ -280,7 +280,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
             onClick={() => setFilterType('labs')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               filterType === 'labs'
-                ? 'bg-purple-600 text-text shadow-md shadow-purple-600/30'
+                ? 'bg-purple-600 text-text shadow-md'
                 : 'text-text-muted hover:text-text'
             }`}
           >
@@ -290,7 +290,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
             onClick={() => setFilterType('low')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               filterType === 'low'
-                ? 'bg-rose-600 text-text shadow-md shadow-rose-600/30'
+                ? 'bg-rose-600 text-text shadow-md'
                 : 'text-text-muted hover:text-text'
             }`}
           >
@@ -299,7 +299,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           {filterType === 'low' && (
             <button
               onClick={onOpenLowStockReorderModal}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-text shadow-md shadow-rose-600/30 flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-text shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
               <span>Bulk Reorder</span>
@@ -309,7 +309,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
             onClick={() => setFilterType('expiry')}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               filterType === 'expiry'
-                ? 'bg-amber-600 text-text shadow-md shadow-amber-600/30'
+                ? 'bg-amber-600 text-text shadow-md'
                 : 'text-text-muted hover:text-text'
             }`}
           >

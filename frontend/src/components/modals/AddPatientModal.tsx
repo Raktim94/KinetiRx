@@ -274,7 +274,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-text font-bold rounded-xl shadow-lg shadow-teal-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-text font-bold rounded-xl shadow-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save Patient Profile</span>

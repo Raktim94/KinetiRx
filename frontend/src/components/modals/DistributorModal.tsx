@@ -171,7 +171,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center border-b border-border pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/30 flex items-center justify-center text-primary shadow-inner">
+            <div className="w-10 h-10 rounded-2xl bg-primary/12 border border-primary/30 flex items-center justify-center text-primary shadow-inner">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -323,7 +323,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
           <div className="flex justify-end pt-1">
             <button
               type="submit"
-              className="px-4 py-2 bg-gradient-to-r from-primary to-accent hover:from-primary-hover hover:to-accent text-text font-bold rounded-2xl text-xs flex items-center gap-1.5 shadow-lg shadow-primary/40 transition cursor-pointer"
+              className="btn-primary btn-sm"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>+ Save to Master Directory</span>
@@ -367,7 +367,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
               type="button"
               onClick={() => setSourceFilter('manual')}
               className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-                sourceFilter === 'manual' ? 'bg-primary text-text font-bold' : 'text-primary hover:text-text'
+                sourceFilter === 'manual' ? 'bg-primary text-primary-foreground font-bold' : 'text-primary hover:text-text'
               }`}
             >
               Manual ({manualCount})
@@ -491,7 +491,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
           <span>Showing {filteredDistributors.length} of {distributors.length} distributors</span>
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-bg hover:bg-bg text-text font-semibold rounded-2xl transition cursor-pointer"
+            className="px-5 py-2 bg-bg hover:bg-border text-text font-semibold rounded-2xl transition cursor-pointer"
           >
             Close Directory
           </button>
@@ -591,7 +591,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-primary hover:bg-primary text-text font-bold rounded-xl shadow-lg transition"
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg transition"
                 >
                   Save Changes
                 </button>

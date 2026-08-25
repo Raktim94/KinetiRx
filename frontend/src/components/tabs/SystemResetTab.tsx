@@ -325,10 +325,10 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
   return (
     <div className="space-y-6 text-text max-w-6xl mx-auto pb-12">
       {/* 1. TOP HEADER BANNER */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-rose-950/50 via-bg/80 to-purple-950/40 backdrop-blur-2xl border border-rose-500/30 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="p-6 rounded-3xl bg-danger/8 backdrop-blur-2xl border border-danger/30 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400">
+            <div className="w-8 h-8 rounded-xl bg-danger/20 border border-danger/40 flex items-center justify-center text-danger">
               <RotateCcw className="w-4 h-4" />
             </div>
             <h3 className="text-xl font-bold text-text tracking-tight">
@@ -426,7 +426,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
             <button
               id="btn-unlock-admin-reset"
               onClick={verifyPassword}
-              className="bg-gradient-to-r from-rose-600 to-primary hover:from-rose-500 hover:to-primary-hover text-text font-bold px-6 py-2.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-950/40 transition cursor-pointer"
+              className="btn-danger px-6 py-2.5 rounded-2xl text-xs"
             >
               <Unlock className="w-4 h-4" />
               <span>Verify & Unlock</span>
@@ -449,7 +449,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
           onClick={() => setActiveSubTab('reset_wizard')}
           className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
             activeSubTab === 'reset_wizard'
-              ? 'bg-rose-600 text-text shadow-lg shadow-rose-600/30 border border-rose-400/30'
+              ? 'bg-rose-600 text-text shadow-lg border border-rose-400/30'
               : 'bg-surface/5 text-text-muted hover:text-text hover:bg-surface/10 border border-border'
           }`}
         >
@@ -462,7 +462,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
           onClick={() => setActiveSubTab('backups')}
           className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
             activeSubTab === 'backups'
-              ? 'bg-primary text-text shadow-lg shadow-primary/30 border border-primary/40'
+              ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 border border-primary/40'
               : 'bg-surface/5 text-text-muted hover:text-text hover:bg-surface/10 border border-border'
           }`}
         >
@@ -478,7 +478,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
           onClick={() => setActiveSubTab('file_transfer')}
           className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
             activeSubTab === 'file_transfer'
-              ? 'bg-purple-600 text-text shadow-lg shadow-purple-600/30 border border-purple-400/30'
+              ? 'bg-purple-600 text-text shadow-lg border border-purple-400/30'
               : 'bg-surface/5 text-text-muted hover:text-text hover:bg-surface/10 border border-border'
           }`}
         >
@@ -716,7 +716,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                     disabled={!isUnlocked || confirmResetText.trim().toUpperCase() !== 'RESET'}
                     className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
                       isUnlocked && confirmResetText.trim().toUpperCase() === 'RESET'
-                        ? 'bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 hover:from-rose-500 hover:to-red-500 text-text shadow-rose-950/50 cursor-pointer'
+                        ? 'bg-danger hover:brightness-105 text-primary-foreground cursor-pointer'
                         : 'bg-surface/10 text-text-muted border border-border cursor-not-allowed'
                     }`}
                   >
@@ -759,7 +759,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                   setNewSnapshotLabel('');
                   setStatusMessage({ type: 'success', text: '✅ Instant backup snapshot created successfully!' });
                 }}
-                className="bg-primary hover:bg-primary-hover text-text px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
+                className="bg-primary hover:bg-primary-hover text-primary-foreground px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Take Snapshot Now</span>
@@ -891,7 +891,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                             setRestorePass('');
                             setRestoreError(null);
                           }}
-                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-text rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-text rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition cursor-pointer"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
                           <span>Restore This Backup</span>
@@ -923,7 +923,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
             <button
               id="btn-download-full-json"
               onClick={() => handleDownloadJSON()}
-              className="w-full py-2.5 bg-primary hover:bg-primary-hover text-text rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition cursor-pointer"
+              className="w-full py-2.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/30 transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Download JSON Backup File</span>
@@ -959,7 +959,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                 }
                 fileInputRef.current?.click();
               }}
-              className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-text rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-950/40 transition cursor-pointer"
+              className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-text rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg transition cursor-pointer"
             >
               <Upload className="w-4 h-4" />
               <span>Upload & Restore Backup File</span>
@@ -1035,7 +1035,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
               <button
                 type="button"
                 onClick={handleConfirmRestore}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-text rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-text rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg transition cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>Confirm & Restore</span>

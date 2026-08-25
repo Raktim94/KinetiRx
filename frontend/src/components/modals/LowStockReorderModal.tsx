@@ -202,7 +202,7 @@ export const LowStockReorderModal: React.FC<LowStockReorderModalProps> = ({
             type="button"
             onClick={handleSubmit}
             disabled={selectedCount === 0}
-            className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-text font-bold rounded-2xl shadow-lg shadow-rose-950/40 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-text font-bold rounded-2xl shadow-lg transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShoppingCart className="w-4 h-4" />
             <span>Create {selectedCount || ''} Reorder{selectedCount === 1 ? '' : 's'}</span>

@@ -199,7 +199,7 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-xl shadow-lg shadow-sky-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-sky-600 hover:bg-sky-500 text-text font-bold rounded-xl shadow-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Changes</span>

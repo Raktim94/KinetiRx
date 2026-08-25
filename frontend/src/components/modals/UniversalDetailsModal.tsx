@@ -353,7 +353,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                             )}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-text font-bold rounded-xl text-[10px] inline-flex items-center gap-1 shadow-md shadow-emerald-950/40 transition"
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-text font-bold rounded-xl text-[10px] inline-flex items-center gap-1 shadow-md transition"
                           >
                             <MessageCircle className="w-3 h-3" />
                             <span>WhatsApp</span>
@@ -403,7 +403,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                             )}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-text font-bold rounded-xl text-[10px] inline-flex items-center gap-1 shadow-md shadow-emerald-950/40 transition"
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-text font-bold rounded-xl text-[10px] inline-flex items-center gap-1 shadow-md transition"
                           >
                             <MessageCircle className="w-3 h-3" />
                             <span>WhatsApp</span>
@@ -476,31 +476,31 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     ₹ {openingBD.toFixed(2)}
                   </h4>
                 </div>
-                <div className="bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/20 backdrop-blur-md">
-                  <span className="text-[10px] text-emerald-300 uppercase font-bold">+ Gross Sales Inflow</span>
-                  <h4 className="text-base font-bold text-emerald-400 font-mono mt-1">
+                <div className="bg-success/10 p-4 rounded-2xl border border-success/20 backdrop-blur-md">
+                  <span className="text-[10px] text-success uppercase font-bold">+ Gross Sales Inflow</span>
+                  <h4 className="text-base font-bold text-success font-mono mt-1">
                     ₹ {grossTodaySales.toFixed(2)}
                   </h4>
                 </div>
-                <div className="bg-orange-500/10 p-4 rounded-2xl border border-orange-500/20 backdrop-blur-md">
-                  <span className="text-[10px] text-orange-300 uppercase font-bold">- Deductions (Online+Exp+Bank)</span>
-                  <h4 className="text-base font-bold text-orange-400 font-mono mt-1">
+                <div className="bg-warning/10 p-4 rounded-2xl border border-warning/20 backdrop-blur-md">
+                  <span className="text-[10px] text-warning uppercase font-bold">- Deductions (Online+Exp+Bank)</span>
+                  <h4 className="text-base font-bold text-warning font-mono mt-1">
                     ₹ {(phonePeOnline + recordedExpenses + bankDeposit).toFixed(2)}
                   </h4>
                 </div>
               </div>
 
-              <div className="p-5 bg-gradient-to-r from-emerald-900/60 via-teal-900/60 to-emerald-900/60 border border-emerald-500/40 text-text rounded-3xl shadow-xl flex justify-between items-center flex-wrap gap-4">
+              <div className="p-5 bg-success/12 border border-success/30 text-text rounded-3xl shadow-xl flex justify-between items-center flex-wrap gap-4">
                 <div>
-                  <span className="text-[11px] uppercase tracking-wider text-emerald-200 font-bold block">
+                  <span className="text-[11px] uppercase tracking-wider text-success font-bold block">
                     Net Physical Cash Balance in Drawer
                   </span>
-                  <h3 className="text-3xl font-extrabold font-mono text-emerald-400 mt-1">
+                  <h3 className="text-3xl font-extrabold font-mono text-success mt-1">
                     ₹ {netDrawerCash.toFixed(2)}
                   </h3>
                 </div>
                 <div className="text-right text-xs">
-                  <span className="text-[10px] text-emerald-200 block">Digital Split Recorded:</span>
+                  <span className="text-[10px] text-success/80 block">Digital Split Recorded:</span>
                   <span className="text-xs font-mono font-bold text-text">
                     UPI/PhonePe: ₹{phonePeOnline.toFixed(2)} | Bank Shift: ₹{bankDeposit.toFixed(2)}
                   </span>
@@ -729,7 +729,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
         <div className="flex justify-end pt-3 border-t border-border">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-bg hover:bg-bg text-text font-semibold rounded-2xl transition cursor-pointer"
+            className="px-4 py-2 bg-bg hover:bg-border text-text font-semibold rounded-2xl transition cursor-pointer"
           >
             Close
           </button>

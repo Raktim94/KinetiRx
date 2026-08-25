@@ -140,7 +140,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
           <button
             id="btn-add-patient-profile"
             onClick={() => setIsAddPatientOpen(true)}
-            className="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg shadow-teal-950/40 transition cursor-pointer"
+            className="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Register Patient Profile</span>

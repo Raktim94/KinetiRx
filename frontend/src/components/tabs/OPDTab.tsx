@@ -66,7 +66,7 @@ export const OPDTab: React.FC<OPDTabProps> = ({
         <div className="flex items-center gap-3 flex-wrap">
           <button
             onClick={handleExportCSV}
-            className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+            className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Excel</span>
@@ -75,7 +75,7 @@ export const OPDTab: React.FC<OPDTabProps> = ({
           <button
             id="btn-add-opd-patient"
             onClick={onOpenAddOPDModal}
-            className="bg-primary hover:bg-primary-hover text-text px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>+ Add OPD Patient</span>

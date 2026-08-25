@@ -586,7 +586,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-primary hover:bg-primary text-text font-bold rounded-xl shadow-lg shadow-primary/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/40 transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save Special Order</span>

@@ -6,56 +6,60 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  Design tokens — clinical teal/blue-green primary on neutral slate surfaces.
-  Defined once as real (runtime-switchable) CSS custom properties, then
-  aliased into Tailwind's theme via `@theme inline` so every component can
-  use them as ordinary utility classes: bg-bg, bg-surface, bg-surface-elevated,
-  border-border, text-text, text-text-muted, bg-primary, text-primary,
-  bg-primary-hover, text-primary-foreground, bg-accent, bg-success,
-  bg-warning, bg-danger (and their text-/border- counterparts).
+  Design tokens — "Apothecary Modern": a matte harbor-blue/seafoam/bone
+  palette on a warm neutral ground, no gradients, no saturated/neon
+  accents. Defined once as real (runtime-switchable) CSS custom
+  properties, then aliased into Tailwind's theme via `@theme inline` so
+  every component can use them as ordinary utility classes: bg-bg,
+  bg-surface, bg-surface-elevated, border-border, text-text,
+  text-text-muted, bg-primary, text-primary, bg-primary-hover,
+  text-primary-foreground, bg-accent, bg-success, bg-warning, bg-danger
+  (and their text-/border- counterparts).
 */
 :root {
-  --color-bg: #f1f5f9;
-  --color-surface: #ffffff;
+  --color-bg: #f2efe7;
+  --color-surface: #fbfaf6;
   --color-surface-elevated: #ffffff;
-  --color-border: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-primary: #0d9488;
-  --color-primary-hover: #0f766e;
-  --color-primary-foreground: #ffffff;
-  --color-accent: #0284c7;
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-danger: #e11d48;
+  --color-border: #ded7c6;
+  --color-text: #1c2b38;
+  --color-text-muted: #5c6b75;
+  --color-primary: #3368a0;
+  --color-primary-hover: #285480;
+  --color-primary-foreground: #f7f5ef;
+  --color-accent: #4d7f96;
+  --color-accent-soft: #c8dfdb;
+  --color-success: #47765d;
+  --color-warning: #a8763c;
+  --color-danger: #a2483f;
   /* Not exposed as a Tailwind utility; used directly via bg-[var(--color-overlay)] */
-  --color-overlay: rgb(15 23 42 / 0.6);
+  --color-overlay: rgb(28 43 56 / 0.55);
   /* Glass material tokens — see the .glass-panel family below. */
   --glass-tint: var(--color-surface);
-  --glass-highlight: rgb(255 255 255 / 0.65);
-  --glass-shadow: rgb(15 23 42 / 0.16);
-  --glass-shadow-soft: rgb(15 23 42 / 0.08);
+  --glass-highlight: rgb(255 255 255 / 0.6);
+  --glass-shadow: rgb(28 43 56 / 0.14);
+  --glass-shadow-soft: rgb(28 43 56 / 0.07);
 }
 
 .dark {
-  --color-bg: #0a0e16;
-  --color-surface: #111827;
-  --color-surface-elevated: #1b2436;
-  --color-border: rgb(255 255 255 / 0.08);
-  --color-text: #e2e8f0;
-  --color-text-muted: #94a3b8;
-  --color-primary: #2dd4bf;
-  --color-primary-hover: #5eead4;
-  --color-primary-foreground: #04302c;
-  --color-accent: #38bdf8;
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
-  --color-danger: #fb7185;
-  --color-overlay: rgb(0 0 0 / 0.7);
+  --color-bg: #121a22;
+  --color-surface: #182430;
+  --color-surface-elevated: #202f3c;
+  --color-border: rgb(200 223 219 / 0.12);
+  --color-text: #eae6da;
+  --color-text-muted: #93a3ac;
+  --color-primary: #6fa0c8;
+  --color-primary-hover: #8ab3d6;
+  --color-primary-foreground: #10202e;
+  --color-accent: #7fb3bd;
+  --color-accent-soft: #2c3e42;
+  --color-success: #6fa588;
+  --color-warning: #c9a06a;
+  --color-danger: #c17b73;
+  --color-overlay: rgb(10 15 20 / 0.7);
   --glass-tint: var(--color-surface-elevated);
-  --glass-highlight: rgb(255 255 255 / 0.08);
-  --glass-shadow: rgb(0 0 0 / 0.55);
-  --glass-shadow-soft: rgb(0 0 0 / 0.3);
+  --glass-highlight: rgb(255 255 255 / 0.06);
+  --glass-shadow: rgb(0 0 0 / 0.5);
+  --glass-shadow-soft: rgb(0 0 0 / 0.28);
 }
 
 @theme inline {
@@ -69,16 +73,49 @@
   --color-primary-hover: var(--color-primary-hover);
   --color-primary-foreground: var(--color-primary-foreground);
   --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
+
+  /* Apothecary Modern type system — a warm display serif used with
+     restraint, a systematic UI sans for body/labels, and a mono face
+     reserved for tabular data (prices, SKUs, invoice numbers). */
+  --font-display: "Fraunces", "Iowan Old Style", "Georgia", serif;
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace;
+
+  /* A tighter, more deliberate radius scale than Tailwind's defaults —
+     the previous UI leaned on rounded-2xl/3xl almost everywhere, which
+     reads as generic/AI-templated at this density. Buttons and inputs
+     stay crisp; only large hero/modal surfaces get real softness. */
+  --radius-sm: 0.3125rem; /* 5px */
+  --radius-md: 0.4375rem; /* 7px */
+  --radius-lg: 0.625rem; /* 10px */
+  --radius-xl: 0.75rem; /* 12px */
+  --radius-2xl: 0.875rem; /* 14px */
+  --radius-3xl: 1.125rem; /* 18px */
 }
 
 @layer base {
   body {
     @apply bg-bg text-text antialiased selection:bg-primary selection:text-primary-foreground;
+    font-family: var(--font-sans);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  /* Tabular data — prices, quantities, SKUs, invoice/phone numbers —
+     gets the mono face with tabular figures so columns of numbers
+     actually align. Opt in with font-mono / .tabular-figures. */
+  .tabular-figures {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 }
 
@@ -109,14 +146,13 @@
   Tailwind's layered `.fixed`, turning a fixed off-screen sidebar back into
   a normal-flow 288px-wide flex child).
 
-  The previous version also set a fully opaque background-color behind
-  backdrop-filter: blur(), which gave blur() nothing to actually blur —
-  visually indistinguishable from a plain card. Real depth here comes from
-  three things layered together, all token-driven:
+  Real depth here comes from three things layered together, all
+  token-driven, and deliberately matte (no rainbow refraction, no bloom):
     1. Genuine translucency (color-mix against transparent, not a solid hex)
        so blur has something behind it to soften.
-    2. saturate() alongside blur() — boosts the color of whatever shows
-       through, the actual source of "vibrancy" in frosted-glass materials.
+    2. A very restrained saturate() alongside blur() — just enough to keep
+       the material from looking flat/gray, not the vibrant "frosted neon"
+       effect of a heavier saturate().
     3. An inset top highlight + layered outer shadow, standing in for a
        light source catching the upper edge of a physical pane.
   Reserve .glass-sheen (a soft top-left light catch) for one or two hero
@@ -133,25 +169,25 @@
 */
 @layer utilities {
   .glass-panel {
-    background-color: color-mix(in srgb, var(--glass-tint) 78%, transparent);
-    backdrop-filter: blur(28px) saturate(1.6);
-    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    background-color: color-mix(in srgb, var(--glass-tint) 82%, transparent);
+    backdrop-filter: blur(24px) saturate(1.15);
+    -webkit-backdrop-filter: blur(24px) saturate(1.15);
     border: 1px solid var(--color-border);
     box-shadow:
-      0 24px 60px -20px var(--glass-shadow),
-      0 8px 24px -12px var(--glass-shadow-soft),
+      0 20px 48px -20px var(--glass-shadow),
+      0 6px 18px -10px var(--glass-shadow-soft),
       inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .glass-panel-subtle {
-    background-color: color-mix(in srgb, var(--glass-tint) 62%, transparent);
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    background-color: color-mix(in srgb, var(--glass-tint) 68%, transparent);
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
     box-shadow: inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .glass-input {
-    background-color: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
     border: 1px solid var(--color-border);
     color: var(--color-text);
   }
@@ -159,7 +195,7 @@
   .glass-input:focus {
     border-color: var(--color-primary);
     outline: none;
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 22%, transparent);
   }
 
   .glass-card-hover {
@@ -183,8 +219,78 @@
     pointer-events: none;
     background: radial-gradient(
       120% 90% at 12% -10%,
-      color-mix(in srgb, var(--glass-highlight) 70%, transparent) 0%,
+      color-mix(in srgb, var(--glass-highlight) 60%, transparent) 0%,
       transparent 55%
     );
+  }
+}
+
+/*
+  Button system — one shared vocabulary so every CTA in the app reads as
+  the same considered product instead of one-off gradient pills. Solid
+  matte fills, a single restrained shadow, and a small lift + brightness
+  shift on hover/active rather than a color-swap or glow.
+
+  `.btn` is declared via `@utility` (not plain `@layer components`)
+  specifically so the variant classes below can `@apply btn` — Tailwind v4
+  only lets `@apply` reference real utilities (its own, or ones registered
+  with `@utility`), not arbitrary custom classes defined by another `@apply`.
+*/
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold
+    transition-[transform,box-shadow,background-color,border-color] duration-150 ease-out
+    cursor-pointer select-none whitespace-nowrap
+    disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
+  padding: 0.6rem 1.1rem;
+}
+
+@layer components {
+  .btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground border border-primary shadow-sm;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+  }
+
+  .btn-secondary {
+    @apply btn text-text border;
+    background-color: color-mix(in srgb, var(--color-surface-elevated) 92%, transparent);
+    border-color: var(--color-border);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-text-muted border border-transparent;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--color-text) 6%, transparent);
+    color: var(--color-text);
+  }
+
+  .btn-danger {
+    @apply btn text-primary-foreground border;
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+  }
+  .btn-danger:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  .btn-sm {
+    @apply text-xs rounded-lg;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .btn-icon {
+    @apply btn rounded-full p-0 aspect-square;
   }
 }

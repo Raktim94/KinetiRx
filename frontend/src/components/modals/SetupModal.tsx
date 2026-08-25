@@ -132,7 +132,7 @@ export const SetupModal: React.FC<SetupModalProps> = ({ onSetupSuccess }) => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 bg-primary hover:bg-primary text-text font-bold rounded-2xl shadow-lg shadow-primary/40 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-primary hover:bg-primary-hover text-primary-foreground font-bold rounded-2xl shadow-lg shadow-primary/40 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>{submitting ? 'Creating account…' : 'Create Admin Account'}</span>

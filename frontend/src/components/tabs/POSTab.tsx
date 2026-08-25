@@ -775,7 +775,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                 onClick={() => setBillingMode('med')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   billingMode === 'med'
-                    ? 'bg-primary text-text shadow-md shadow-primary/30'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -787,7 +787,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                 onClick={() => setBillingMode('lab')}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   billingMode === 'lab'
-                    ? 'bg-primary text-text shadow-md shadow-primary/30'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
                     : 'text-text-muted hover:text-text'
                 }`}
               >
@@ -1081,7 +1081,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                   onClick={() => setDiscountPercent(pct)}
                   className={`px-2 py-1 rounded-lg font-mono text-[11px] font-bold transition cursor-pointer ${
                     safeDiscountPercent === pct
-                      ? 'bg-primary text-text'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-surface hover:bg-bg text-text-muted border border-border'
                   }`}
                 >
@@ -1104,13 +1104,13 @@ export const POSTab: React.FC<POSTabProps> = ({
           </div>
 
           {/* Grand Total Box */}
-          <div className="flex justify-between items-center bg-gradient-to-r from-primary/40 via-purple-950/40 to-primary/40 p-3.5 rounded-2xl border border-primary/30 backdrop-blur-md">
+          <div className="flex justify-between items-center bg-primary/12 p-3.5 rounded-2xl border border-primary/30 backdrop-blur-md">
             <span className="font-extrabold text-text text-xs uppercase tracking-wide">
               Grand Total:
             </span>
             <span
               id="pos-grandtotal"
-              className="font-black text-emerald-400 text-xl font-mono"
+              className="font-black text-success text-xl font-mono"
             >
               ₹ {grandTotal.toFixed(2)}
             </span>
@@ -1207,7 +1207,7 @@ export const POSTab: React.FC<POSTabProps> = ({
               id="btn-checkout-print"
               type="button"
               onClick={handleGenerateBill}
-              className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-text font-bold py-3 rounded-2xl text-xs shadow-lg shadow-emerald-950/40 transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full btn text-primary-foreground bg-success border border-success hover:brightness-105 py-3 rounded-2xl text-xs shadow-lg"
             >
               <Printer className="w-4 h-4" />
               <span>Generate Bill & Print PDF</span>

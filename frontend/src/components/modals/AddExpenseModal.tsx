@@ -184,7 +184,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-text font-bold rounded-xl shadow-lg shadow-orange-950/40 transition flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-orange-600 hover:bg-orange-500 text-text font-bold rounded-xl shadow-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Save & Update Daily Register</span>

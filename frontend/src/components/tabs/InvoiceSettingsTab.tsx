@@ -296,7 +296,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
       >
         <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg shadow-amber-950/40">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg">
               <Clock className="w-5 h-5" />
             </div>
             <div>
@@ -321,9 +321,9 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
         </div>
 
         {/* PRIMARY MANDATORY POLICY HIGHLIGHT */}
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/30 via-surface/40 to-amber-950/30 border border-amber-500/30 space-y-2 backdrop-blur-md">
+        <div className="p-4 rounded-2xl bg-warning/8 border border-warning/30 space-y-2 backdrop-blur-md">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300 shrink-0 mt-0.5">
+            <div className="p-2 rounded-xl bg-warning/20 text-warning shrink-0 mt-0.5">
               <Database className="w-4 h-4" />
             </div>
             <div className="space-y-1">
@@ -489,7 +489,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
               className={`px-3 py-1 rounded-xl font-medium transition cursor-pointer ${
                 activeDatePreset === p.key
                   ? 'bg-primary text-primary-foreground font-bold shadow-md shadow-primary/30'
-                  : 'bg-surface hover:bg-surface-elevated text-text-muted border border-border'
+                  : 'bg-surface hover:bg-border-elevated text-text-muted border border-border'
               }`}
             >
               {p.label}
@@ -569,7 +569,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
           <button
             type="button"
             onClick={handleDownloadExcel}
-            className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold p-3 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition cursor-pointer text-xs"
+            className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold p-3 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition cursor-pointer text-xs"
           >
             <FileSpreadsheet className="w-4 h-4" />
             <span>Download Excel / CSV ({filteredInvoices.length} Invoices)</span>
@@ -893,7 +893,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
           <div className="flex justify-end pt-3 border-t border-border">
             <button
               type="submit"
-              className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-6 py-2.5 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-6 py-2.5 rounded-2xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Settings & Retention Policy</span>
@@ -903,15 +903,15 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
       </div>
 
       {/* DEDICATED RESET & 5-DAY BACKUP HIGHLIGHT CARD */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-rose-950/40 via-surface/60 to-purple-950/40 backdrop-blur-2xl border border-rose-500/30 shadow-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="p-6 rounded-3xl bg-danger/8 backdrop-blur-2xl border border-danger/30 shadow-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-danger/20 border border-danger/30 text-danger flex items-center justify-center shrink-0">
             <RotateCcw className="w-5 h-5" />
           </div>
           <div>
             <h4 className="text-sm font-bold text-text flex items-center gap-2">
               <span>Organization Handover / System Reset</span>
-              <span className="bg-rose-500/20 text-rose-300 text-[10px] px-2 py-0.5 rounded-full font-bold border border-rose-500/30">
+              <span className="bg-danger/20 text-danger text-[10px] px-2 py-0.5 rounded-full font-bold border border-danger/30">
                 Admin
               </span>
             </h4>
@@ -925,7 +925,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
           <button
             id="btn-goto-system-reset"
             onClick={onNavigateToReset}
-            className="bg-gradient-to-r from-rose-600 to-primary hover:from-rose-500 hover:to-primary-hover text-text px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-rose-950/40 transition cursor-pointer shrink-0"
+            className="btn-danger px-5 py-2.5 rounded-2xl text-xs shrink-0"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Open Reset & 5-Day Backup Hub</span>

@@ -124,7 +124,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
             />
             <button
               type="submit"
-              className="bg-purple-600 hover:bg-purple-500 text-text font-bold px-4 py-3 rounded-2xl text-xs flex items-center gap-1.5 shrink-0 shadow-lg shadow-purple-950/40 transition cursor-pointer"
+              className="bg-purple-600 hover:bg-purple-500 text-text font-bold px-4 py-3 rounded-2xl text-xs flex items-center gap-1.5 shrink-0 shadow-lg transition cursor-pointer"
             >
               <Brain className="w-4 h-4" />
               <span>Search</span>
@@ -180,7 +180,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                             onAddToCart(item);
                             onClose();
                           }}
-                          className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-md shadow-emerald-950/40 flex items-center gap-1 cursor-pointer"
+                          className="bg-emerald-600 hover:bg-emerald-500 text-text font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-md flex items-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           <span>Add to Bill</span>
@@ -234,7 +234,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                           onOrderSpecial(alt.name);
                           onClose();
                         }}
-                        className="bg-primary hover:bg-primary text-text font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-md shadow-primary/40 flex items-center gap-1 cursor-pointer"
+                        className="bg-primary hover:bg-primary-hover text-primary-foreground font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-md shadow-primary/40 flex items-center gap-1 cursor-pointer"
                       >
                         <ShoppingCart className="w-3 h-3" />
                         <span>Order</span>
@@ -251,7 +251,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
         <div className="flex justify-end pt-3 border-t border-border">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-bg hover:bg-bg text-text font-semibold rounded-2xl transition cursor-pointer"
+            className="px-4 py-2 bg-bg hover:bg-border text-text font-semibold rounded-2xl transition cursor-pointer"
           >
             Close
           </button>

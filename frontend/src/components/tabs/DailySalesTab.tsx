@@ -544,7 +544,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <button
               type="button"
               onClick={() => setIsAddExpenseOpen(true)}
-              className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-orange-950/40 transition cursor-pointer"
+              className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
               title="Add an expense voucher directly into daily register"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -581,7 +581,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               id="btn-save-lock-daily"
               type="button"
               onClick={handleSaveAndLock}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Save & Lock</span>
@@ -627,7 +627,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <div
               className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
                 isEditing
-                  ? 'bg-indigo-950/20 border-indigo-400/50 shadow-md shadow-indigo-950/30'
+                  ? 'bg-indigo-950/20 border-indigo-400/50 shadow-md'
                   : 'bg-white/5 border-white/10'
               }`}
             >
@@ -677,7 +677,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <div
               className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
                 isEditing
-                  ? 'bg-indigo-950/20 border-indigo-400/50 shadow-md shadow-indigo-950/30'
+                  ? 'bg-indigo-950/20 border-indigo-400/50 shadow-md'
                   : 'bg-indigo-500/10 border-indigo-500/20'
               }`}
             >
@@ -744,7 +744,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <div
               className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
                 isEditing
-                  ? 'bg-rose-950/20 border-rose-400/50 shadow-md shadow-rose-950/30'
+                  ? 'bg-rose-950/20 border-rose-400/50 shadow-md'
                   : 'bg-rose-500/10 border-rose-500/20'
               }`}
             >
@@ -783,7 +783,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <div
               className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
                 isEditing
-                  ? 'bg-orange-950/20 border-orange-400/50 shadow-md shadow-orange-950/30'
+                  ? 'bg-orange-950/20 border-orange-400/50 shadow-md'
                   : 'bg-orange-500/10 border-orange-500/20'
               }`}
             >
@@ -837,7 +837,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <div
               className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
                 isEditing
-                  ? 'bg-purple-950/20 border-purple-400/50 shadow-md shadow-purple-950/30'
+                  ? 'bg-purple-950/20 border-purple-400/50 shadow-md'
                   : 'bg-purple-500/10 border-purple-500/20'
               }`}
             >
@@ -875,16 +875,16 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
         </div>
 
         {/* NET FINAL PHYSICAL CASH IN DRAWER */}
-        <div className="p-6 bg-gradient-to-r from-emerald-950/50 via-teal-950/40 to-emerald-950/50 border border-emerald-500/40 rounded-3xl flex justify-between items-center flex-wrap gap-4 backdrop-blur-xl shadow-xl shadow-emerald-950/40">
+        <div className="p-6 bg-success/12 border border-success/30 rounded-3xl flex justify-between items-center flex-wrap gap-4 backdrop-blur-xl shadow-xl">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center shadow-lg shadow-emerald-950/40">
+            <div className="w-14 h-14 rounded-2xl bg-success/20 border border-success/40 text-success flex items-center justify-center shadow-lg">
               <Vault className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-xs uppercase font-bold text-emerald-300 tracking-wider block">
+              <span className="text-xs uppercase font-bold text-success tracking-wider block">
                 Final Physical Cash-In-Drawer Balance
               </span>
-              <p className="text-xs text-slate-300 mt-0.5">
+              <p className="text-xs text-text-muted mt-0.5">
                 Calculated: [Gross In Hand ₹{grossInHand.toFixed(2)}] − [Deductions ₹{totalDeductions.toFixed(2)}]
               </p>
             </div>
@@ -892,10 +892,10 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
 
           <div className="flex items-center gap-4 flex-wrap">
             <div className="text-right">
-              <div id="calc-final-bd" className="text-3xl font-extrabold text-emerald-400 font-mono">
+              <div id="calc-final-bd" className="text-3xl font-extrabold text-success font-mono">
                 ₹ {finalDrawerCash.toFixed(2)}
               </div>
-              <span className="text-[11px] text-slate-400">Closing Cash Balance</span>
+              <span className="text-[11px] text-text-muted">Closing Cash Balance</span>
             </div>
 
             <button
@@ -998,7 +998,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               onClick={() => setActiveDayView('sales')}
               className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeDayView === 'sales'
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-950/50 border border-indigo-500/40'
+                  ? 'bg-indigo-600 text-white shadow-lg border border-indigo-500/40'
                   : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
               }`}
             >
@@ -1010,7 +1010,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               onClick={() => setActiveDayView('expenses')}
               className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeDayView === 'expenses'
-                  ? 'bg-orange-600 text-white shadow-lg shadow-orange-950/50 border border-orange-500/40'
+                  ? 'bg-orange-600 text-white shadow-lg border border-orange-500/40'
                   : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
               }`}
             >
@@ -1022,7 +1022,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               onClick={() => setActiveDayView('custom-range')}
               className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeDayView === 'custom-range'
-                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-950/50 border border-teal-500/40'
+                  ? 'bg-teal-600 text-white shadow-lg border border-teal-500/40'
                   : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
               }`}
             >
@@ -1259,7 +1259,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               <div>
                 <button
                   onClick={handleExportCustomDateRange}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold p-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-950/40 transition cursor-pointer"
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold p-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-lg transition cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" /> Download Excel ({filteredSales.length} Rows)
                 </button>

@@ -280,7 +280,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text flex items-center gap-2.5">
               <span>Pharmacy Overview & Live Analytics</span>
             </h1>
-            <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md">
+            <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-mono font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>{formatFullDateWithDay(todayISO)}</span>
             </span>
@@ -546,7 +546,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
               <h4 className="font-bold text-text text-sm">Payment Breakdown</h4>
               <p className="text-[11px] text-text-muted">Cash vs UPI vs Due Balance</p>
             </div>
-            <span className="text-[10px] font-mono bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-full font-bold">
+            <span className="text-[10px] font-mono bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 px-2.5 py-1 rounded-full font-bold">
               Current
             </span>
           </div>

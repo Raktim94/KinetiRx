@@ -196,12 +196,12 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
                   className="p-2 rounded-xl bg-surface hover:bg-bg text-text-muted hover:text-text border border-border transition cursor-pointer"
                   title="Export Distributors CSV"
                 >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 </button>
                 <button
                   type="button"
                   onClick={handleClearAllDistributors}
-                  className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-200 border border-rose-500/20 transition cursor-pointer"
+                  className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 border border-rose-500/20 transition cursor-pointer"
                   title="Clear All Distributors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -358,7 +358,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
               type="button"
               onClick={() => setSourceFilter('ocr')}
               className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-                sourceFilter === 'ocr' ? 'bg-amber-600 text-text font-bold' : 'text-amber-400 hover:text-text'
+                sourceFilter === 'ocr' ? 'bg-amber-600 text-text font-bold' : 'text-amber-600 dark:text-amber-400 hover:text-text'
               }`}
             >
               Auto OCR ({ocrCount})
@@ -447,7 +447,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
 
                     <td className="p-3">
                       {d.source === 'OCR Purchase Bill' ? (
-                        <span className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                        <span className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">
                           <Sparkles className="w-2.5 h-2.5" />
                           <span>Auto OCR Scan</span>
                         </span>
@@ -472,7 +472,7 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleRemove(d.id, d.name)}
-                          className="text-rose-400 hover:text-rose-200 p-1.5 hover:bg-rose-500/20 rounded-lg transition cursor-pointer"
+                          className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 p-1.5 hover:bg-rose-500/20 rounded-lg transition cursor-pointer"
                           title="Remove from directory"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

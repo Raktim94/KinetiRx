@@ -96,7 +96,7 @@ export const ManageMedicineGroupsModal: React.FC<ManageMedicineGroupsModalProps>
                   />
                   <button
                     onClick={() => handleRename(g)}
-                    className="text-emerald-400 hover:text-emerald-300 p-1 cursor-pointer"
+                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 p-1 cursor-pointer"
                     title="Save"
                   >
                     <Check className="w-4 h-4" />

@@ -107,7 +107,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
       <div className="glass-panel rounded-3xl max-w-lg w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <div className="w-8 h-8 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
               <UserPlus className="w-4 h-4" />
             </div>
             <span>Register New Patient Profile</span>
@@ -259,7 +259,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
                 value={initialDue}
                 onChange={e => setInitialDue(e.target.value)}
                 placeholder="0.00"
-                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono text-rose-400 font-bold outline-none focus:border-primary"
+                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono text-rose-600 dark:text-rose-400 font-bold outline-none focus:border-primary"
               />
             </div>
           </div>

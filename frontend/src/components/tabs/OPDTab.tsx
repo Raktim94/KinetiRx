@@ -53,7 +53,7 @@ export const OPDTab: React.FC<OPDTabProps> = ({
       <div className="p-6 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center flex-wrap gap-4 text-text">
         <div>
           <h3 className="text-base font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
               <Stethoscope className="w-4 h-4" />
             </div>
             <span>OPD & Lab Clinical Re-visit Register</span>
@@ -92,7 +92,7 @@ export const OPDTab: React.FC<OPDTabProps> = ({
                 <th className="p-3.5">Doctor Assigned</th>
                 <th className="p-3.5">Visit Date</th>
                 <th className="p-3.5 text-primary font-bold">Next Re-Visit Date</th>
-                <th className="p-3.5 text-rose-400 font-bold">Tests Advised</th>
+                <th className="p-3.5 text-rose-600 dark:text-rose-400 font-bold">Tests Advised</th>
                 <th className="p-3.5">Alert Status</th>
                 <th className="p-3.5 text-center">SMS & Phone Call</th>
               </tr>
@@ -114,15 +114,15 @@ export const OPDTab: React.FC<OPDTabProps> = ({
                       </span>
                     </td>
                     <td className="p-3.5 font-medium text-text flex items-center gap-1.5 mt-1">
-                      <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
+                      <UserCheck className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
                       <span>{o.doc}</span>
                     </td>
                     <td className="p-3.5 font-mono text-text-muted">{o.vdate}</td>
                     <td className="p-3.5 font-bold text-primary font-mono">
                       {o.rvdate || 'N/A'}
                     </td>
-                    <td className="p-3.5 text-rose-300 font-semibold flex items-center gap-1 mt-1">
-                      <TestTube2 className="w-3.5 h-3.5 text-rose-400" />
+                    <td className="p-3.5 text-rose-700 dark:text-rose-300 font-semibold flex items-center gap-1 mt-1">
+                      <TestTube2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                       <span>{o.btest}</span>
                     </td>
                     <td className="p-3.5">
@@ -134,13 +134,13 @@ export const OPDTab: React.FC<OPDTabProps> = ({
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleDirectSMS(o)}
-                          className="px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition backdrop-blur-sm cursor-pointer"
+                          className="px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-700 dark:text-sky-300 border border-sky-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition backdrop-blur-sm cursor-pointer"
                         >
                           <Send className="w-3 h-3" /> Auto SMS
                         </button>
                         <a
                           href={`tel:${o.phone}`}
-                          className="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition backdrop-blur-sm"
+                          className="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition backdrop-blur-sm"
                         >
                           <PhoneCall className="w-3 h-3" /> Call
                         </a>

@@ -32,7 +32,7 @@ export const BusinessDevTab: React.FC<BusinessDevTabProps> = ({
           <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-2">
             <div>
               <h4 className="font-bold text-text text-sm flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                   <Megaphone className="w-4 h-4" />
                 </div>
                 <span>Doctor Campaign & Marketing</span>
@@ -60,21 +60,21 @@ export const BusinessDevTab: React.FC<BusinessDevTabProps> = ({
                 >
                   <div className="space-y-1.5">
                     <h5 className="font-bold text-text flex items-center gap-1.5 text-xs">
-                      <Stethoscope className="w-3.5 h-3.5 text-purple-400" />
+                      <Stethoscope className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                       {m.doc}
                     </h5>
                     <p className="text-text-muted text-xs leading-relaxed">{m.action}</p>
-                    <span className="text-[10px] text-purple-300 font-mono font-semibold flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-purple-400" /> Visit Date: {m.date}
+                    <span className="text-[10px] text-purple-700 dark:text-purple-300 font-mono font-semibold flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-purple-600 dark:text-purple-400" /> Visit Date: {m.date}
                     </span>
                   </div>
                   <div className="flex flex-col items-end gap-2 shrink-0 ml-3">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         m.status === '7-Day Alert Active'
-                          ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                          ? 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30'
                           : m.status === 'Completed'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                           : 'bg-surface-elevated text-text border border-border'
                       }`}
                     >
@@ -137,9 +137,9 @@ export const BusinessDevTab: React.FC<BusinessDevTabProps> = ({
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                         w.status === 'Completed'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30'
                           : w.status === 'In Progress'
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
                           : 'bg-surface-elevated text-text border border-border'
                       }`}
                     >

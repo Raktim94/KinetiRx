@@ -66,7 +66,7 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
       <div className="p-6 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center flex-wrap gap-4 text-text">
         <div>
           <h3 className="text-base font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
               <Wallet className="w-4 h-4" />
             </div>
             <span>Daily Expenditure Register</span>
@@ -77,8 +77,8 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="bg-orange-500/20 border border-orange-500/30 px-3.5 py-2 rounded-2xl text-xs font-bold text-orange-300 backdrop-blur-md">
-            Today's Logged: <span className="font-mono text-sm text-orange-200">₹ {todayExpensesSum.toFixed(2)}</span>
+          <div className="bg-orange-500/20 border border-orange-500/30 px-3.5 py-2 rounded-2xl text-xs font-bold text-orange-700 dark:text-orange-300 backdrop-blur-md">
+            Today's Logged: <span className="font-mono text-sm text-orange-800 dark:text-orange-200">₹ {todayExpensesSum.toFixed(2)}</span>
           </div>
 
           <div className="bg-surface border border-border px-3.5 py-2 rounded-2xl text-xs font-bold text-text-muted backdrop-blur-md">
@@ -123,7 +123,7 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
           </select>
 
           <div className="flex items-center gap-1.5 bg-surface border border-border px-3 py-1.5 rounded-2xl text-xs text-text-muted">
-            <Calendar className="w-3.5 h-3.5 text-orange-400" />
+            <Calendar className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
             <input
               type="date"
               value={selectedDate}

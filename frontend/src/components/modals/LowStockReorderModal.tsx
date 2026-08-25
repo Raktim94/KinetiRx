@@ -96,7 +96,7 @@ export const LowStockReorderModal: React.FC<LowStockReorderModalProps> = ({
       <div className="glass-panel rounded-3xl max-w-3xl w-full p-6 space-y-4 text-xs text-text max-h-[90vh] overflow-y-auto animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
               <AlertTriangle className="w-4 h-4" />
             </div>
             <span>Bulk Reorder Low Stock</span>
@@ -156,7 +156,7 @@ export const LowStockReorderModal: React.FC<LowStockReorderModalProps> = ({
                         />
                       </td>
                       <td className="p-2.5 font-medium text-text">{m.name}</td>
-                      <td className="p-2.5 text-rose-400 font-mono">{m.stock}</td>
+                      <td className="p-2.5 text-rose-600 dark:text-rose-400 font-mono">{m.stock}</td>
                       <td className="p-2.5">
                         <input
                           type="number"

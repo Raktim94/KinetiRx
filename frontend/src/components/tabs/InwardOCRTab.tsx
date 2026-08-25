@@ -777,8 +777,8 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text flex items-center gap-2.5">
               <span>Universal Supplier Purchase Bill Auto-Scan (OCR)</span>
             </h1>
-            <span className="bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="bg-amber-500/20 border border-amber-500/40 text-amber-700 dark:text-amber-300 font-mono font-bold text-xs px-3 py-1 rounded-full flex items-center gap-1.5 backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>Multi-Format Distributor AI</span>
             </span>
           </div>
@@ -789,7 +789,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
 
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-xs bg-surface border border-border px-3 py-1.5 rounded-xl text-text-muted font-mono flex items-center gap-1.5">
-            <PackageCheck className="w-4 h-4 text-emerald-400" />
+            <PackageCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Live Inventory: {medicines.length} SKUs</span>
           </span>
           <span className="text-xs bg-surface border border-border px-3 py-1.5 rounded-xl text-text-muted font-mono flex items-center gap-1.5">
@@ -801,24 +801,24 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
 
       {/* NOTIFICATIONS */}
       {successNotice && (
-        <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between backdrop-blur-xl shadow-lg animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-800 dark:text-emerald-200 text-xs flex items-center justify-between backdrop-blur-xl shadow-lg animate-in fade-in">
           <div className="flex items-center gap-2 font-semibold">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{successNotice}</span>
           </div>
-          <button onClick={() => setSuccessNotice(null)} className="text-emerald-400 hover:text-text p-1">
+          <button onClick={() => setSuccessNotice(null)} className="text-emerald-600 dark:text-emerald-400 hover:text-text p-1">
             ✕
           </button>
         </div>
       )}
 
       {errorNotice && (
-        <div className="p-4 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs flex items-center justify-between backdrop-blur-xl shadow-lg animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between backdrop-blur-xl shadow-lg animate-in fade-in">
           <div className="flex items-center gap-2 font-semibold">
-            <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>{errorNotice}</span>
           </div>
-          <button onClick={() => setErrorNotice(null)} className="text-rose-400 hover:text-text p-1">
+          <button onClick={() => setErrorNotice(null)} className="text-rose-600 dark:text-rose-400 hover:text-text p-1">
             ✕
           </button>
         </div>
@@ -903,7 +903,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
                 </p>
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-surface border border-border rounded-full text-[11px] text-primary font-mono">
-                <Sparkles className="w-3 h-3 text-amber-400" />
+                <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                 <span>Auto-detects distributor format, updates stock & creates missing medicines</span>
               </div>
             </label>
@@ -916,7 +916,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             <div className="relative max-w-md mx-auto aspect-video rounded-2xl overflow-hidden bg-bg border border-border shadow-2xl flex items-center justify-center">
               <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
               <div className="absolute inset-0 border-2 border-primary/60 rounded-2xl pointer-events-none animate-pulse m-3" />
-              <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+              <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-mono text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>Live Camera Active</span>
               </div>
@@ -977,8 +977,8 @@ INV NO: A002223, Date: 2026-08-19
 
         {/* Processing Indicator */}
         {isProcessing && (
-          <div className="flex items-center justify-center gap-3 text-amber-300 font-bold text-xs py-4 bg-amber-500/10 rounded-2xl border border-amber-500/20 backdrop-blur-md animate-pulse">
-            <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
+          <div className="flex items-center justify-center gap-3 text-amber-700 dark:text-amber-300 font-bold text-xs py-4 bg-amber-500/10 rounded-2xl border border-amber-500/20 backdrop-blur-md animate-pulse">
+            <Loader2 className="w-5 h-5 animate-spin text-amber-600 dark:text-amber-400" />
             <span>{statusMessage || 'Scanning distributor bill with AI & updating medicine stock...'}</span>
           </div>
         )}
@@ -991,8 +991,8 @@ INV NO: A002223, Date: 2026-08-19
           <div className="flex justify-between items-center border-b border-border pb-4 flex-wrap gap-3">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Invoice Ingested & Synced</span>
                 </span>
                 <span className="font-mono text-xs text-text-muted bg-surface border border-border px-3 py-1 rounded-full">
@@ -1047,7 +1047,7 @@ INV NO: A002223, Date: 2026-08-19
                 <span className="text-[10px] text-text-muted uppercase font-bold tracking-wider">
                   Distributor Registration Details:
                 </span>
-                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                <span className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold">
                   ✓ Registered in Master Directory
                 </span>
               </div>
@@ -1111,7 +1111,7 @@ INV NO: A002223, Date: 2026-08-19
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div className="p-3.5 rounded-2xl bg-surface border border-border space-y-1">
               <p className="text-text-muted">Total Purchase Cost</p>
-              <h4 className="text-lg font-bold text-emerald-400 font-mono">
+              <h4 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-mono">
                 ₹ {scannedResult.totalCost.toFixed(2)}
               </h4>
             </div>
@@ -1124,11 +1124,11 @@ INV NO: A002223, Date: 2026-08-19
             </div>
 
             <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-              <p className="text-emerald-300 font-semibold flex items-center gap-1">
+              <p className="text-emerald-700 dark:text-emerald-300 font-semibold flex items-center gap-1">
                 <PackagePlus className="w-3.5 h-3.5" />
                 <span>New Medicines Added</span>
               </p>
-              <h4 className="text-lg font-bold text-emerald-300 font-mono">
+              <h4 className="text-lg font-bold text-emerald-700 dark:text-emerald-300 font-mono">
                 {newMedsCount} Missing SKUs Created
               </h4>
             </div>
@@ -1171,7 +1171,7 @@ INV NO: A002223, Date: 2026-08-19
                 type="button"
                 onClick={() => setStatusFilter('new')}
                 className={`px-2.5 py-1 rounded-lg transition ${
-                  statusFilter === 'new' ? 'bg-emerald-600 text-text font-bold' : 'text-emerald-400 hover:text-text'
+                  statusFilter === 'new' ? 'bg-emerald-600 text-text font-bold' : 'text-emerald-600 dark:text-emerald-400 hover:text-text'
                 }`}
               >
                 New Added ({newMedsCount})
@@ -1227,7 +1227,7 @@ INV NO: A002223, Date: 2026-08-19
 
                         <td className="p-3">
                           {item.isNewMedicine ? (
-                            <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                            <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[10px] font-bold">
                               <PackagePlus className="w-3 h-3" />
                               <span>New Stock Added</span>
                             </span>
@@ -1241,7 +1241,7 @@ INV NO: A002223, Date: 2026-08-19
 
                         <td className="p-3 font-mono">
                           <span className="font-bold text-text block">{item.pack}</span>
-                          <span className="text-emerald-400 font-bold">Qty: {item.qty} units</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">Qty: {item.qty} units</span>
                         </td>
 
                         <td className="p-3 font-mono text-[11px]">
@@ -1251,13 +1251,13 @@ INV NO: A002223, Date: 2026-08-19
 
                         <td className="p-3 font-mono text-text-muted text-[11px]">{item.hsn}</td>
 
-                        <td className="p-3 font-mono font-bold text-emerald-400 text-sm">
+                        <td className="p-3 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
                           ₹ {item.rate.toFixed(2)}
                         </td>
 
                         <td className="p-3 font-mono">
                           <span className="font-bold text-text block">₹ {item.mrp.toFixed(2)}</span>
-                          <span className="text-[10px] text-emerald-400 font-semibold">{marginPercent}% Margin</span>
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">{marginPercent}% Margin</span>
                         </td>
 
                         <td className="p-3 font-mono text-[11px] text-text-muted">
@@ -1284,7 +1284,7 @@ INV NO: A002223, Date: 2026-08-19
                             <button
                               type="button"
                               onClick={() => handleDeleteRow(idx)}
-                              className="p-1.5 hover:bg-rose-500/20 text-text-muted hover:text-rose-300 rounded-lg transition"
+                              className="p-1.5 hover:bg-rose-500/20 text-text-muted hover:text-rose-700 dark:hover:text-rose-300 rounded-lg transition"
                               title="Remove item"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1309,7 +1309,7 @@ INV NO: A002223, Date: 2026-08-19
               <span className="text-xs text-text-muted font-normal">
                 {scannedResult.items.length} Line Items &bull; {newMedsCount} New Medicines Added
               </span>
-              <span className="text-xl font-mono font-black text-emerald-300">
+              <span className="text-xl font-mono font-black text-emerald-700 dark:text-emerald-300">
                 ₹ {scannedResult.totalCost.toFixed(2)}
               </span>
             </div>
@@ -1382,7 +1382,7 @@ INV NO: A002223, Date: 2026-08-19
                   step="0.01"
                   value={editFormData.rate}
                   onChange={e => setEditFormData({ ...editFormData, rate: Number(e.target.value) || 0 })}
-                  className="w-full p-2.5 bg-surface border border-border rounded-xl text-emerald-400 font-mono font-bold outline-none focus:border-primary"
+                  className="w-full p-2.5 bg-surface border border-border rounded-xl text-emerald-600 dark:text-emerald-400 font-mono font-bold outline-none focus:border-primary"
                 />
               </div>
 
@@ -1474,7 +1474,7 @@ INV NO: A002223, Date: 2026-08-19
                 </div>
                 <h4 className="font-bold text-text truncate">{entry.distributor}</h4>
                 <div className="flex justify-between items-center pt-1 border-t border-border">
-                  <span className="text-[11px] text-emerald-400">
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400">
                     {entry.itemCount} Items ({entry.newMedsCount} new added)
                   </span>
                   <span className="font-mono font-bold text-text">₹ {entry.totalCost.toFixed(2)}</span>

@@ -368,14 +368,14 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
     <div className="space-y-6">
       {/* SUCCESS NOTIFICATION TOAST */}
       {saveFeedback && (
-        <div className="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 flex items-center justify-between text-xs backdrop-blur-xl shadow-lg animate-fadeIn">
+        <div className="p-3.5 rounded-2xl bg-success/15 border border-success/40 text-success flex items-center justify-between text-xs shadow-lg animate-fadeIn">
           <div className="flex items-center gap-2 font-semibold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-success" />
             <span>{saveFeedback}</span>
           </div>
           <button
             onClick={() => setSaveFeedback(null)}
-            className="text-emerald-400 hover:text-white px-2 py-0.5 text-xs font-bold"
+            className="text-success hover:text-text px-2 py-0.5 text-xs font-bold cursor-pointer"
           >
             ✕
           </button>
@@ -386,40 +386,40 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
       {(!currentUser || currentUser.role === 'admin') && (
         <div
           id="admin-lifetime-panel"
-          className="p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl space-y-4 text-slate-100"
+          className="p-6 rounded-3xl glass-panel space-y-4 text-text"
         >
-          <div className="flex justify-between items-center border-b border-white/10 pb-3 flex-wrap gap-2">
+          <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-2">
             <div className="flex items-center gap-2.5">
-              <span className="bg-amber-400/20 border border-amber-400/40 text-amber-300 font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wider uppercase flex items-center gap-1.5 backdrop-blur-md">
-                <ShieldAlert className="w-3.5 h-3.5 text-amber-400" /> ADMIN EXCLUSIVE
+              <span className="bg-warning/15 border border-warning/40 text-warning font-bold px-2.5 py-1 rounded-full text-[10px] tracking-wider uppercase flex items-center gap-1.5">
+                <ShieldAlert className="w-3.5 h-3.5" /> ADMIN EXCLUSIVE
               </span>
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-base font-bold text-text">
                 Lifetime Business Ledger
               </h3>
             </div>
-            <span className="text-xs text-slate-400 font-mono flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live Realtime
+            <span className="text-xs text-text-muted font-mono flex items-center gap-1.5 bg-surface-elevated border border-border px-3 py-1 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-success animate-pulse" /> Live Realtime
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <p className="text-xs text-slate-400">Total Lifetime Gross Sales</p>
-              <h4 className="text-2xl font-bold text-indigo-300 font-mono mt-1.5">
+            <div className="p-4 rounded-2xl bg-surface-elevated border border-border">
+              <p className="text-xs text-text-muted">Total Lifetime Gross Sales</p>
+              <h4 className="text-2xl font-bold text-primary font-mono mt-1.5">
                 ₹ {lifetimeSalesTotal.toFixed(2)}
               </h4>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <p className="text-xs text-slate-400">Total Lifetime Expenses</p>
-              <h4 className="text-2xl font-bold text-orange-400 font-mono mt-1.5">
+            <div className="p-4 rounded-2xl bg-surface-elevated border border-border">
+              <p className="text-xs text-text-muted">Total Lifetime Expenses</p>
+              <h4 className="text-2xl font-bold text-warning font-mono mt-1.5">
                 ₹ {lifetimeExpenseTotal.toFixed(2)}
               </h4>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <p className="text-xs text-slate-400">Net Business Profit / Income</p>
-              <h4 className="text-2xl font-bold text-emerald-400 font-mono mt-1.5">
+            <div className="p-4 rounded-2xl bg-surface-elevated border border-border">
+              <p className="text-xs text-text-muted">Net Business Profit / Income</p>
+              <h4 className="text-2xl font-bold text-success font-mono mt-1.5">
                 ₹ {lifetimeProfit.toFixed(2)}
               </h4>
             </div>
@@ -428,40 +428,40 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
       )}
 
       {/* DAILY SALES & DRAWER REGISTER */}
-      <div className="p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl space-y-6 text-slate-100">
+      <div className="p-6 rounded-3xl glass-panel space-y-6 text-text">
         {/* HEADER & ACTION CONTROLS */}
-        <div className="flex justify-between items-center border-b border-white/10 pb-4 flex-wrap gap-4">
+        <div className="flex justify-between items-center border-b border-border pb-4 flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="w-8 h-8 rounded-xl bg-warning/15 border border-warning/30 flex items-center justify-center text-warning">
                 <Calculator className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-white">Daily Sales & Cash Drawer Register</h3>
+              <h3 className="text-base font-bold text-text">Daily Sales & Cash Drawer Register</h3>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-text-muted mt-1">
               Opening cash B/D, gross sales, PhonePe/UPI split, automatic & manual daily expenditures, and net cash audit.
             </p>
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">
             {/* Register Date Selector with Steppers */}
-            <div className="flex items-center gap-1 bg-white/5 border border-white/15 p-1 rounded-2xl text-xs backdrop-blur-md">
+            <div className="flex items-center gap-1 bg-surface-elevated border border-border p-1 rounded-2xl text-xs">
               <button
                 type="button"
                 onClick={handlePrevDay}
-                className="p-1 rounded-lg hover:bg-white/10 text-slate-300 transition cursor-pointer"
+                className="p-1 rounded-lg hover:bg-bg text-text-muted transition cursor-pointer"
                 title="Previous Day"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
               <div className="flex items-center gap-1.5 px-2 py-0.5">
-                <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                <Calendar className="w-3.5 h-3.5 text-primary" />
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={e => setSelectedDate(e.target.value)}
-                  className="bg-transparent text-white font-mono text-xs outline-none cursor-pointer"
+                  className="bg-transparent text-text font-mono text-xs outline-none cursor-pointer"
                   title="Select Register Date"
                 />
               </div>
@@ -469,7 +469,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               <button
                 type="button"
                 onClick={handleNextDay}
-                className="p-1 rounded-lg hover:bg-white/10 text-slate-300 transition cursor-pointer"
+                className="p-1 rounded-lg hover:bg-bg text-text-muted transition cursor-pointer"
                 title="Next Day"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -480,8 +480,8 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                 onClick={handleSelectToday}
                 className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition cursor-pointer ${
                   isTodaySelected
-                    ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
-                    : 'bg-white/10 hover:bg-white/20 text-slate-300'
+                    ? 'bg-success/20 text-success border border-success/40'
+                    : 'bg-bg hover:bg-border text-text-muted'
                 }`}
                 title="Jump to Today"
               >
@@ -494,10 +494,10 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               id="btn-auto-sync-bills"
               type="button"
               onClick={handleAutoSyncFromBills}
-              className="bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-500/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer backdrop-blur-md"
+              className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               title="Automatically calculate sales, PhonePe, and expenses from today's invoices"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-indigo-300" />
+              <RefreshCw className="w-3.5 h-3.5" />
               <span>Auto-Sync from Bills</span>
             </button>
 
@@ -533,10 +533,10 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                 setSaveFeedback('Daily Register & Drawer balance successfully reset to ₹0.00!');
                 setTimeout(() => setSaveFeedback(null), 3500);
               }}
-              className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer backdrop-blur-md"
+              className="bg-danger/10 hover:bg-danger/20 text-danger border border-danger/40 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               title="Reset register figures and drawer cash to 0"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+              <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset to ₹0</span>
             </button>
 
@@ -544,7 +544,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <button
               type="button"
               onClick={() => setIsAddExpenseOpen(true)}
-              className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
+              className="btn-primary"
               title="Add an expense voucher directly into daily register"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -555,9 +555,9 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <button
               type="button"
               onClick={() => setShowDenomModal(!showDenomModal)}
-              className="bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 border border-teal-500/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer backdrop-blur-md"
+              className="bg-accent/15 hover:bg-accent/25 text-accent border border-accent/40 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
             >
-              <Banknote className="w-3.5 h-3.5 text-teal-300" />
+              <Banknote className="w-3.5 h-3.5" />
               <span>Cash Tally</span>
             </button>
 
@@ -566,13 +566,13 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               id="btn-toggle-daily-edit"
               type="button"
               onClick={handleToggleEdit}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition backdrop-blur-md cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                 isEditing
-                  ? 'bg-amber-500/25 text-amber-200 border border-amber-500/50 hover:bg-amber-500/35'
-                  : 'bg-white/10 text-slate-200 border border-white/15 hover:bg-white/15'
+                  ? 'bg-warning/20 text-warning border border-warning/50 hover:bg-warning/30'
+                  : 'bg-surface-elevated text-text border border-border hover:bg-bg'
               }`}
             >
-              {isEditing ? <Unlock className="w-3.5 h-3.5 text-amber-400" /> : <Edit3 className="w-3.5 h-3.5" />}
+              {isEditing ? <Unlock className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
               <span>{isEditing ? 'Editing Enabled' : 'Unlock & Edit'}</span>
             </button>
 
@@ -581,7 +581,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               id="btn-save-lock-daily"
               type="button"
               onClick={handleSaveAndLock}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition cursor-pointer"
+              className="btn-primary"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Save & Lock</span>
@@ -591,21 +591,21 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
 
         {/* SUMMARY KPI CARDS FOR SELECTED DATE */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-            <span className="text-slate-400 block text-[11px]">Billed Invoices</span>
-            <span className="text-base font-bold text-white font-mono">{daySalesList.length} Invoices</span>
+          <div className="p-3 rounded-2xl bg-surface-elevated border border-border">
+            <span className="text-text-muted block text-[11px]">Billed Invoices</span>
+            <span className="text-base font-bold text-text font-mono">{daySalesList.length} Invoices</span>
           </div>
-          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-            <span className="text-emerald-300 block text-[11px]">Cash Inflow Received</span>
-            <span className="text-base font-bold text-emerald-300 font-mono">₹ {dayCashSales.toFixed(2)}</span>
+          <div className="p-3 rounded-2xl bg-success/10 border border-success/25">
+            <span className="text-success block text-[11px]">Cash Inflow Received</span>
+            <span className="text-base font-bold text-success font-mono">₹ {dayCashSales.toFixed(2)}</span>
           </div>
-          <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20">
-            <span className="text-rose-300 block text-[11px]">PhonePe / UPI Inflow</span>
-            <span className="text-base font-bold text-rose-300 font-mono">₹ {dayUpiSales.toFixed(2)}</span>
+          <div className="p-3 rounded-2xl bg-danger/10 border border-danger/25">
+            <span className="text-danger block text-[11px]">PhonePe / UPI Inflow</span>
+            <span className="text-base font-bold text-danger font-mono">₹ {dayUpiSales.toFixed(2)}</span>
           </div>
-          <div className="p-3 rounded-2xl bg-orange-500/10 border border-orange-500/20">
-            <span className="text-orange-300 block text-[11px]">Daily Expenditures Logged</span>
-            <span className="text-base font-bold text-orange-300 font-mono">
+          <div className="p-3 rounded-2xl bg-warning/10 border border-warning/25">
+            <span className="text-warning block text-[11px]">Daily Expenditures Logged</span>
+            <span className="text-base font-bold text-warning font-mono">
               ₹ {dayExpensesCalculated.toFixed(2)} ({dayExpensesList.length} Vouchers)
             </span>
           </div>
@@ -614,10 +614,10 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
         {/* SECTION A: INFLOWS */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-indigo-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            <span className="font-bold text-primary uppercase tracking-wider text-[11px] flex items-center gap-1.5">
               <DollarSign className="w-3.5 h-3.5" /> Section A: Cash Inflows
             </span>
-            <span className="text-slate-400 text-[11px]">
+            <span className="text-text-muted text-[11px]">
               {isEditing ? '⚡ Direct manual entry enabled on all fields' : '🔒 Click "Unlock & Edit" above to modify values'}
             </span>
           </div>
@@ -625,33 +625,33 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             {/* Previous Cash B/D (Opening Cash) */}
             <div
-              className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
+              className={`p-4 rounded-2xl border space-y-2 transition ${
                 isEditing
-                  ? 'bg-indigo-950/20 border-indigo-400/50 shadow-md'
-                  : 'bg-white/5 border-white/10'
+                  ? 'bg-primary/10 border-primary/50 shadow-md'
+                  : 'bg-surface-elevated border-border'
               }`}
             >
               <div className="flex justify-between items-center">
-                <label className="font-bold text-white flex items-center gap-1.5">
+                <label className="font-bold text-text flex items-center gap-1.5">
                   <span>Previous Cash B/D</span>
                 </label>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={handleCarryForwardYesterday}
-                    className="text-[10px] text-indigo-300 hover:text-indigo-100 bg-indigo-500/20 border border-indigo-500/30 px-1.5 py-0.5 rounded-lg transition cursor-pointer"
+                    className="text-[10px] text-primary hover:text-primary-hover bg-primary/10 border border-primary/30 px-1.5 py-0.5 rounded-lg transition cursor-pointer"
                     title="Carry forward closing cash as today's B/D"
                   >
                     Set Opening
                   </button>
-                  <span className="text-[10px] text-slate-400">
-                    {isEditing ? <Unlock className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3" />}
+                  <span className="text-[10px] text-text-muted">
+                    {isEditing ? <Unlock className="w-3 h-3 text-success" /> : <Lock className="w-3 h-3" />}
                   </span>
                 </div>
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400 font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-text-muted font-mono font-bold text-sm">₹</span>
                 <input
                   type="number"
                   step="any"
@@ -662,36 +662,36 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   placeholder="0.00"
                   className={`w-full pl-7 pr-3 py-2.5 rounded-xl font-mono font-bold text-base outline-none transition ${
                     isEditing
-                      ? 'bg-slate-900/90 text-white border border-indigo-400 focus:ring-2 focus:ring-indigo-400/50'
-                      : 'bg-white/5 text-slate-200 border border-white/10 opacity-90 cursor-not-allowed'
+                      ? 'bg-surface-elevated text-text border border-primary focus:ring-2 focus:ring-primary/30'
+                      : 'bg-surface text-text-muted border border-border opacity-90 cursor-not-allowed'
                   }`}
                 />
               </div>
 
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-text-muted">
                 Opening cash available in drawer at start of day.
               </p>
             </div>
 
             {/* Today's Gross Sales */}
             <div
-              className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
+              className={`p-4 rounded-2xl border space-y-2 transition ${
                 isEditing
-                  ? 'bg-indigo-950/20 border-indigo-400/50 shadow-md'
-                  : 'bg-indigo-500/10 border-indigo-500/20'
+                  ? 'bg-primary/10 border-primary/50 shadow-md'
+                  : 'bg-primary/5 border-primary/20'
               }`}
             >
               <div className="flex justify-between items-center">
-                <label className="font-bold text-indigo-200 flex items-center gap-1.5">
+                <label className="font-bold text-primary flex items-center gap-1.5">
                   <span>Today's Gross Sales</span>
                 </label>
-                <span className="text-[10px] text-indigo-300">
-                  {isEditing ? <Unlock className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3" />}
+                <span className="text-[10px] text-primary">
+                  {isEditing ? <Unlock className="w-3 h-3 text-success" /> : <Lock className="w-3 h-3" />}
                 </span>
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-indigo-400 font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-primary font-mono font-bold text-sm">₹</span>
                 <input
                   type="number"
                   step="any"
@@ -702,26 +702,26 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   placeholder="0.00"
                   className={`w-full pl-7 pr-3 py-2.5 rounded-xl font-mono font-bold text-base outline-none transition ${
                     isEditing
-                      ? 'bg-slate-900/90 text-white border border-indigo-400 focus:ring-2 focus:ring-indigo-400/50'
-                      : 'bg-white/5 text-indigo-200 border border-indigo-500/20 opacity-90 cursor-not-allowed'
+                      ? 'bg-surface-elevated text-text border border-primary focus:ring-2 focus:ring-primary/30'
+                      : 'bg-surface text-primary border border-primary/20 opacity-90 cursor-not-allowed'
                   }`}
                 />
               </div>
 
-              <p className="text-[10px] text-indigo-300/70">
+              <p className="text-[10px] text-primary/70">
                 Total bill value generated across Cash, PhonePe & Cards.
               </p>
             </div>
 
             {/* Total In Hand Before Deductions */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2 backdrop-blur-md">
-              <label className="font-medium text-slate-300 block">
-                Total Gross In Hand <span className="text-slate-500 font-normal">(Opening Balance + Sales)</span>
+            <div className="p-4 rounded-2xl bg-surface-elevated border border-border space-y-2">
+              <label className="font-medium text-text-muted block">
+                Total Gross In Hand <span className="text-text-muted/70 font-normal">(Opening Balance + Sales)</span>
               </label>
-              <div id="calc-total-gross" className="text-2xl font-bold text-white mt-2 font-mono">
+              <div id="calc-total-gross" className="text-2xl font-bold text-text mt-2 font-mono">
                 ₹ {grossInHand.toFixed(2)}
               </div>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-text-muted">
                 ₹ {numPrevBD.toFixed(2)} (B/D) + ₹ {numTodaySell.toFixed(2)} (Sales)
               </p>
             </div>
@@ -731,34 +731,34 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
         {/* SECTION B: DEDUCTIONS */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-rose-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+            <span className="font-bold text-danger uppercase tracking-wider text-[11px] flex items-center gap-1.5">
               <Wallet className="w-3.5 h-3.5" /> Section B: Deductions & Outflows
             </span>
-            <span className="text-slate-400 text-[11px]">
-              Total Deductions: <strong className="text-rose-300 font-mono">₹ {totalDeductions.toFixed(2)}</strong>
+            <span className="text-text-muted text-[11px]">
+              Total Deductions: <strong className="text-danger font-mono">₹ {totalDeductions.toFixed(2)}</strong>
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             {/* PhonePe / Online Received */}
             <div
-              className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
+              className={`p-4 rounded-2xl border space-y-2 transition ${
                 isEditing
-                  ? 'bg-rose-950/20 border-rose-400/50 shadow-md'
-                  : 'bg-rose-500/10 border-rose-500/20'
+                  ? 'bg-danger/10 border-danger/50 shadow-md'
+                  : 'bg-danger/5 border-danger/20'
               }`}
             >
               <div className="flex justify-between items-center">
-                <label className="font-bold text-rose-200">
+                <label className="font-bold text-danger">
                   [-] PhonePe / Online Received
                 </label>
-                <span className="text-[10px] text-rose-300">
-                  {isEditing ? <Unlock className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3" />}
+                <span className="text-[10px] text-danger">
+                  {isEditing ? <Unlock className="w-3 h-3 text-success" /> : <Lock className="w-3 h-3" />}
                 </span>
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-rose-400 font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-danger font-mono font-bold text-sm">₹</span>
                 <input
                   type="number"
                   step="any"
@@ -769,26 +769,26 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   placeholder="0.00"
                   className={`w-full pl-7 pr-3 py-2.5 rounded-xl font-mono font-bold text-base outline-none transition ${
                     isEditing
-                      ? 'bg-slate-900/90 text-white border border-rose-400 focus:ring-2 focus:ring-rose-400/50'
-                      : 'bg-white/5 text-rose-300 border border-rose-500/20 opacity-90 cursor-not-allowed'
+                      ? 'bg-surface-elevated text-text border border-danger focus:ring-2 focus:ring-danger/30'
+                      : 'bg-surface text-danger border border-danger/20 opacity-90 cursor-not-allowed'
                   }`}
                 />
               </div>
-              <p className="text-[10px] text-rose-300/70">
+              <p className="text-[10px] text-danger/70">
                 Amount credited directly to UPI/Bank (not physical currency).
               </p>
             </div>
 
             {/* Daily Expenses Paid */}
             <div
-              className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
+              className={`p-4 rounded-2xl border space-y-2 transition ${
                 isEditing
-                  ? 'bg-orange-950/20 border-orange-400/50 shadow-md'
-                  : 'bg-orange-500/10 border-orange-500/20'
+                  ? 'bg-warning/10 border-warning/50 shadow-md'
+                  : 'bg-warning/5 border-warning/20'
               }`}
             >
               <div className="flex justify-between items-center flex-wrap gap-1">
-                <label className="font-bold text-orange-200">
+                <label className="font-bold text-warning">
                   [-] Daily Expenses Paid
                 </label>
                 <div className="flex items-center gap-1">
@@ -800,19 +800,19 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                       setSaveFeedback(`Expenses auto-synced to ₹${updated.toFixed(2)} from ${dayExpensesList.length} vouchers.`);
                       setTimeout(() => setSaveFeedback(null), 3000);
                     }}
-                    className="text-[10px] text-orange-300 hover:text-orange-100 bg-orange-500/20 border border-orange-500/30 px-1.5 py-0.5 rounded-lg transition cursor-pointer"
+                    className="text-[10px] text-warning hover:text-text bg-warning/15 border border-warning/30 px-1.5 py-0.5 rounded-lg transition cursor-pointer"
                     title="Auto-calculate total from daily expenditure vouchers"
                   >
                     Sync Vouchers (₹{dayExpensesCalculated.toFixed(2)})
                   </button>
-                  <span className="text-[10px] text-orange-300">
-                    {isEditing ? <Unlock className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3" />}
+                  <span className="text-[10px] text-warning">
+                    {isEditing ? <Unlock className="w-3 h-3 text-success" /> : <Lock className="w-3 h-3" />}
                   </span>
                 </div>
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-orange-400 font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-warning font-mono font-bold text-sm">₹</span>
                 <input
                   type="number"
                   step="any"
@@ -823,35 +823,35 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   placeholder="0.00"
                   className={`w-full pl-7 pr-3 py-2.5 rounded-xl font-mono font-bold text-base outline-none transition ${
                     isEditing
-                      ? 'bg-slate-900/90 text-white border border-orange-400 focus:ring-2 focus:ring-orange-400/50'
-                      : 'bg-white/5 text-orange-300 border border-orange-500/20 opacity-90 cursor-not-allowed'
+                      ? 'bg-surface-elevated text-text border border-warning focus:ring-2 focus:ring-warning/30'
+                      : 'bg-surface text-warning border border-warning/20 opacity-90 cursor-not-allowed'
                   }`}
                 />
               </div>
-              <p className="text-[10px] text-orange-300/70">
+              <p className="text-[10px] text-warning/70">
                 Cash spent on staff wages, sample transport, tea, utility & daily vouchers.
               </p>
             </div>
 
             {/* Shifted to Bank A/C */}
             <div
-              className={`p-4 rounded-2xl border space-y-2 backdrop-blur-md transition ${
+              className={`p-4 rounded-2xl border space-y-2 transition ${
                 isEditing
-                  ? 'bg-purple-950/20 border-purple-400/50 shadow-md'
-                  : 'bg-purple-500/10 border-purple-500/20'
+                  ? 'bg-accent/10 border-accent/50 shadow-md'
+                  : 'bg-accent/5 border-accent/20'
               }`}
             >
               <div className="flex justify-between items-center">
-                <label className="font-bold text-purple-200">
+                <label className="font-bold text-accent">
                   [-] Shifted to Bank A/C
                 </label>
-                <span className="text-[10px] text-purple-300">
-                  {isEditing ? <Unlock className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3" />}
+                <span className="text-[10px] text-accent">
+                  {isEditing ? <Unlock className="w-3 h-3 text-success" /> : <Lock className="w-3 h-3" />}
                 </span>
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-purple-400 font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-accent font-mono font-bold text-sm">₹</span>
                 <input
                   type="number"
                   step="any"
@@ -862,12 +862,12 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   placeholder="0.00"
                   className={`w-full pl-7 pr-3 py-2.5 rounded-xl font-mono font-bold text-base outline-none transition ${
                     isEditing
-                      ? 'bg-slate-900/90 text-white border border-purple-400 focus:ring-2 focus:ring-purple-400/50'
-                      : 'bg-white/5 text-purple-300 border border-purple-500/20 opacity-90 cursor-not-allowed'
+                      ? 'bg-surface-elevated text-text border border-accent focus:ring-2 focus:ring-accent/30'
+                      : 'bg-surface text-accent border border-accent/20 opacity-90 cursor-not-allowed'
                   }`}
                 />
               </div>
-              <p className="text-[10px] text-purple-300/70">
+              <p className="text-[10px] text-accent/70">
                 Cash taken from drawer and physically deposited in bank account.
               </p>
             </div>
@@ -875,7 +875,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
         </div>
 
         {/* NET FINAL PHYSICAL CASH IN DRAWER */}
-        <div className="p-6 bg-success/12 border border-success/30 rounded-3xl flex justify-between items-center flex-wrap gap-4 backdrop-blur-xl shadow-xl">
+        <div className="p-6 bg-success/12 border border-success/30 rounded-3xl flex justify-between items-center flex-wrap gap-4 shadow-xl">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-success/20 border border-success/40 text-success flex items-center justify-center shadow-lg">
               <Vault className="w-7 h-7" />
@@ -901,7 +901,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <button
               type="button"
               onClick={() => setShowDenomModal(!showDenomModal)}
-              className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              className="bg-success/15 hover:bg-success/25 text-success border border-success/40 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
             >
               <Coins className="w-3.5 h-3.5" />
               <span>{showDenomModal ? 'Hide Tally' : 'Tally Notes'}</span>
@@ -911,28 +911,28 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
 
         {/* DENOMINATIONS AUDIT TALLY TOOL */}
         {showDenomModal && (
-          <div className="p-5 rounded-2xl bg-slate-900/90 border border-teal-500/30 space-y-4 backdrop-blur-xl animate-fadeIn">
-            <div className="flex justify-between items-center border-b border-white/10 pb-3 flex-wrap gap-2">
+          <div className="p-5 rounded-2xl bg-surface-elevated border border-accent/30 space-y-4 animate-fadeIn">
+            <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <Coins className="w-4 h-4 text-teal-400" />
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                <Coins className="w-4 h-4 text-accent" />
+                <h4 className="text-xs font-bold text-text uppercase tracking-wider">
                   Physical Currency Notes & Coins Tally
                 </h4>
               </div>
-              <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-3 text-xs text-text-muted">
                 <span>
                   Physical Counted:{' '}
-                  <strong className="text-teal-300 font-mono">₹ {totalPhysicalCounted.toFixed(2)}</strong>
+                  <strong className="text-accent font-mono">₹ {totalPhysicalCounted.toFixed(2)}</strong>
                 </span>
                 <span>
                   Difference:{' '}
                   <strong
                     className={`font-mono ${
                       Math.abs(denomDiff) < 0.01
-                        ? 'text-emerald-400'
+                        ? 'text-success'
                         : denomDiff > 0
-                        ? 'text-amber-400'
-                        : 'text-rose-400'
+                        ? 'text-warning'
+                        : 'text-danger'
                     }`}
                   >
                     {Math.abs(denomDiff) < 0.01
@@ -947,8 +947,8 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
 
             <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2 text-xs">
               {['500', '200', '100', '50', '20', '10', '5', '2', '1'].map(note => (
-                <div key={note} className="p-2.5 rounded-xl bg-white/5 border border-white/10 space-y-1 text-center">
-                  <span className="font-bold text-teal-300 font-mono block">₹{note}</span>
+                <div key={note} className="p-2.5 rounded-xl bg-surface border border-border space-y-1 text-center">
+                  <span className="font-bold text-accent font-mono block">₹{note}</span>
                   <input
                     type="number"
                     min="0"
@@ -958,9 +958,9 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                       const count = parseInt(e.target.value, 10) || 0;
                       setDenoms(prev => ({ ...prev, [note]: Math.max(0, count) }));
                     }}
-                    className="w-full p-1.5 bg-slate-950 border border-white/15 rounded-lg text-center font-mono font-bold text-white text-xs outline-none focus:border-teal-400"
+                    className="w-full p-1.5 bg-surface-elevated border border-border rounded-lg text-center font-mono font-bold text-text text-xs outline-none focus:border-accent"
                   />
-                  <span className="text-[10px] text-slate-400 font-mono block">
+                  <span className="text-[10px] text-text-muted font-mono block">
                     = ₹{(Number(note) * (denoms[note] || 0)).toFixed(0)}
                   </span>
                 </div>
@@ -973,14 +973,14 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                 onClick={() =>
                   setDenoms({ '500': 0, '200': 0, '100': 0, '50': 0, '20': 0, '10': 0, '5': 0, '2': 0, '1': 0 })
                 }
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-semibold cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-surface hover:bg-bg border border-border text-text-muted text-xs font-semibold cursor-pointer"
               >
                 Reset Tally
               </button>
               <button
                 type="button"
                 onClick={() => setShowDenomModal(false)}
-                className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-accent hover:brightness-110 text-primary-foreground text-xs font-bold cursor-pointer"
               >
                 Done
               </button>
@@ -990,16 +990,16 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
       </div>
 
       {/* DETAILED DAILY REGISTERS: SALES INVOICES & DAILY EXPENDITURES VOUCHERS */}
-      <div className="p-6 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl space-y-5 text-slate-100">
-        <div className="flex justify-between items-center border-b border-white/10 pb-3 flex-wrap gap-3">
+      <div className="p-6 rounded-3xl glass-panel space-y-5 text-text">
+        <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-3">
           {/* TAB BUTTONS */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveDayView('sales')}
               className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeDayView === 'sales'
-                  ? 'bg-indigo-600 text-white shadow-lg border border-indigo-500/40'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
+                  ? 'bg-primary text-primary-foreground shadow-lg border border-primary'
+                  : 'bg-surface-elevated text-text-muted hover:bg-bg border border-border'
               }`}
             >
               <Receipt className="w-3.5 h-3.5" />
@@ -1010,8 +1010,8 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               onClick={() => setActiveDayView('expenses')}
               className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeDayView === 'expenses'
-                  ? 'bg-orange-600 text-white shadow-lg border border-orange-500/40'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
+                  ? 'bg-warning text-primary-foreground shadow-lg border border-warning'
+                  : 'bg-surface-elevated text-text-muted hover:bg-bg border border-border'
               }`}
             >
               <Wallet className="w-3.5 h-3.5" />
@@ -1022,8 +1022,8 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               onClick={() => setActiveDayView('custom-range')}
               className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeDayView === 'custom-range'
-                  ? 'bg-teal-600 text-white shadow-lg border border-teal-500/40'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
+                  ? 'bg-accent text-primary-foreground shadow-lg border border-accent'
+                  : 'bg-surface-elevated text-text-muted hover:bg-bg border border-border'
               }`}
             >
               <Filter className="w-3.5 h-3.5" />
@@ -1035,7 +1035,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             {activeDayView === 'sales' && (
               <button
                 onClick={handleExportTodaySales}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                className="btn-primary"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export Day Sales Excel</span>
@@ -1046,16 +1046,16 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsAddExpenseOpen(true)}
-                  className="bg-orange-600 hover:bg-orange-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition cursor-pointer"
+                  className="bg-warning hover:brightness-105 text-primary-foreground font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>+ Log Expense</span>
                 </button>
                 <button
                   onClick={handleExportTodayExpenses}
-                  className="bg-white/10 hover:bg-white/15 text-slate-200 border border-white/15 font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer"
+                  className="bg-surface-elevated hover:bg-bg text-text border border-border font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5 text-orange-400" />
+                  <Download className="w-3.5 h-3.5 text-warning" />
                   <span>Export Expense CSV</span>
                 </button>
               </div>
@@ -1065,9 +1065,9 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
 
         {/* VIEW 1: DAY SALES INVOICES */}
         {activeDayView === 'sales' && (
-          <div className="overflow-y-auto max-h-72 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-md">
+          <div className="overflow-y-auto max-h-72 border border-border rounded-2xl bg-surface-elevated">
             <table className="w-full text-left text-xs">
-              <thead className="bg-white/10 font-semibold text-slate-300 sticky top-0 backdrop-blur-md">
+              <thead className="bg-surface-elevated font-semibold text-text-muted uppercase sticky top-0">
                 <tr>
                   <th className="p-3">Invoice & Time</th>
                   <th className="p-3">Item Description</th>
@@ -1078,39 +1078,39 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   {onPrintInvoice && <th className="p-3 text-center">Action</th>}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-slate-200">
+              <tbody className="divide-y divide-border text-text">
                 {daySalesList.length === 0 ? (
                   <tr>
-                    <td colSpan={onPrintInvoice ? 7 : 6} className="p-8 text-center text-slate-400">
+                    <td colSpan={onPrintInvoice ? 7 : 6} className="p-8 text-center text-text-muted">
                       No sales invoices recorded for {selectedDate}. Complete a bill in Smart POS to register sales automatically.
                     </td>
                   </tr>
                 ) : (
                   daySalesList.map(s => (
-                    <tr key={s.id} className="hover:bg-white/5 transition">
+                    <tr key={s.id} className="hover:bg-bg transition">
                       <td className="p-3">
-                        <span className="font-mono font-bold text-indigo-300 block text-[11px]">
+                        <span className="font-mono font-bold text-primary block text-[11px]">
                           {s.inv || s.invoiceNo || `#${s.id}`}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-mono">{s.date}</span>
+                        <span className="text-[10px] text-text-muted font-mono">{s.date}</span>
                       </td>
-                      <td className="p-3 font-semibold text-white">{s.name || s.items}</td>
+                      <td className="p-3 font-semibold text-text">{s.name || s.items}</td>
                       <td className="p-3 font-mono">{s.qty}</td>
-                      <td className="p-3 text-slate-300">{s.patient || s.cust}</td>
+                      <td className="p-3 text-text-muted">{s.patient || s.cust}</td>
                       <td className="p-3 font-medium">
                         <span
                           className={`border px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
                             s.mode === 'Cash'
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                              ? 'bg-success/15 text-success border-success/30'
                               : s.mode === 'PhonePe' || s.mode.toLowerCase().includes('upi')
-                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
-                              : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                              ? 'bg-danger/15 text-danger border-danger/30'
+                              : 'bg-primary/15 text-primary border-primary/30'
                           }`}
                         >
                           {s.mode}
                         </span>
                       </td>
-                      <td className="p-3 text-right font-mono font-bold text-white text-sm">
+                      <td className="p-3 text-right font-mono font-bold text-text text-sm">
                         ₹ {Number(s.total || s.amt || 0).toFixed(2)}
                       </td>
                       {onPrintInvoice && (
@@ -1140,7 +1140,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                                 paymentMode: s.mode,
                               });
                             }}
-                            className="px-2 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
+                            className="px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded-lg text-[11px] font-bold transition cursor-pointer"
                           >
                             Print PDF
                           </button>
@@ -1157,9 +1157,9 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
         {/* VIEW 2: DAY EXPENDITURES LIST */}
         {activeDayView === 'expenses' && (
           <div className="space-y-3">
-            <div className="overflow-y-auto max-h-72 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-md">
+            <div className="overflow-y-auto max-h-72 border border-border rounded-2xl bg-surface-elevated">
               <table className="w-full text-left text-xs">
-                <thead className="bg-white/10 font-semibold text-slate-300 sticky top-0 backdrop-blur-md">
+                <thead className="bg-surface-elevated font-semibold text-text-muted uppercase sticky top-0">
                   <tr>
                     <th className="p-3">Expense Date</th>
                     <th className="p-3">Category</th>
@@ -1168,31 +1168,31 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     <th className="p-3 text-center">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-slate-200">
+                <tbody className="divide-y divide-border text-text">
                   {dayExpensesList.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-slate-400">
+                      <td colSpan={5} className="p-8 text-center text-text-muted">
                         No daily expenditure vouchers recorded for {selectedDate}. Click "+ Log Expense" above to add transport, staff wages, tea, or utility expenses.
                       </td>
                     </tr>
                   ) : (
                     dayExpensesList.map(e => (
-                      <tr key={e.id} className="hover:bg-white/5 transition">
-                        <td className="p-3 font-mono text-slate-400">{e.date}</td>
+                      <tr key={e.id} className="hover:bg-bg transition">
+                        <td className="p-3 font-mono text-text-muted">{e.date}</td>
                         <td className="p-3">
-                          <span className="bg-orange-500/20 text-orange-300 border border-orange-500/30 font-semibold px-2.5 py-1 rounded-full text-[11px]">
+                          <span className="bg-warning/15 text-warning border border-warning/30 font-semibold px-2.5 py-1 rounded-full text-[11px]">
                             {e.cat}
                           </span>
                         </td>
-                        <td className="p-3 font-medium text-slate-200">{e.desc}</td>
-                        <td className="p-3 font-mono font-bold text-orange-400 text-right text-sm">
+                        <td className="p-3 font-medium text-text">{e.desc}</td>
+                        <td className="p-3 font-mono font-bold text-warning text-right text-sm">
                           ₹ {e.amt.toFixed(2)}
                         </td>
                         <td className="p-3 text-center">
                           <button
                             type="button"
                             onClick={() => handleDeleteExpense(e.id, e.amt)}
-                            className="p-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg transition cursor-pointer"
+                            className="p-1.5 bg-danger/15 hover:bg-danger/25 text-danger border border-danger/30 rounded-lg transition cursor-pointer"
                             title="Delete Expense Voucher"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1206,11 +1206,11 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             </div>
 
             {dayExpensesList.length > 0 && (
-              <div className="flex justify-between items-center p-3 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-xs">
-                <span className="text-slate-300">
+              <div className="flex justify-between items-center p-3 rounded-2xl bg-warning/10 border border-warning/20 text-xs">
+                <span className="text-text-muted">
                   Total Daily Expenditures for {selectedDate}: <b>{dayExpensesList.length} vouchers</b>
                 </span>
-                <span className="font-mono font-bold text-orange-300 text-sm">
+                <span className="font-mono font-bold text-warning text-sm">
                   Total: ₹ {dayExpensesCalculated.toFixed(2)}
                 </span>
               </div>
@@ -1223,24 +1223,24 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end">
               <div>
-                <label className="font-medium text-slate-300 block mb-1">From Date</label>
+                <label className="font-medium text-text-muted block mb-1">From Date</label>
                 <input
                   type="date"
                   id="filter-sales-from"
                   value={filterFrom}
                   onChange={e => setFilterFrom(e.target.value)}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-white outline-none focus:border-indigo-400"
+                  className="w-full p-2.5 bg-surface-elevated border border-border rounded-xl font-mono text-text outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="font-medium text-slate-300 block mb-1">To Date</label>
+                <label className="font-medium text-text-muted block mb-1">To Date</label>
                 <input
                   type="date"
                   id="filter-sales-to"
                   value={filterTo}
                   onChange={e => setFilterTo(e.target.value)}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-xl font-mono text-white outline-none focus:border-indigo-400"
+                  className="w-full p-2.5 bg-surface-elevated border border-border rounded-xl font-mono text-text outline-none focus:border-primary"
                 />
               </div>
 
@@ -1250,7 +1250,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     setFilterFrom('');
                     setFilterTo('');
                   }}
-                  className="w-full bg-white/10 hover:bg-white/15 text-slate-200 border border-white/15 font-semibold p-2.5 rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer backdrop-blur-md"
+                  className="w-full bg-surface-elevated hover:bg-bg text-text border border-border font-semibold p-2.5 rounded-xl flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" /> Reset Filters
                 </button>
@@ -1259,16 +1259,16 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               <div>
                 <button
                   onClick={handleExportCustomDateRange}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold p-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-lg transition cursor-pointer"
+                  className="btn-primary w-full"
                 >
                   <Download className="w-3.5 h-3.5" /> Download Excel ({filteredSales.length} Rows)
                 </button>
               </div>
             </div>
 
-            <div className="overflow-y-auto max-h-60 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-md">
+            <div className="overflow-y-auto max-h-60 border border-border rounded-2xl bg-surface-elevated">
               <table className="w-full text-left text-xs">
-                <thead className="bg-white/10 font-semibold text-slate-300 sticky top-0 backdrop-blur-md">
+                <thead className="bg-surface-elevated font-semibold text-text-muted uppercase sticky top-0">
                   <tr>
                     <th className="p-3">Invoice & Date</th>
                     <th className="p-3">Item Description</th>
@@ -1278,31 +1278,31 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     <th className="p-3 text-right">Total (₹)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-slate-200">
+                <tbody className="divide-y divide-border text-text">
                   {filteredSales.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-6 text-center text-slate-400">
+                      <td colSpan={6} className="p-6 text-center text-text-muted">
                         No sales records found for selected date range.
                       </td>
                     </tr>
                   ) : (
                     filteredSales.map(s => (
-                      <tr key={s.id} className="hover:bg-white/5 transition">
+                      <tr key={s.id} className="hover:bg-bg transition">
                         <td className="p-3">
-                          <span className="font-mono font-bold text-indigo-300 block text-[11px]">
+                          <span className="font-mono font-bold text-primary block text-[11px]">
                             {s.inv || s.invoiceNo || `#${s.id}`}
                           </span>
-                          <span className="text-[10px] text-slate-400 font-mono">{s.date}</span>
+                          <span className="text-[10px] text-text-muted font-mono">{s.date}</span>
                         </td>
-                        <td className="p-3 font-semibold text-white">{s.name || s.items}</td>
+                        <td className="p-3 font-semibold text-text">{s.name || s.items}</td>
                         <td className="p-3 font-mono">{s.qty}</td>
-                        <td className="p-3 text-slate-300">{s.patient || s.cust}</td>
+                        <td className="p-3 text-text-muted">{s.patient || s.cust}</td>
                         <td className="p-3 font-medium">
-                          <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[11px]">
+                          <span className="bg-primary/15 text-primary border border-primary/30 px-2.5 py-0.5 rounded-full text-[11px]">
                             {s.mode}
                           </span>
                         </td>
-                        <td className="p-3 text-right font-mono font-bold text-white">
+                        <td className="p-3 text-right font-mono font-bold text-text">
                           ₹ {Number(s.total || s.amt || 0).toFixed(2)}
                         </td>
                       </tr>

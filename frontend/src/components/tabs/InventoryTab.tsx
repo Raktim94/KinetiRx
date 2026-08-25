@@ -133,7 +133,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
       <div className="p-6 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center flex-wrap gap-4 text-text">
         <div>
           <h3 className="text-base font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
               <Boxes className="w-4 h-4" />
             </div>
             <span>Medicine & Lab Stock Management</span>
@@ -374,18 +374,18 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     <td className="p-3.5">
                       <div className="flex items-center gap-1.5">
                         {isLab && (
-                          <span className="w-5 h-5 rounded-md bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
+                          <span className="w-5 h-5 rounded-md bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-700 dark:text-purple-300 shrink-0">
                             <FlaskConical className="w-3 h-3" />
                           </span>
                         )}
                         <span className="font-bold text-text block">{i.name}</span>
                       </div>
                       <span className="text-[10px] text-text-muted flex items-center gap-1.5 mt-0.5">
-                        <span className="text-purple-300 font-semibold">{i.company || 'Standard'}</span>
+                        <span className="text-purple-700 dark:text-purple-300 font-semibold">{i.company || 'Standard'}</span>
                         <span>•</span>
                         <span>Pack: <b className="text-text-muted">{i.pack || (isLab ? '1 Test' : '10*T')}</b></span>
                         {isLab && (
-                          <span className="px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 text-[9px] font-bold">
+                          <span className="px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[9px] font-bold">
                             LAB ITEM
                           </span>
                         )}
@@ -406,11 +406,11 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     <td className="p-3.5 font-bold font-mono">
                       {isLab ? (
                         i.trackStock ? (
-                          <span className="px-2.5 py-1 rounded-full text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                          <span className="px-2.5 py-1 rounded-full text-xs bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30">
                             {i.stock} Kits (Tracked)
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-full text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 w-fit">
+                          <span className="px-2.5 py-1 rounded-full text-xs bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1 w-fit">
                             <span>Service (No Limit)</span>
                           </span>
                         )
@@ -418,7 +418,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                         <span
                           className={`px-2.5 py-1 rounded-full text-xs ${
                             isLow
-                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                              ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30'
                               : 'bg-surface-elevated text-text border border-border'
                           }`}
                         >
@@ -435,7 +435,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                       ₹ {i.mrp.toFixed(2)}
                     </td>
 
-                    <td className="p-3.5 font-mono text-emerald-400 font-bold">
+                    <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                       ₹ {(i.rate || 0).toFixed(2)}
                     </td>
 
@@ -453,16 +453,16 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 
                     <td
                       className={`p-3.5 font-mono font-semibold ${
-                        isShortExpiry ? 'text-amber-300 bg-amber-500/10 font-bold' : 'text-text-muted'
+                        isShortExpiry ? 'text-amber-700 dark:text-amber-300 bg-amber-500/10 font-bold' : 'text-text-muted'
                       }`}
                     >
                       {isLab ? (
-                        <span className="text-emerald-400 font-semibold text-[11px]">Active Service</span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">Active Service</span>
                       ) : (
                         <>
                           {i.expiry}
                           {isShortExpiry && (
-                            <span className="block text-[9px] text-amber-400 font-bold uppercase">
+                            <span className="block text-[9px] text-amber-600 dark:text-amber-400 font-bold uppercase">
                               Expiring Soon
                             </span>
                           )}
@@ -473,7 +473,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     <td className="p-3.5">
                       <span className={`font-mono px-2.5 py-1 rounded-lg border text-[11px] ${
                         isLab
-                          ? 'bg-purple-500/15 border-purple-500/30 text-purple-200'
+                          ? 'bg-purple-500/15 border-purple-500/30 text-purple-800 dark:text-purple-200'
                           : 'bg-surface-elevated border-border text-text-muted'
                       }`}>
                         {i.rack || (isLab ? 'LAB-CHAMBER' : 'RACK-A1')}
@@ -483,7 +483,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     <td className="p-3.5 text-right">
                       <button
                         onClick={() => handleDeleteItem(i.id, i.name)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 hover:text-rose-200 transition border border-rose-500/20"
+                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition border border-rose-500/20"
                         title={`Delete ${i.name}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />

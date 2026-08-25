@@ -173,7 +173,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                 <th className="p-3.5">Medicine Required</th>
                 <th className="p-3.5">Patient Details</th>
                 <th className="p-3.5">Distributor Assigned</th>
-                <th className="p-3.5 text-emerald-400 font-bold">Commitment Delivery Time</th>
+                <th className="p-3.5 text-emerald-600 dark:text-emerald-400 font-bold">Commitment Delivery Time</th>
                 <th className="p-3.5 text-center">Quantity</th>
                 <th className="p-3.5">Order Status</th>
                 <th className="p-3.5 text-center">Edit</th>
@@ -197,7 +197,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                         {n.patientId ? (
                           <button
                             onClick={() => handlePatientClick(n.patientId)}
-                            className="font-mono text-xs font-bold text-teal-300 bg-teal-500/15 border border-teal-500/30 px-1.5 py-0.5 rounded hover:bg-teal-500/25 transition cursor-pointer"
+                            className="font-mono text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-500/15 border border-teal-500/30 px-1.5 py-0.5 rounded hover:bg-teal-500/25 transition cursor-pointer"
                             title="Click to view Patient Profile CV"
                           >
                             {n.patientId}
@@ -219,9 +219,9 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                         <span>{n.dist}</span>
                       </div>
                     </td>
-                    <td className="p-3.5 text-emerald-300 font-bold">
+                    <td className="p-3.5 text-emerald-700 dark:text-emerald-300 font-bold">
                       <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <span>{n.time}</span>
                       </div>
                     </td>
@@ -241,11 +241,11 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                         }
                         className={`p-2 rounded-xl font-bold text-xs bg-surface border text-text outline-none focus:border-primary ${
                           n.status === 'Delivered'
-                            ? 'border-emerald-500/40 text-emerald-300'
+                            ? 'border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
                             : n.status === 'Processing'
-                            ? 'border-amber-500/40 text-amber-300'
+                            ? 'border-amber-500/40 text-amber-700 dark:text-amber-300'
                             : n.status === 'Cancelled'
-                            ? 'border-rose-500/40 text-rose-300'
+                            ? 'border-rose-500/40 text-rose-700 dark:text-rose-300'
                             : 'border-border'
                         }`}
                       >
@@ -259,7 +259,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                     <td className="p-3.5 text-center">
                       <button
                         onClick={() => setOrderToEdit(n)}
-                        className="p-1.5 hover:bg-sky-500/20 text-text-muted hover:text-sky-300 rounded-xl transition cursor-pointer"
+                        className="p-1.5 hover:bg-sky-500/20 text-text-muted hover:text-sky-700 dark:hover:text-sky-300 rounded-xl transition cursor-pointer"
                         title="Edit Order"
                       >
                         <Pencil className="w-3.5 h-3.5" />

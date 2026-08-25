@@ -151,7 +151,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
         <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-2">
           {type === 'expiry' && (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
@@ -165,7 +165,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 
           {(type === 'revisit' || type === 'revisits') && (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <Clock className="w-5 h-5" />
               </div>
               <div>
@@ -179,12 +179,12 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 
           {(type === 'due_list' || type === 'total_due') && (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+              <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
                 <Receipt className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-text">Customer Due Khata Ledger</h3>
-                <p className="text-[11px] text-rose-300 font-bold">
+                <p className="text-[11px] text-rose-700 dark:text-rose-300 font-bold">
                   Total Outstanding Balance: ₹ {totalDueSum.toFixed(2)} ({dueList.length} Patients)
                 </p>
               </div>
@@ -207,12 +207,12 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 
           {(type === 'cash_drawer' || type === 'drawer_cash') && (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <Vault className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-text">Daily Cash Drawer Reconciliation</h3>
-                <p className="text-[11px] text-emerald-300 font-bold">
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">
                   Closing Cash In Drawer: ₹ {netDrawerCash.toFixed(2)}
                 </p>
               </div>
@@ -221,12 +221,12 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 
           {type === 'stock_skus' && (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+              <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                 <Boxes className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-text">Pharmacy Stock SKUs & Inventory</h3>
-                <p className="text-[11px] text-blue-300 font-bold">
+                <p className="text-[11px] text-blue-700 dark:text-blue-300 font-bold">
                   {medicines.length} Registered Pharmaceutical Products
                 </p>
               </div>
@@ -235,7 +235,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 
           {type === 'patient_cv' && selectedPatient && (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400">
+              <div className="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-600 dark:text-sky-400">
                 <User className="w-5 h-5" />
               </div>
               <div>
@@ -275,13 +275,13 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
           {type === 'expiry' && (
             <div className="overflow-x-auto border border-border rounded-2xl bg-surface backdrop-blur-md">
               <table className="w-full text-left text-xs">
-                <thead className="bg-bg text-amber-300 font-bold border-b border-border sticky top-0 text-[11px]">
+                <thead className="bg-bg text-amber-700 dark:text-amber-300 font-bold border-b border-border sticky top-0 text-[11px]">
                   <tr>
                     <th className="p-3">Medicine Name</th>
                     <th className="p-3">Distributor</th>
                     <th className="p-3">Batch / Rack</th>
                     <th className="p-3">Stock Units</th>
-                    <th className="p-3 font-bold text-rose-400">Expiry Date</th>
+                    <th className="p-3 font-bold text-rose-600 dark:text-rose-400">Expiry Date</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border text-text">
@@ -297,11 +297,11 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                         <td className="p-3 font-bold text-text">{m.name}</td>
                         <td className="p-3 text-primary">{m.dist || 'Local Agency'}</td>
                         <td className="p-3 font-mono">
-                          <span className="text-sky-300 font-bold">{m.batch}</span>
+                          <span className="text-sky-700 dark:text-sky-300 font-bold">{m.batch}</span>
                           <span className="block text-text-muted text-[10px]">{m.rack}</span>
                         </td>
                         <td className="p-3 font-bold font-mono text-text">{m.stock} Units</td>
-                        <td className="p-3 font-mono font-bold text-rose-400 bg-rose-500/10">
+                        <td className="p-3 font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10">
                           {m.expiry}
                         </td>
                       </tr>
@@ -316,7 +316,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
           {(type === 'revisit' || type === 'revisits') && (
             <div className="overflow-x-auto border border-border rounded-2xl bg-surface backdrop-blur-md">
               <table className="w-full text-left text-xs">
-                <thead className="bg-bg text-emerald-300 font-bold border-b border-border sticky top-0 text-[11px]">
+                <thead className="bg-bg text-emerald-700 dark:text-emerald-300 font-bold border-b border-border sticky top-0 text-[11px]">
                   <tr>
                     <th className="p-3">Patient Name</th>
                     <th className="p-3">Doctor Assigned</th>
@@ -342,7 +342,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                         </td>
                         <td className="p-3 font-semibold text-text">{v.doc}</td>
                         <td className="p-3 font-mono text-text-muted">{v.phone}</td>
-                        <td className="p-3 font-mono font-bold text-emerald-400 bg-emerald-500/10">
+                        <td className="p-3 font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
                           {v.rvdate}
                         </td>
                         <td className="p-3 text-text-muted text-[11px]">{v.btest || 'None'}</td>
@@ -371,12 +371,12 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
           {(type === 'due_list' || type === 'total_due') && (
             <div className="overflow-x-auto border border-border rounded-2xl bg-surface backdrop-blur-md">
               <table className="w-full text-left text-xs">
-                <thead className="bg-bg text-rose-300 font-bold border-b border-border sticky top-0 text-[11px]">
+                <thead className="bg-bg text-rose-700 dark:text-rose-300 font-bold border-b border-border sticky top-0 text-[11px]">
                   <tr>
                     <th className="p-3">Patient Name</th>
                     <th className="p-3">Phone Number</th>
                     <th className="p-3">Address</th>
-                    <th className="p-3 font-bold text-rose-400 text-right">Outstanding Due</th>
+                    <th className="p-3 font-bold text-rose-600 dark:text-rose-400 text-right">Outstanding Due</th>
                     <th className="p-3 text-center">Reminder</th>
                   </tr>
                 </thead>
@@ -393,7 +393,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                         <td className="p-3 font-bold text-text">{p.name}</td>
                         <td className="p-3 font-mono text-text-muted">{p.phone}</td>
                         <td className="p-3 text-text-muted">{p.addr}</td>
-                        <td className="p-3 font-mono font-bold text-rose-400 text-right text-sm">
+                        <td className="p-3 font-mono font-bold text-rose-600 dark:text-rose-400 text-right text-sm">
                           ₹ {p.due.toFixed(2)}
                         </td>
                         <td className="p-3 text-center">
@@ -513,7 +513,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
           {type === 'stock_skus' && (
             <div className="overflow-x-auto border border-border rounded-2xl bg-surface backdrop-blur-md">
               <table className="w-full text-left text-xs">
-                <thead className="bg-bg text-blue-300 font-bold border-b border-border sticky top-0 text-[11px]">
+                <thead className="bg-bg text-blue-700 dark:text-blue-300 font-bold border-b border-border sticky top-0 text-[11px]">
                   <tr>
                     <th className="p-3">Product Name</th>
                     <th className="p-3">Generic & Category</th>
@@ -542,16 +542,16 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                           <span className="text-[10px] text-primary font-medium">{m.category}</span>
                         </td>
                         <td className="p-3 font-mono">
-                          <span className="text-sky-300 font-bold">{m.rack}</span>
+                          <span className="text-sky-700 dark:text-sky-300 font-bold">{m.rack}</span>
                           <span className="block text-[10px] text-text-muted">{m.batch}</span>
                         </td>
                         <td className="p-3 text-right font-mono font-bold">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[11px] ${
                               (m.stock || 0) <= 0
-                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                                ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30'
                                 : (m.stock || 0) <= 10
-                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30'
                                 : 'text-text'
                             }`}
                           >
@@ -561,7 +561,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                         <td className="p-3 text-right font-mono text-text-muted">
                           ₹ {(Number(m.rate) || Number(m.mrp || 0) * 0.7).toFixed(2)}
                         </td>
-                        <td className="p-3 text-right font-mono font-bold text-emerald-400">
+                        <td className="p-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
                           ₹ {Number(m.mrp || 0).toFixed(2)}
                         </td>
                       </tr>
@@ -597,7 +597,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     <div>
                       <span className="text-text-muted block text-[10px] uppercase font-semibold">Patient ID & Name:</span>
                       <span className="font-bold text-text block">{selectedPatient.name}</span>
-                      <span className="font-mono text-xs text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded font-bold inline-block mt-0.5">
+                      <span className="font-mono text-xs text-teal-700 dark:text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded font-bold inline-block mt-0.5">
                         {selectedPatient.id}
                       </span>
                     </div>
@@ -619,7 +619,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     </div>
                     <div>
                       <span className="text-text-muted block text-[10px] uppercase font-semibold">Outstanding Due:</span>
-                      <span className="font-bold text-rose-400 font-mono text-base block">
+                      <span className="font-bold text-rose-600 dark:text-rose-400 font-mono text-base block">
                         ₹ {Number(selectedPatient.totalDue || (selectedPatient as any).due || (selectedPatient as any).dueAmount || 0).toFixed(2)}
                       </span>
                       <span className="text-[10px] text-text-muted">
@@ -698,7 +698,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                               <td className="p-2.5 font-mono text-text-muted">{v.date}</td>
                               <td className="p-2.5 font-bold text-primary">{v.doc}</td>
                               <td className="p-2.5 font-mono text-text-muted">{v.bp || '--'} mmHg</td>
-                              <td className="p-2.5 font-mono text-emerald-300">{v.rvdate || '--'}</td>
+                              <td className="p-2.5 font-mono text-emerald-700 dark:text-emerald-300">{v.rvdate || '--'}</td>
                               <td className="p-2.5 font-mono font-bold text-text text-right">
                                 ₹ {Number(v.fee || 0).toFixed(2)}
                               </td>
@@ -712,8 +712,8 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 
                 {selectedPatient.bloodTests && selectedPatient.bloodTests.length > 0 && (
                   <div className="p-4 bg-sky-500/10 border border-sky-500/20 rounded-2xl text-xs space-y-1.5 backdrop-blur-md">
-                    <p className="font-bold text-sky-300">Advised Diagnostic Tests:</p>
-                    <ul className="list-disc pl-4 text-sky-200 text-[11px] space-y-0.5">
+                    <p className="font-bold text-sky-700 dark:text-sky-300">Advised Diagnostic Tests:</p>
+                    <ul className="list-disc pl-4 text-sky-800 dark:text-sky-200 text-[11px] space-y-0.5">
                       {selectedPatient.bloodTests.map((t, idx) => (
                         <li key={idx}>{t}</li>
                       ))}

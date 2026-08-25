@@ -177,9 +177,9 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleSendWhatsAppReminder(p)}
-                          className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition backdrop-blur-sm cursor-pointer"
+                          className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition backdrop-blur-sm cursor-pointer"
                         >
-                          <MessageCircle className="w-3.5 h-3.5 text-emerald-400" /> Remind
+                          <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Remind
                         </button>
                         <button
                           onClick={() => handleCollectDue(p.id)}

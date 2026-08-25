@@ -641,9 +641,9 @@ export const POSTab: React.FC<POSTabProps> = ({
                 id="btn-pos-wa-invite"
                 type="button"
                 onClick={handleSendWhatsAppInvite}
-                className="text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-emerald-500/30 flex items-center gap-1.5 transition backdrop-blur-md cursor-pointer"
+                className="text-emerald-700 dark:text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold hover:bg-emerald-500/30 flex items-center gap-1.5 transition backdrop-blur-md cursor-pointer"
               >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" /> WhatsApp Channel
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> WhatsApp Channel
               </button>
             </div>
           </div>
@@ -885,7 +885,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                         <td className="p-3">
                           <span
                             className={`font-bold ${
-                              isLowStock ? 'text-rose-400' : 'text-text'
+                              isLowStock ? 'text-rose-600 dark:text-rose-400' : 'text-text'
                             }`}
                           >
                             {item.stock} Strips
@@ -893,7 +893,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                           <span className="block text-[10px] text-text-muted">
                             Rack: <b className="text-text">{item.rack}</b>
                             {isExpiring && (
-                              <span className="text-amber-400 font-bold ml-1.5">
+                              <span className="text-amber-600 dark:text-amber-400 font-bold ml-1.5">
                                 • Exp: {'expiry' in item ? item.expiry : ''}
                               </span>
                             )}
@@ -915,7 +915,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handlePromptLoose(item as Medicine)}
-                                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer backdrop-blur-sm"
+                                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 px-2 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer backdrop-blur-sm"
                               >
                                 + Loose
                               </button>
@@ -923,7 +923,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                             <button
                               type="button"
                               onClick={() => handleAddToCart(item, 'return', 1)}
-                              className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 px-1.5 py-1 rounded-lg text-[10px] font-semibold transition flex items-center gap-0.5 cursor-pointer backdrop-blur-sm"
+                              className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 border border-rose-500/40 px-1.5 py-1 rounded-lg text-[10px] font-semibold transition flex items-center gap-0.5 cursor-pointer backdrop-blur-sm"
                             >
                               <Undo2 className="w-3 h-3" /> Return
                             </button>
@@ -944,7 +944,7 @@ export const POSTab: React.FC<POSTabProps> = ({
         <div className="space-y-4">
           <div className="flex justify-between items-center pb-3 border-b border-border">
             <h3 className="font-bold text-text text-base flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <Zap className="w-4 h-4" />
               </div>
               <span>Cart Items</span>
@@ -982,7 +982,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                   >
                     <div className="flex justify-between items-start">
                       <div className="space-y-0.5">
-                        <p className={`font-semibold text-xs ${isReturn ? 'text-rose-400' : 'text-text'}`}>
+                        <p className={`font-semibold text-xs ${isReturn ? 'text-rose-600 dark:text-rose-400' : 'text-text'}`}>
                           {c.name}
                         </p>
                         <div className="flex items-center gap-2 text-[10px] text-text-muted font-mono">
@@ -994,7 +994,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(c.cartId)}
-                        className="text-rose-400 hover:text-rose-300 p-1 rounded-lg hover:bg-rose-500/20 transition cursor-pointer"
+                        className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 p-1 rounded-lg hover:bg-rose-500/20 transition cursor-pointer"
                         title="Remove Item"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1038,7 +1038,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                       <div className="text-right">
                         <span
                           className={`font-bold font-mono text-xs ${
-                            isReturn ? 'text-rose-400' : 'text-emerald-400'
+                            isReturn ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'
                           }`}
                         >
                           ₹ {rowTotal.toFixed(2)}
@@ -1067,7 +1067,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                 <Percent className="w-3.5 h-3.5 text-primary" />
                 <span>Discount:</span>
               </span>
-              <span className="font-mono font-bold text-amber-400">
+              <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
                 - ₹ {discountAmount.toFixed(2)}
               </span>
             </div>
@@ -1153,7 +1153,7 @@ export const POSTab: React.FC<POSTabProps> = ({
           {/* Paid & Due Breakdown */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-[10px] text-emerald-400 font-bold mb-1">Paid</label>
+              <label className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mb-1">Paid</label>
               <input
                 type="number"
                 id="pos-paid-amt"
@@ -1167,7 +1167,7 @@ export const POSTab: React.FC<POSTabProps> = ({
             </div>
 
             <div>
-              <label className="block text-[10px] text-rose-400 font-bold mb-1">Due</label>
+              <label className="block text-[10px] text-rose-600 dark:text-rose-400 font-bold mb-1">Due</label>
               <input
                 type="text"
                 id="pos-due-amt"
@@ -1175,7 +1175,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                 value={`₹ ${effectiveDue.toFixed(2)}`}
                 className={`w-full p-2 border font-bold rounded-xl text-xs font-mono outline-none ${
                   effectiveDue > 0
-                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300'
                     : 'bg-surface border-border text-text-muted'
                 }`}
               />
@@ -1184,7 +1184,7 @@ export const POSTab: React.FC<POSTabProps> = ({
 
           {/* SUCCESS MESSAGE IF INVOICE GENERATED */}
           {checkoutSuccessMsg && (
-            <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between gap-2">
+            <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center justify-between gap-2">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{checkoutSuccessMsg}</span>
@@ -1217,9 +1217,9 @@ export const POSTab: React.FC<POSTabProps> = ({
               id="btn-whatsapp-bill"
               type="button"
               onClick={handleSendWhatsAppBill}
-              className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold py-2.5 rounded-2xl text-xs transition flex items-center justify-center gap-2 cursor-pointer backdrop-blur-md"
+              className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-semibold py-2.5 rounded-2xl text-xs transition flex items-center justify-center gap-2 cursor-pointer backdrop-blur-md"
             >
-              <Send className="w-3.5 h-3.5 text-emerald-400" />
+              <Send className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Send WhatsApp Receipt</span>
             </button>
           </div>

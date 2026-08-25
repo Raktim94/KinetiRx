@@ -173,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onLogout}
             title="Log out"
             aria-label="Log out"
-            className="p-2 rounded-xl text-text-muted hover:text-rose-400 border border-border hover:bg-bg transition cursor-pointer"
+            className="p-2 rounded-xl text-text-muted hover:text-rose-600 dark:hover:text-rose-400 border border-border hover:bg-bg transition cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
           </button>

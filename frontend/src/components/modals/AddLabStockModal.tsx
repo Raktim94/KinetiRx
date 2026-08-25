@@ -184,7 +184,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
               <FlaskConical className="w-4 h-4" />
             </div>
             <div>
@@ -203,8 +203,8 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
         </div>
 
         {/* Informational banner about non-physical lab stock */}
-        <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-start gap-2.5 text-purple-200">
-          <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+        <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-start gap-2.5 text-purple-800 dark:text-purple-200">
+          <Info className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
           <p className="text-[11px] leading-relaxed">
             <strong>Lab Test Item Note:</strong> Lab tests and diagnostic investigations do not use actual physical strip counts. You can bill them freely, and they will appear in both <b>Medicine Stock ERP</b> and the <b>POS Billing screen</b>.
           </p>
@@ -213,7 +213,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
         {/* Quick Click Preset Templates */}
         <div className="space-y-1.5">
           <p className="text-[11px] font-semibold text-text-muted flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>Popular Lab Test Presets:</span>
           </p>
           <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-surface border border-border rounded-2xl">
@@ -222,9 +222,9 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
                 key={idx}
                 type="button"
                 onClick={() => handleApplyTemplate(tmpl)}
-                className="px-2.5 py-1 rounded-xl bg-bg hover:bg-purple-600/30 hover:border-purple-400/50 border border-border text-[10px] text-text hover:text-purple-200 transition cursor-pointer flex items-center gap-1"
+                className="px-2.5 py-1 rounded-xl bg-bg hover:bg-purple-600/30 hover:border-purple-400/50 border border-border text-[10px] text-text hover:text-purple-800 dark:hover:text-purple-200 transition cursor-pointer flex items-center gap-1"
               >
-                <TestTube2 className="w-2.5 h-2.5 text-purple-400" />
+                <TestTube2 className="w-2.5 h-2.5 text-purple-600 dark:text-purple-400" />
                 <span>{tmpl.name.split('(')[0].trim()} (₹{tmpl.mrp})</span>
               </button>
             ))}
@@ -236,7 +236,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
           {/* 1. Item Name */}
           <div>
             <label className="block text-[11px] font-bold text-text-muted mb-1">
-              Lab Item / Test Name <span className="text-rose-400">*</span>
+              Lab Item / Test Name <span className="text-rose-600 dark:text-rose-400">*</span>
             </label>
             <div className="relative">
               <input
@@ -343,7 +343,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
             {/* If Track Stock is ON, show physical stock count input */}
             {trackStock && (
               <div className="pt-2">
-                <label className="block text-[10px] font-bold text-purple-300 mb-1">
+                <label className="block text-[10px] font-bold text-purple-700 dark:text-purple-300 mb-1">
                   Available Reagent / Kit Test Count:
                 </label>
                 <input
@@ -362,7 +362,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
             {/* MRP */}
             <div>
               <label className="block text-[11px] font-bold text-text mb-1">
-                MRP / Test Fee (₹) <span className="text-rose-400">*</span>
+                MRP / Test Fee (₹) <span className="text-rose-600 dark:text-rose-400">*</span>
               </label>
               <input
                 type="number"

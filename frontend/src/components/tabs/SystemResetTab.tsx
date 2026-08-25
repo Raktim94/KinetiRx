@@ -334,7 +334,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
             <h3 className="text-xl font-bold text-text tracking-tight">
               System Factory Reset & 5-Day Backup Hub
             </h3>
-            <span className="bg-rose-500/20 text-rose-300 text-xs px-2.5 py-0.5 rounded-full font-bold border border-rose-500/30">
+            <span className="bg-rose-500/20 text-rose-700 dark:text-rose-300 text-xs px-2.5 py-0.5 rounded-full font-bold border border-rose-500/30">
               Admin Only
             </span>
           </div>
@@ -346,13 +346,13 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
         {/* Security Lock Badge */}
         <div className="flex items-center gap-3">
           {isUnlocked ? (
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold shadow-lg">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold shadow-lg">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Admin Authorized</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold shadow-lg animate-pulse">
-              <Lock className="w-4 h-4 text-rose-400" />
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-700 dark:text-rose-300 text-xs font-bold shadow-lg animate-pulse">
+              <Lock className="w-4 h-4 text-rose-600 dark:text-rose-400" />
               <span>Admin Locked</span>
             </div>
           )}
@@ -364,15 +364,15 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
         <div
           className={`p-4 rounded-2xl border flex items-center justify-between text-xs font-semibold backdrop-blur-xl transition-all shadow-xl ${
             statusMessage.type === 'success'
-              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-200'
-              : 'bg-rose-500/20 border-rose-500/40 text-rose-200'
+              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-800 dark:text-emerald-200'
+              : 'bg-rose-500/20 border-rose-500/40 text-rose-800 dark:text-rose-200'
           }`}
         >
           <div className="flex items-center gap-2.5">
             {statusMessage.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             )}
             <span>{statusMessage.text}</span>
           </div>
@@ -389,7 +389,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
       {!isUnlocked && (
         <div className="p-6 rounded-3xl bg-surface/5 backdrop-blur-2xl border border-rose-500/30 shadow-2xl space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
@@ -434,7 +434,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
           </div>
 
           {passError && (
-            <p className="text-xs text-rose-400 font-medium flex items-center gap-1.5 mt-1">
+            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1.5 mt-1">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>{passError}</span>
             </p>
@@ -503,23 +503,23 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
               </div>
               <div className="p-3 rounded-2xl bg-surface/5 border border-border">
                 <p className="text-[10px] text-text-muted">Sales Invoices</p>
-                <p className="text-base font-bold text-emerald-400 font-mono mt-0.5">{salesHistory.length}</p>
+                <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">{salesHistory.length}</p>
               </div>
               <div className="p-3 rounded-2xl bg-surface/5 border border-border">
                 <p className="text-[10px] text-text-muted">Patients</p>
-                <p className="text-base font-bold text-teal-400 font-mono mt-0.5">{patients.length}</p>
+                <p className="text-base font-bold text-teal-600 dark:text-teal-400 font-mono mt-0.5">{patients.length}</p>
               </div>
               <div className="p-3 rounded-2xl bg-surface/5 border border-border">
                 <p className="text-[10px] text-text-muted">OPD Records</p>
-                <p className="text-base font-bold text-cyan-400 font-mono mt-0.5">{opdVisits.length}</p>
+                <p className="text-base font-bold text-cyan-600 dark:text-cyan-400 font-mono mt-0.5">{opdVisits.length}</p>
               </div>
               <div className="p-3 rounded-2xl bg-surface/5 border border-border">
                 <p className="text-[10px] text-text-muted">Expenses</p>
-                <p className="text-base font-bold text-orange-400 font-mono mt-0.5">{expenses.length}</p>
+                <p className="text-base font-bold text-orange-600 dark:text-orange-400 font-mono mt-0.5">{expenses.length}</p>
               </div>
               <div className="p-3 rounded-2xl bg-surface/5 border border-border">
                 <p className="text-[10px] text-text-muted">Staff Accounts</p>
-                <p className="text-base font-bold text-purple-400 font-mono mt-0.5">{employees.length}</p>
+                <p className="text-base font-bold text-purple-600 dark:text-purple-400 font-mono mt-0.5">{employees.length}</p>
               </div>
             </div>
           </div>
@@ -549,7 +549,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
                   <label className="font-semibold text-text-muted block mb-1.5">
-                    Organization / Pharmacy Name <span className="text-rose-400">*</span>
+                    Organization / Pharmacy Name <span className="text-rose-600 dark:text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -578,7 +578,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
 
                 <div>
                   <label className="font-semibold text-text-muted block mb-1.5">
-                    Primary Phone / WhatsApp Number <span className="text-rose-400">*</span>
+                    Primary Phone / WhatsApp Number <span className="text-rose-600 dark:text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -635,7 +635,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
 
                 <div className="md:col-span-2">
                   <label className="font-semibold text-text-muted block mb-1.5">
-                    Complete Shop / Facility Address <span className="text-rose-400">*</span>
+                    Complete Shop / Facility Address <span className="text-rose-600 dark:text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -681,14 +681,14 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
             {/* Confirmation & Reset Action Box */}
             <div className="p-6 rounded-3xl bg-rose-950/40 backdrop-blur-2xl border border-rose-500/40 shadow-2xl space-y-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 mt-0.5">
                   <AlertOctagon className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-rose-200">
+                  <h4 className="text-sm font-bold text-rose-800 dark:text-rose-200">
                     Step 2: Confirm System Factory Reset & Automatic 5-Day Safety Snapshot
                   </h4>
-                  <p className="text-xs text-rose-300/80 leading-relaxed mt-0.5">
+                  <p className="text-xs text-rose-700 dark:text-rose-300/80 leading-relaxed mt-0.5">
                     Clicking execute will clear all demo/current inventory, invoices, expenses, patients, and OPD records. An automated full backup snapshot will be saved in your 5-day archive so you can restore it anytime if needed.
                   </p>
                 </div>
@@ -696,7 +696,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div>
-                  <label className="font-semibold text-xs text-rose-200 block mb-1">
+                  <label className="font-semibold text-xs text-rose-800 dark:text-rose-200 block mb-1">
                     Type <span className="font-mono bg-rose-500/30 px-1.5 py-0.5 rounded text-text">RESET</span> to confirm:
                   </label>
                   <input
@@ -806,7 +806,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                         <div className="flex items-center gap-2">
                           <h5 className="text-sm font-bold text-text">{snap.label}</h5>
                           {snap.reason === 'pre_reset_auto' && (
-                            <span className="bg-rose-500/20 text-rose-300 text-[10px] px-2 py-0.5 rounded-full font-semibold border border-rose-500/30">
+                            <span className="bg-rose-500/20 text-rose-700 dark:text-rose-300 text-[10px] px-2 py-0.5 rounded-full font-semibold border border-rose-500/30">
                               Pre-Reset Auto Backup
                             </span>
                           )}
@@ -831,8 +831,8 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                             <span>Expired (&gt; 5 Days)</span>
                           </span>
                         ) : (
-                          <span className="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-xl border border-emerald-500/30 font-semibold flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs px-3 py-1 rounded-xl border border-emerald-500/30 font-semibold flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             <span>Active: {remaining.text}</span>
                           </span>
                         )}
@@ -847,19 +847,19 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                       </div>
                       <div>
                         <span className="text-text-muted block text-[10px]">Sales:</span>
-                        <span className="font-bold text-emerald-400">{snap.counts.sales} Invoices</span>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">{snap.counts.sales} Invoices</span>
                       </div>
                       <div>
                         <span className="text-text-muted block text-[10px]">Patients:</span>
-                        <span className="font-bold text-teal-400">{snap.counts.patients} Registered</span>
+                        <span className="font-bold text-teal-600 dark:text-teal-400">{snap.counts.patients} Registered</span>
                       </div>
                       <div>
                         <span className="text-text-muted block text-[10px]">OPD Consults:</span>
-                        <span className="font-bold text-cyan-400">{snap.counts.opdVisits} Visits</span>
+                        <span className="font-bold text-cyan-600 dark:text-cyan-400">{snap.counts.opdVisits} Visits</span>
                       </div>
                       <div>
                         <span className="text-text-muted block text-[10px]">Expenses:</span>
-                        <span className="font-bold text-orange-400">{snap.counts.expenses} Records</span>
+                        <span className="font-bold text-orange-600 dark:text-orange-400">{snap.counts.expenses} Records</span>
                       </div>
                     </div>
 
@@ -878,7 +878,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => onDeleteSnapshot(snap.id)}
-                          className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 rounded-xl text-xs flex items-center gap-1 transition cursor-pointer"
+                          className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 rounded-xl text-xs flex items-center gap-1 transition cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>Delete</span>
@@ -932,7 +932,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
 
           {/* Restore from JSON Backup */}
           <div className="p-6 rounded-3xl bg-surface/5 backdrop-blur-2xl border border-border shadow-2xl space-y-4">
-            <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
               <Upload className="w-5 h-5" />
             </div>
             <div>
@@ -973,7 +973,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
         <div className="fixed inset-0 bg-[var(--color-overlay)] backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-lg bg-surface border border-emerald-500/40 rounded-3xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3 border-b border-border pb-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <RotateCcw className="w-5 h-5" />
               </div>
               <div>
@@ -985,7 +985,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
             <div className="p-4 rounded-2xl bg-surface/5 border border-border space-y-2 text-xs">
               <p className="text-text-muted">
                 You are about to restore this backup created on{' '}
-                <span className="font-mono text-emerald-300">
+                <span className="font-mono text-emerald-700 dark:text-emerald-300">
                   {new Date(snapshotToRestore.createdAt).toLocaleString()}
                 </span>
                 . Current data will be replaced by the snapshot's contents.
@@ -1013,7 +1013,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                 className="w-full p-2.5 bg-bg border border-border rounded-xl text-text text-xs font-mono outline-none focus:border-emerald-400"
               />
               {restoreError && (
-                <p className="text-xs text-rose-400 flex items-center gap-1">
+                <p className="text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>{restoreError}</span>
                 </p>

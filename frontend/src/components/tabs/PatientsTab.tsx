@@ -264,10 +264,10 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => handleSendWhatsAppGroupInvite(p)}
-                          className="text-emerald-300 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 px-2.5 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1 transition backdrop-blur-sm cursor-pointer"
+                          className="text-emerald-700 dark:text-emerald-300 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 px-2.5 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1 transition backdrop-blur-sm cursor-pointer"
                           title="Send WhatsApp Community Invite"
                         >
-                          <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                          <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                           <span>WhatsApp</span>
                         </button>
                         <button

@@ -62,7 +62,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       <div className="glass-panel rounded-3xl max-w-md w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-400">
+            <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
               <Wallet className="w-4 h-4" />
             </div>
             <span>Log Daily Expenditure</span>
@@ -164,13 +164,13 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 value={amt}
                 onChange={e => setAmt(e.target.value)}
                 placeholder="0.00"
-                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-orange-300 placeholder:text-text-muted outline-none focus:border-orange-400 focus:bg-bg text-base"
+                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-orange-700 dark:text-orange-300 placeholder:text-text-muted outline-none focus:border-orange-400 focus:bg-bg text-base"
                 required
               />
             </div>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-300 text-[11px]">
+          <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-300 text-[11px]">
             💡 This expenditure will be automatically recorded in the <b>Daily Sales Register</b> and deducted from the Physical Cash Drawer balance.
           </div>
 

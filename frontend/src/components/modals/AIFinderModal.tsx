@@ -91,7 +91,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center border-b border-border pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -138,12 +138,12 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
               <div className="bg-surface backdrop-blur-xl p-4 rounded-2xl border border-border space-y-1.5">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">
+                    <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">
                       Medicine Searched:
                     </span>
                     <h4 className="text-base font-bold text-text">{query.toUpperCase()}</h4>
                   </div>
-                  <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                  <span className="bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
                     {matchData.category}
                   </span>
                 </div>
@@ -155,8 +155,8 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
               {/* In-Stock shop inventory matches */}
               {inStockMatches.length > 0 && (
                 <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl space-y-2.5 backdrop-blur-md">
-                  <h5 className="font-bold text-emerald-300 flex items-center gap-1.5 text-xs">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <h5 className="font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     Available in Your Shop Stock:
                   </h5>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -169,7 +169,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                           <p className="font-bold text-text">{item.name}</p>
                           <p className="text-[10px] text-text-muted">
                             Rack: <b className="text-primary">{item.rack}</b> • Stock:{' '}
-                            <b className="text-emerald-400">{item.stock} Strips</b>
+                            <b className="text-emerald-600 dark:text-emerald-400">{item.stock} Strips</b>
                           </p>
                           <p className="text-xs font-bold text-text font-mono mt-0.5">
                             MRP: ₹ {item.mrp.toFixed(2)}
@@ -194,8 +194,8 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
               {/* Market alternative equivalents */}
               <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl space-y-2.5 backdrop-blur-md">
                 <div className="flex justify-between items-center flex-wrap gap-2">
-                  <h5 className="font-bold text-purple-300 flex items-center gap-1.5 text-xs">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                  <h5 className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5 text-xs">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                     Leading Market Equivalent Brands:
                   </h5>
                   <div className="flex gap-1.5 flex-wrap">
@@ -205,7 +205,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                         href={w.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-2.5 py-1 bg-surface border border-border text-purple-300 font-semibold rounded-xl text-[10px] hover:bg-bg flex items-center gap-1 transition"
+                        className="px-2.5 py-1 bg-surface border border-border text-purple-700 dark:text-purple-300 font-semibold rounded-xl text-[10px] hover:bg-bg flex items-center gap-1 transition"
                       >
                         <ExternalLink className="w-2.5 h-2.5" />
                         <span>{w.name}</span>
@@ -225,7 +225,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                         <p className="text-[10px] text-text-muted">
                           Company: <b className="text-text-muted">{alt.company}</b>
                         </p>
-                        <p className="text-xs font-bold text-purple-300 font-mono mt-0.5">
+                        <p className="text-xs font-bold text-purple-700 dark:text-purple-300 font-mono mt-0.5">
                           Est. MRP: ₹ {alt.mrp.toFixed(2)}
                         </p>
                       </div>

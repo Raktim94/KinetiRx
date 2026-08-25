@@ -296,13 +296,13 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
       >
         <div className="flex justify-between items-center border-b border-border pb-3 flex-wrap gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-lg">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-lg">
               <Clock className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-text flex items-center gap-2 flex-wrap">
                 <span>Invoice Storage & Auto-Deletion Policy</span>
-                <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] px-2.5 py-0.5 rounded-full font-mono font-medium">
+                <span className="bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[11px] px-2.5 py-0.5 rounded-full font-mono font-medium">
                   {retentionMonths}-Month Active Policy
                 </span>
               </h3>
@@ -313,7 +313,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Storage & Purge Active</span>
             </span>
@@ -327,10 +327,10 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
               <Database className="w-4 h-4" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-bold text-amber-200">
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-200">
                 • The invoices should be stored for six months (or selected period: 3 months, 6 months, 1 year).
               </p>
-              <p className="text-sm font-bold text-amber-200">
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-200">
                 • After six months, older invoices will be automatically deleted from the live buffer.
               </p>
               <p className="text-xs text-text-muted font-sans pt-1">
@@ -357,10 +357,10 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
 
           <div className="p-4 rounded-2xl bg-surface-elevated border border-border space-y-1.5 backdrop-blur-md">
             <div className="text-text-muted flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-emerald-400" />
+              <FileText className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Invoices Active in Storage:</span>
             </div>
-            <div className="text-lg font-bold text-emerald-400 font-mono">
+            <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-mono">
               {retainedInvoices.length} Invoices Available
             </div>
             <p className="text-[11px] text-text-muted">
@@ -370,10 +370,10 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
 
           <div className="p-4 rounded-2xl bg-surface-elevated border border-border space-y-1.5 backdrop-blur-md">
             <div className="text-text-muted flex items-center gap-1.5">
-              <History className="w-3.5 h-3.5 text-rose-400" />
+              <History className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
               <span>Invoices Older than {retentionMonths} Months:</span>
             </div>
-            <div className="text-lg font-bold text-rose-400 font-mono">
+            <div className="text-lg font-bold text-rose-600 dark:text-rose-400 font-mono">
               {expiredInvoices.length} Expired / Purged
             </div>
             <p className="text-[11px] text-text-muted">
@@ -418,14 +418,14 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
         {/* MANUAL PURGE BUTTON & NOTICE */}
         <div className="flex items-center justify-between pt-3 border-t border-border flex-wrap gap-3">
           <div className="text-xs text-text-muted flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Audit-ready storage with rolling deletion protocol</span>
           </div>
 
           <button
             type="button"
             onClick={handleManualPurge}
-            className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-2xl font-bold transition flex items-center gap-1.5 cursor-pointer text-xs"
+            className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 border border-rose-500/30 rounded-2xl font-bold transition flex items-center gap-1.5 cursor-pointer text-xs"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Clean Expired Invoices (&gt;{retentionMonths} Months)</span>
@@ -433,7 +433,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
         </div>
 
         {purgeNotice && (
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{purgeNotice}</span>
           </div>
@@ -627,7 +627,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                         <span className="text-[10px] text-text-muted font-mono flex items-center gap-1">
                           <span>{s.date}</span>
                           {isExp && (
-                            <span className="text-amber-400 font-bold bg-amber-400/10 px-1.5 rounded">
+                            <span className="text-amber-600 dark:text-amber-400 font-bold bg-amber-400/10 px-1.5 rounded">
                               &gt;{retentionMonths}M
                             </span>
                           )}
@@ -680,7 +680,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                             <button
                               type="button"
                               onClick={() => handleWhatsAppSingle(s)}
-                              className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 p-1 rounded-lg transition cursor-pointer"
+                              className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 p-1 rounded-lg transition cursor-pointer"
                               title="Share on WhatsApp"
                             >
                               <MessageCircle className="w-3.5 h-3.5" />
@@ -701,7 +701,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
       <div className="p-6 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border shadow-2xl space-y-5">
         <div className="border-b border-border pb-3">
           <h3 className="text-base font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <Store className="w-4 h-4" />
             </div>
             <span>Invoice & WhatsApp Settings</span>
@@ -729,7 +729,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                 <button
                   type="button"
                   onClick={handleRemoveLogo}
-                  className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                  className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-700 dark:text-rose-300 border border-rose-500/30 rounded-xl text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Remove Logo</span>
@@ -738,8 +738,8 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
             </div>
 
             {uploadError && (
-              <div className="p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <div className="p-2.5 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span>{uploadError}</span>
               </div>
             )}
@@ -846,8 +846,8 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
             </div>
 
             <div className="md:col-span-2">
-              <label className="font-medium text-emerald-300 block mb-1 flex items-center gap-1.5">
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <label className="font-medium text-emerald-700 dark:text-emerald-300 block mb-1 flex items-center gap-1.5">
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 WhatsApp Group Invite Link
               </label>
               <input
@@ -855,7 +855,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                 id="inv-cfg-wagroup"
                 value={formData.waGroup}
                 onChange={e => setFormData({ ...formData, waGroup: e.target.value })}
-                className="w-full p-2.5 border border-emerald-500/30 bg-emerald-500/10 rounded-xl font-mono text-emerald-200 outline-none focus:border-emerald-400 backdrop-blur-md"
+                className="w-full p-2.5 border border-emerald-500/30 bg-emerald-500/10 rounded-xl font-mono text-emerald-800 dark:text-emerald-200 outline-none focus:border-emerald-400 backdrop-blur-md"
                 placeholder="https://chat.whatsapp.com/your-invite-code"
                 required
               />

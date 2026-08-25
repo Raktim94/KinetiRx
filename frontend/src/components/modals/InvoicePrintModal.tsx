@@ -255,7 +255,7 @@ export const InvoicePrintModal: React.FC<InvoicePrintModalProps> = ({
             <div>
               <h3 className="text-sm font-bold text-text flex items-center gap-2">
                 <span>Tax Invoice Slip & PDF Preview</span>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono border border-emerald-500/30">
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-mono border border-emerald-500/30">
                   {invoice.invNo}
                 </span>
               </h3>

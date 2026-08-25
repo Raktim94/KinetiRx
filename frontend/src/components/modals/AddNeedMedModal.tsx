@@ -277,7 +277,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowQuickPatientForm(!showQuickPatientForm)}
-                className="text-[11px] text-teal-300 hover:text-teal-200 font-semibold flex items-center gap-1 bg-teal-500/20 border border-teal-500/30 px-2 py-0.5 rounded-lg transition cursor-pointer"
+                className="text-[11px] text-teal-700 dark:text-teal-300 hover:text-teal-800 dark:hover:text-teal-200 font-semibold flex items-center gap-1 bg-teal-500/20 border border-teal-500/30 px-2 py-0.5 rounded-lg transition cursor-pointer"
               >
                 <UserPlus className="w-3 h-3" />
                 <span>+ Register New Patient</span>
@@ -325,10 +325,10 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
 
             {/* Verified Patient Profile Summary Banner */}
             {selectedPatientRecord ? (
-              <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 flex items-center justify-between text-[11px]">
+              <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 flex items-center justify-between text-[11px]">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5 font-bold text-text">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>{patientName}</span>
                     <span className="font-mono text-xs text-primary bg-primary/20 px-1.5 rounded">
                       {selectedPatientId}
@@ -362,7 +362,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
             {/* Quick Inline Patient Creation Drawer */}
             {showQuickPatientForm && (
               <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2 mt-2">
-                <p className="font-bold text-teal-200 text-xs">Quick Add Patient to Database:</p>
+                <p className="font-bold text-teal-800 dark:text-teal-200 text-xs">Quick Add Patient to Database:</p>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
@@ -410,11 +410,11 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
           <div className="space-y-1.5 relative" ref={medDropdownRef}>
             <div className="flex justify-between items-center">
               <label className="font-semibold text-text-muted block">
-                Medicine Required <span className="text-rose-400">*</span>
+                Medicine Required <span className="text-rose-600 dark:text-rose-400">*</span>
               </label>
               {selectedMedicineItem && (
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-emerald-500/30">
-                  <Check className="w-3 h-3 text-emerald-400" />
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-mono flex items-center gap-1 border border-emerald-500/30">
+                  <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                   <span>Linked from Stock</span>
                 </span>
               )}
@@ -475,11 +475,11 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
 
                         <div className="text-right shrink-0 ml-2">
                           {m.stock > 0 ? (
-                            <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-emerald-500/30 font-bold block">
+                            <span className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-emerald-500/30 font-bold block">
                               In Stock: {m.stock}
                             </span>
                           ) : (
-                            <span className="bg-rose-500/20 text-rose-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-rose-500/30 font-bold block">
+                            <span className="bg-rose-500/20 text-rose-700 dark:text-rose-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-rose-500/30 font-bold block">
                               Out of Stock (0)
                             </span>
                           )}
@@ -489,8 +489,8 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
                   </>
                 ) : (
                   <div className="p-3 text-center space-y-1">
-                    <p className="text-xs text-amber-300 font-semibold flex items-center justify-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <p className="text-xs text-amber-700 dark:text-amber-300 font-semibold flex items-center justify-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                       <span>Not found in current inventory</span>
                     </p>
                     <p className="text-[10px] text-text-muted">

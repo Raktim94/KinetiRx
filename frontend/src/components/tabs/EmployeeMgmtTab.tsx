@@ -34,7 +34,7 @@ export const EmployeeMgmtTab: React.FC<EmployeeMgmtTabProps> = ({
       <div className="flex justify-between items-center border-b border-border pb-4 flex-wrap gap-4">
         <div>
           <h3 className="text-base font-bold text-text flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
+            <div className="w-8 h-8 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-600 dark:text-pink-400">
               <Users className="w-4 h-4" />
             </div>
             <span>Employee & Admin Access Control</span>
@@ -72,7 +72,7 @@ export const EmployeeMgmtTab: React.FC<EmployeeMgmtTabProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-text">Administrator Security Master Key</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300">
                 <CheckCircle2 className="w-3 h-3" /> Auto-Saved & Active
               </span>
             </div>
@@ -137,7 +137,7 @@ export const EmployeeMgmtTab: React.FC<EmployeeMgmtTabProps> = ({
                   </button>
                   <button
                     onClick={() => onDeleteEmployee(e.id)}
-                    className="text-rose-300 font-semibold hover:text-text bg-rose-500/20 px-3 py-1.5 rounded-xl border border-rose-500/30 transition backdrop-blur-sm cursor-pointer"
+                    className="text-rose-700 dark:text-rose-300 font-semibold hover:text-text bg-rose-500/20 px-3 py-1.5 rounded-xl border border-rose-500/30 transition backdrop-blur-sm cursor-pointer"
                   >
                     Remove
                   </button>

@@ -53,7 +53,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
       <div className="glass-panel rounded-3xl max-w-md w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400">
+            <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-600 dark:text-sky-400">
               <Stethoscope className="w-4 h-4" />
             </div>
             <span>Record OPD Patient Consultation</span>
@@ -130,7 +130,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
                 type="date"
                 value={rvdate}
                 onChange={e => setRvdate(e.target.value)}
-                className="w-full p-2.5 bg-sky-500/10 border border-sky-500/30 rounded-xl font-mono font-bold text-sky-300 outline-none focus:border-primary"
+                className="w-full p-2.5 bg-sky-500/10 border border-sky-500/30 rounded-xl font-mono font-bold text-sky-700 dark:text-sky-300 outline-none focus:border-primary"
                 required
               />
             </div>

@@ -60,7 +60,7 @@ export const MarketingModal: React.FC<MarketingModalProps> = ({
       <div className="glass-panel rounded-3xl max-w-md w-full p-6 space-y-4 text-xs text-text animate-in zoom-in-95">
         <div className="flex justify-between items-center border-b border-border pb-3">
           <h3 className="text-sm font-bold text-text flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+            <div className="w-7 h-7 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
               <Megaphone className="w-4 h-4" />
             </div>
             <span>{campaignToEdit ? 'Edit Marketing Campaign' : 'Doctor Campaign & Marketing Plan'}</span>

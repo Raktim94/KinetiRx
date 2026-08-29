@@ -44,7 +44,7 @@ import {
   SystemBackupSnapshot,
   WorksheetTask,
 } from '../../types';
-import { ApiError, authApi } from '../../lib/api';
+import { ApiError, authApi, securityApi } from '../../lib/api';
 
 interface SystemResetTabProps {
   currentUser?: CurrentUser;
@@ -103,6 +103,79 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passError, setPassError] = useState<string | null>(null);
+
+  // Master Security PIN — a second factor required (on top of the admin
+  // password above) before the reset controls unlock. Verified server-side
+  // via POST /api/security/master-pin/verify; this component never holds or
+  // compares the real PIN itself.
+  const [masterPinStatus, setMasterPinStatus] = useState<{ isSet: boolean; lockedUntil?: string } | null>(null);
+  const [masterPinInput, setMasterPinInput] = useState('');
+  const [masterPinVerified, setMasterPinVerified] = useState(false);
+  const [masterPinError, setMasterPinError] = useState<string | null>(null);
+  const [verifyingMasterPin, setVerifyingMasterPin] = useState(false);
+  const [newMasterPin, setNewMasterPin] = useState('');
+  const [newMasterPinConfirm, setNewMasterPinConfirm] = useState('');
+  const [settingMasterPin, setSettingMasterPin] = useState(false);
+
+  useEffect(() => {
+    if (!isUnlocked) return;
+    let cancelled = false;
+    securityApi
+      .status()
+      .then(s => {
+        if (!cancelled) setMasterPinStatus(s);
+      })
+      .catch(() => {
+        if (!cancelled) setMasterPinStatus(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isUnlocked]);
+
+  const handleVerifyMasterPin = async () => {
+    setVerifyingMasterPin(true);
+    setMasterPinError(null);
+    try {
+      const { valid } = await securityApi.verify(masterPinInput);
+      if (valid) {
+        setMasterPinVerified(true);
+      } else {
+        setMasterPinError('Incorrect Master PIN.');
+      }
+    } catch (err) {
+      setMasterPinError(
+        err instanceof ApiError ? err.describe() : 'Could not verify the Master PIN with the server.'
+      );
+    } finally {
+      setVerifyingMasterPin(false);
+    }
+  };
+
+  const handleSetMasterPin = async () => {
+    setMasterPinError(null);
+    if (!/^[0-9]{4,8}$/.test(newMasterPin)) {
+      setMasterPinError('PIN must be 4 to 8 digits.');
+      return;
+    }
+    if (newMasterPin !== newMasterPinConfirm) {
+      setMasterPinError('PIN and confirmation do not match.');
+      return;
+    }
+    setSettingMasterPin(true);
+    try {
+      const status = await securityApi.set(newMasterPin);
+      setMasterPinStatus(status);
+      setNewMasterPin('');
+      setNewMasterPinConfirm('');
+      setStatusMessage({ type: 'success', text: 'Master Security PIN configured.' });
+      setTimeout(() => setStatusMessage(null), 3500);
+    } catch (err) {
+      setMasterPinError(err instanceof ApiError ? err.describe() : 'Could not save the Master PIN.');
+    } finally {
+      setSettingMasterPin(false);
+    }
+  };
 
   // Active Tab View: 'reset_wizard' | 'backups' | 'file_transfer'
   const [activeSubTab, setActiveSubTab] = useState<'reset_wizard' | 'backups' | 'file_transfer'>('reset_wizard');
@@ -183,6 +256,11 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
 
     if (!isUnlocked) {
       setPassError('Please unlock with Admin Password before executing reset.');
+      return;
+    }
+
+    if (masterPinStatus?.isSet && !masterPinVerified) {
+      setMasterPinError('Please verify the Master Security PIN before executing reset.');
       return;
     }
 
@@ -437,6 +515,103 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
             <p className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1.5 mt-1">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>{passError}</span>
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* 2b. MASTER SECURITY PIN — second factor, gates the reset controls
+          below in addition to the admin password above. */}
+      {isUnlocked && masterPinStatus && (
+        <div className="p-6 rounded-3xl bg-surface/5 backdrop-blur-2xl border border-amber-500/30 shadow-2xl space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-text">Master Security PIN</h4>
+              <p className="text-xs text-text-muted">
+                {masterPinStatus.isSet
+                  ? 'A second, shared 4–8 digit PIN required to authorize destructive admin actions like Factory Reset — separate from your login password, so it can be shared with a trusted senior staff member without handing out admin credentials.'
+                  : 'No Master PIN is configured yet. Set one below — it will then be required (alongside your admin password) to execute a Factory Reset.'}
+              </p>
+            </div>
+          </div>
+
+          {masterPinStatus.isSet ? (
+            masterPinVerified ? (
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Master PIN verified — reset controls unlocked.</span>
+              </p>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  id="input-master-pin-verify"
+                  value={masterPinInput}
+                  onChange={e => {
+                    setMasterPinInput(e.target.value);
+                    setMasterPinError(null);
+                  }}
+                  onKeyDown={e => e.key === 'Enter' && handleVerifyMasterPin()}
+                  placeholder="Enter Master PIN"
+                  className="flex-1 p-2.5 bg-bg/80 border border-border rounded-2xl text-text text-xs outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 font-mono"
+                />
+                <button
+                  type="button"
+                  id="btn-verify-master-pin"
+                  onClick={handleVerifyMasterPin}
+                  disabled={verifyingMasterPin || !masterPinInput}
+                  className="px-6 py-2.5 rounded-2xl text-xs font-bold bg-amber-600 hover:brightness-105 text-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Unlock className="w-4 h-4" />
+                  <span>{verifyingMasterPin ? 'Verifying...' : 'Verify PIN'}</span>
+                </button>
+              </div>
+            )
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div>
+                <label className="font-medium text-text-muted block mb-1 text-xs">New Master PIN (4–8 digits)</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  id="input-new-master-pin"
+                  value={newMasterPin}
+                  onChange={e => setNewMasterPin(e.target.value)}
+                  className="w-full p-2.5 bg-bg/80 border border-border rounded-2xl text-text text-xs outline-none focus:border-amber-400 font-mono"
+                />
+              </div>
+              <div>
+                <label className="font-medium text-text-muted block mb-1 text-xs">Confirm PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  id="input-new-master-pin-confirm"
+                  value={newMasterPinConfirm}
+                  onChange={e => setNewMasterPinConfirm(e.target.value)}
+                  className="w-full p-2.5 bg-bg/80 border border-border rounded-2xl text-text text-xs outline-none focus:border-amber-400 font-mono"
+                />
+              </div>
+              <button
+                type="button"
+                id="btn-set-master-pin"
+                onClick={handleSetMasterPin}
+                disabled={settingMasterPin || !newMasterPin || !newMasterPinConfirm}
+                className="px-6 py-2.5 rounded-2xl text-xs font-bold bg-amber-600 hover:brightness-105 text-text disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>{settingMasterPin ? 'Saving...' : 'Set Master PIN'}</span>
+              </button>
+            </div>
+          )}
+
+          {masterPinError && (
+            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>{masterPinError}</span>
             </p>
           )}
         </div>
@@ -713,9 +888,15 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                   <button
                     type="submit"
                     id="btn-execute-factory-reset"
-                    disabled={!isUnlocked || confirmResetText.trim().toUpperCase() !== 'RESET'}
+                    disabled={
+                      !isUnlocked ||
+                      (masterPinStatus?.isSet === true && !masterPinVerified) ||
+                      confirmResetText.trim().toUpperCase() !== 'RESET'
+                    }
                     className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition shadow-lg ${
-                      isUnlocked && confirmResetText.trim().toUpperCase() === 'RESET'
+                      isUnlocked &&
+                      (!masterPinStatus?.isSet || masterPinVerified) &&
+                      confirmResetText.trim().toUpperCase() === 'RESET'
                         ? 'bg-danger hover:brightness-105 text-primary-foreground cursor-pointer'
                         : 'bg-surface/10 text-text-muted border border-border cursor-not-allowed'
                     }`}

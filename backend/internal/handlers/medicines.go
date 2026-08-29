@@ -119,6 +119,7 @@ func (d *Deps) CreateMedicine(c *gin.Context) {
 		httpx.Conflict(c, "Failed to create medicine (id may already exist): "+err.Error())
 		return
 	}
+	d.Events.Publish("medicines")
 	httpx.Created(c, m)
 }
 
@@ -159,6 +160,7 @@ func (d *Deps) UpdateMedicine(c *gin.Context) {
 		httpx.Internal(c, "Failed to update medicine")
 		return
 	}
+	d.Events.Publish("medicines")
 	httpx.OK(c, m)
 }
 
@@ -173,5 +175,6 @@ func (d *Deps) DeleteMedicine(c *gin.Context) {
 		httpx.NotFound(c, "Medicine not found")
 		return
 	}
+	d.Events.Publish("medicines")
 	httpx.NoContent(c)
 }

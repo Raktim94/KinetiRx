@@ -377,6 +377,31 @@ export const authApi = {
 };
 
 // ---------------------------------------------------------------------------
+// Master Security PIN — a second factor for the highest-risk admin actions
+// (System Reset). Never carries the PIN's hash to the client, only whether
+// one is configured and the boolean result of a verify attempt.
+// ---------------------------------------------------------------------------
+
+export interface MasterPinStatus {
+  isSet: boolean;
+  lockedUntil?: string;
+}
+
+export const securityApi = {
+  status: () => request<MasterPinStatus>('/api/security/master-pin'),
+  set: (newPin: string, currentPin?: string) =>
+    request<MasterPinStatus>('/api/security/master-pin', {
+      method: 'PUT',
+      body: JSON.stringify({ newPin, currentPin: currentPin || '' }),
+    }),
+  verify: (pin: string) =>
+    request<{ valid: boolean }>('/api/security/master-pin/verify', {
+      method: 'POST',
+      body: JSON.stringify({ pin }),
+    }),
+};
+
+// ---------------------------------------------------------------------------
 // AI-powered endpoints
 // ---------------------------------------------------------------------------
 

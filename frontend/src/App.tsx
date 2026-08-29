@@ -139,6 +139,7 @@ import {
   worksheetTasksApi,
 } from './lib/api';
 import { useSyncedList, useSyncedSingleton } from './hooks/useSyncedResource';
+import { useLiveSync } from './hooks/useLiveSync';
 
 // Sales history is an append-mostly audit trail on the real backend — there
 // is no PUT/DELETE endpoint for it by design (see backend/API.md). This
@@ -389,6 +390,35 @@ export function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.id]);
+
+  // Multi-device live sync: when another counter's mutation lands, refetch
+  // just the affected resource. Errors are swallowed (unlike the initial
+  // load above) — a live-sync refresh failing on a transient blink shouldn't
+  // interrupt whoever's mid-sale with an alert; the next event or reconnect
+  // will catch it up.
+  const handleLiveResourceChanged = useCallback((resource: string) => {
+    switch (resource) {
+      case 'medicines':
+        medicinesApi.list().then(setMedicinesRaw).catch(() => {});
+        break;
+      case 'sales':
+        salesApi.list().then(setSalesHistoryRaw).catch(() => {});
+        break;
+      case 'dueKhata':
+        dueKhataAsPatientRecordApi.list().then(setPatientsDueRaw).catch(() => {});
+        break;
+      case 'dailyRegister':
+        dailyRegisterApi.get().then(setDailyRegisterRaw).catch(() => {});
+        break;
+      case 'neededMeds':
+        neededMedsApi.list().then(setNeededMedsRaw).catch(() => {});
+        break;
+      default:
+        break;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useLiveSync(!!currentUser, handleLiveResourceChanged);
 
   // Clear locally cached data on logout / session expiry so a subsequent
   // login (possibly as a different employee) never shows stale data.
@@ -961,6 +991,7 @@ export function App() {
                 neededMeds={neededMeds}
                 setNeededMeds={setNeededMeds}
                 distributors={distributors}
+                invoiceConfig={invoiceConfig}
                 patients={patients}
                 onViewPatientProfile={p => {
                   setSelectedPatientForCV(p);

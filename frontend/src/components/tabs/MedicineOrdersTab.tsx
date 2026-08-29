@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Clock,
   Download,
   FileCheck2,
+  MessageCircle,
   Pencil,
   Phone,
   Plus,
+  Printer,
   Search,
+  Send,
   Truck,
   User,
   UserCheck,
 } from 'lucide-react';
-import { Distributor, NeededMedOrder, PatientRecord } from '../../types';
+import { Distributor, InvoiceConfig, NeededMedOrder, PatientRecord } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
+import {
+  downloadPurchaseOrder,
+  findDistributorByName,
+  groupNeededMedsByDistributor,
+  printPurchaseOrder,
+  shareOrderOnWhatsApp,
+} from '../../utils/poGenerator';
 import { EditNeedMedModal } from '../modals/EditNeedMedModal';
 
 interface MedicineOrdersTabProps {
@@ -22,6 +32,7 @@ interface MedicineOrdersTabProps {
   patients?: PatientRecord[];
   onViewPatientProfile?: (p: PatientRecord) => void;
   distributors?: Distributor[];
+  invoiceConfig: InvoiceConfig;
 }
 
 export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
@@ -31,10 +42,47 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
   patients = [],
   onViewPatientProfile,
   distributors = [],
+  invoiceConfig,
 }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [orderToEdit, setOrderToEdit] = useState<NeededMedOrder | null>(null);
+  const [poCounter, setPoCounter] = useState(1);
+
+  // Pending orders grouped by distributor — the source data for "Generate
+  // Purchase Order" below. Only "Pending" orders are eligible: anything
+  // already ordered/delivered/cancelled has no business being on a new PO.
+  const pendingByDistributor = useMemo(() => groupNeededMedsByDistributor(neededMeds), [neededMeds]);
+
+  const nextPoNumber = () => {
+    const n = `PO-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(poCounter).padStart(3, '0')}`;
+    setPoCounter(c => c + 1);
+    return n;
+  };
+
+  const markOrdersAsOrdered = (ids: string[]) => {
+    setNeededMeds(prev =>
+      prev.map(o => (ids.includes(o.id) ? { ...o, status: 'Distributor Ordered' } : o))
+    );
+  };
+
+  const handleGeneratePO = (distName: string, orders: NeededMedOrder[]) => {
+    const dist = findDistributorByName(distributors, distName);
+    const poNumber = nextPoNumber();
+    printPurchaseOrder(invoiceConfig, distName, dist, orders, poNumber);
+    markOrdersAsOrdered(orders.map(o => o.id));
+  };
+
+  const handleDownloadPO = (distName: string, orders: NeededMedOrder[]) => {
+    const dist = findDistributorByName(distributors, distName);
+    downloadPurchaseOrder(invoiceConfig, distName, dist, orders, nextPoNumber());
+  };
+
+  const handleWhatsAppPO = (distName: string, orders: NeededMedOrder[]) => {
+    const dist = findDistributorByName(distributors, distName);
+    shareOrderOnWhatsApp(invoiceConfig, distName, dist?.phone, orders, nextPoNumber());
+    markOrdersAsOrdered(orders.map(o => o.id));
+  };
 
   const handleUpdateStatus = (id: string, newStatus: NeededMedOrder['status']) => {
     setNeededMeds(prev =>
@@ -133,6 +181,61 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
           </button>
         </div>
       </div>
+
+      {/* GENERATE PURCHASE ORDER — groups still-Pending shortage-book entries
+          by distributor so they can be turned into an actual PO instead of
+          staying a bare list. */}
+      {pendingByDistributor.size > 0 && (
+        <div className="p-5 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border shadow-2xl space-y-3">
+          <h3 className="text-sm font-bold text-text flex items-center gap-2">
+            <Send className="w-4 h-4 text-primary" />
+            <span>Generate Purchase Order (by Distributor)</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {Array.from(pendingByDistributor.entries()).map(([distName, orders]) => (
+              <div
+                key={distName}
+                className="p-3.5 rounded-2xl bg-surface-elevated border border-border flex flex-col gap-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 font-bold text-text text-xs">
+                    <Truck className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span>{distName}</span>
+                  </div>
+                  <span className="text-[10px] font-mono bg-primary/15 text-primary px-2 py-0.5 rounded-full border border-primary/25">
+                    {orders.length} item{orders.length === 1 ? '' : 's'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => handleGeneratePO(distName, orders)}
+                    className="px-2.5 py-1.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-[11px] font-bold flex items-center gap-1 transition cursor-pointer"
+                    title="Print the Purchase Order and mark these items as Distributor Ordered"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print PO</span>
+                  </button>
+                  <button
+                    onClick={() => handleDownloadPO(distName, orders)}
+                    className="px-2.5 py-1.5 bg-surface hover:bg-bg border border-border text-text rounded-xl text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-primary" />
+                    <span>Download</span>
+                  </button>
+                  <button
+                    onClick={() => handleWhatsAppPO(distName, orders)}
+                    className="px-2.5 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 rounded-xl text-[11px] font-semibold flex items-center gap-1 transition cursor-pointer"
+                    title="Share PO summary via WhatsApp and mark these items as Distributor Ordered"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* SEARCH & FILTERS */}
       <div className="flex justify-between items-center gap-3 flex-wrap bg-surface p-3 rounded-2xl border border-border backdrop-blur-md">

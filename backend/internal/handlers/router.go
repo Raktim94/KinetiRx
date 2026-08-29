@@ -30,6 +30,11 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 	api.GET("/auth/setup-status", d.SetupStatus)
 	api.POST("/auth/setup", setupLimit, d.Setup)
 
+	// Live-sync SSE feed — verifies its own token (query param, since
+	// EventSource can't set headers) rather than using the Authenticate
+	// middleware; see EventsStream's doc comment.
+	api.GET("/events/stream", d.EventsStream)
+
 	authed := api.Group("")
 	authed.Use(middleware.Authenticate(d.Tokens))
 	{
@@ -182,5 +187,15 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 		// AI-powered OCR invoice ingestion + clinical assistant
 		authed.POST("/ocr/parse-bill", middleware.RequirePermission(models.TabType("inward-ocr")), d.ParseBill)
 		authed.POST("/ai/ask", d.AskAI) // any authenticated employee may consult the assistant
+
+		// Master Security PIN — a second factor for the highest-risk admin
+		// actions (System Reset). Verify is rate-limited on top of its own
+		// per-account lockout since a 4-digit PIN is inherently brute-forceable.
+		sec := authed.Group("/security/master-pin")
+		{
+			sec.GET("", d.GetMasterPinStatus)
+			sec.PUT("", middleware.RequireAdmin(), d.SetMasterPin)
+			sec.POST("/verify", middleware.RateLimit(10, time.Minute), d.VerifyMasterPin)
+		}
 	}
 }

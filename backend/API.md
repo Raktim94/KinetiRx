@@ -535,6 +535,43 @@ needs this to print invoices); `PUT` requires `invoice-settings` permission.
 
 ---
 
+## Master Security PIN — `/api/security/master-pin`
+
+A second factor, separate from any employee's login password, required by
+the frontend before it unlocks the System Reset controls. Deliberately not
+seeded with any default value (a fixed PIN shared across every install would
+be a weak-credential anti-pattern) — it starts unset and an admin configures
+it explicitly. The hash is never returned to the client, only whether one is
+set and the boolean result of a verify attempt. A 4-digit PIN only has
+10,000 possible values, so `VerifyMasterPin` locks the account for 15
+minutes after 5 wrong attempts, on top of the route's own per-IP rate limit.
+
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| GET | `/api/security/master-pin` | any authenticated employee | `{"isSet": bool, "lockedUntil"?: string}` — never the hash |
+| PUT | `/api/security/master-pin` | admin only | Set/rotate the PIN — `{"newPin": "1234", "currentPin"?: "old PIN, required if one is already set"}` |
+| POST | `/api/security/master-pin/verify` | any authenticated employee, rate-limited (10/min/IP) | `{"pin": "1234"}` → `{"valid": bool}`; `423 Locked` while locked out |
+
+---
+
+## Live Sync — `GET /api/events/stream`
+
+Server-Sent Events feed for multi-device/multi-counter live sync: when one
+counter's mutation commits (sales, medicines, due-khata, daily register,
+needed-meds), every other connected client is told which resource changed —
+`data: {"resource": "sales"}` — and re-fetches it through the normal
+authorized REST endpoint. The stream never carries row data itself, so a
+client can only ever refresh data it was already allowed to read.
+
+Not behind the shared `Authenticate` middleware because the browser's native
+`EventSource` API cannot set an `Authorization` header — the access token is
+passed as a query parameter instead (`?token=...`) and is still fully
+verified against the same JWT issuer as every other route. A 25-second
+heartbeat comment (`: ping`) keeps the connection alive through
+proxies/load-balancers that would otherwise time out an idle stream.
+
+---
+
 ## AI-Powered Endpoints
 
 Both call the Gemini REST API (`gemini-3.7-flash`, `generateContent`)

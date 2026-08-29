@@ -86,5 +86,6 @@ func (d *Deps) PutDailyRegister(c *gin.Context) {
 		httpx.Internal(c, "Failed to save daily register")
 		return
 	}
+	d.Events.Publish("dailyRegister")
 	httpx.OK(c, r)
 }

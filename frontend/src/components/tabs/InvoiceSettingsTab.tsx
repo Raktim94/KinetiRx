@@ -32,6 +32,13 @@ import {
   formatWhatsAppPhone,
   salesRecordToInvoicePrintData,
 } from '../../utils/exportCsv';
+import { PrinterFormat, resolvePrinterFormat } from '../../utils/receiptPrint';
+
+const PRINTER_FORMAT_OPTIONS: { value: PrinterFormat; label: string; hint: string }[] = [
+  { value: 'thermal_80mm', label: '80mm Thermal Receipt', hint: 'Standard-width till roll — most common counter printers' },
+  { value: 'thermal_58mm', label: '58mm Thermal Receipt', hint: 'Narrow till roll — compact/handheld printers' },
+  { value: 'a4', label: 'A4 Full Page', hint: 'Full tax-invoice layout for a regular printer' },
+];
 
 interface InvoiceSettingsTabProps {
   invoiceConfig: InvoiceConfig;
@@ -843,6 +850,29 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                 className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono text-text placeholder:text-text-muted outline-none focus:border-primary focus:bg-bg backdrop-blur-md"
                 required
               />
+            </div>
+
+            <div>
+              <label className="font-medium text-text-muted block mb-1 flex items-center gap-1.5">
+                <Printer className="w-3.5 h-3.5 text-primary" />
+                Default Receipt / Printer Format
+              </label>
+              <select
+                id="inv-cfg-printer-type"
+                value={resolvePrinterFormat(formData)}
+                onChange={e => setFormData({ ...formData, printerType: e.target.value as PrinterFormat })}
+                className="w-full p-2.5 bg-surface border border-border rounded-xl text-text outline-none focus:border-primary font-medium"
+              >
+                {PRINTER_FORMAT_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value} className="bg-surface text-text">
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-text-muted mt-1">
+                {PRINTER_FORMAT_OPTIONS.find(o => o.value === resolvePrinterFormat(formData))?.hint}
+                {' '}— can be overridden per-bill from the print preview.
+              </p>
             </div>
 
             <div className="md:col-span-2">

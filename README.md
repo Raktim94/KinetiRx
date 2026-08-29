@@ -59,9 +59,11 @@ self-host than hand patient and financial data to a SaaS vendor.
 
 - **Dashboard** — daily/period overview and analytics: today's sales, total dues, drawer cash, stock valuation, revenue-vs-expense and inventory-turnover charts
 - **Daily Sales** — sales register with cash-drawer reconciliation (opening cash, denominations, cash/UPI/card split, closing difference)
-- **POS** — point-of-sale billing with GST invoicing, strip/loose dispensing, discounts, and mixed payment modes (cash, UPI, card, due, partial)
+- **POS** — point-of-sale billing with GST invoicing, strip/loose dispensing, discounts, mixed payment modes (cash, UPI, card, due, partial), and 80mm/58mm thermal or A4 receipt printing (zero driver/setup — prints through the OS's native print dialog to whatever printer is already installed)
+- **Live Sync** — a second cashier/pharmacist/director counter sees new sales, stock changes, due-khata updates, and register changes without a manual refresh (Server-Sent Events, not a full duplicate-state sync)
+- **Master Security PIN** — an admin-configurable second factor (separate from login passwords) required to unlock System Reset, with a 5-attempt lockout
 - **Due-Khata** — patient credit ledger (dues, payment history, WhatsApp reminders)
-- **Medicine Orders** — track medicines needed/ordered from distributors
+- **Medicine Orders** — track medicines needed/ordered from distributors, and generate a printable/downloadable/WhatsApp-shareable Purchase Order grouped by distributor straight from the shortage book
 - **Inventory** — medicine & lab-test stock, batch/expiry tracking, rack location, distributor tracking, low-stock and short-expiry alerts
 - **Inward OCR** — AI-powered purchase-bill scanning (Gemini) that extracts line items straight into inventory
 - **OPD** — outpatient visit scheduling and follow-up reminders

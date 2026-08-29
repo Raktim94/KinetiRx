@@ -119,5 +119,6 @@ func (d *Deps) CreateSale(c *gin.Context) {
 		httpx.Conflict(c, "Failed to create sale (id may already exist, or patientId does not reference an existing patient): "+err.Error())
 		return
 	}
+	d.Events.Publish("sales")
 	httpx.Created(c, s)
 }

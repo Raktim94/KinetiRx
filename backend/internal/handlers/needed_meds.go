@@ -99,6 +99,7 @@ func (d *Deps) CreateNeededMed(c *gin.Context) {
 		httpx.Conflict(c, "Failed to create needed medicine order (id may already exist): "+err.Error())
 		return
 	}
+	d.Events.Publish("neededMeds")
 	httpx.Created(c, n)
 }
 
@@ -127,6 +128,7 @@ func (d *Deps) UpdateNeededMed(c *gin.Context) {
 		httpx.Internal(c, "Failed to update needed medicine order")
 		return
 	}
+	d.Events.Publish("neededMeds")
 	httpx.OK(c, n)
 }
 
@@ -141,5 +143,6 @@ func (d *Deps) DeleteNeededMed(c *gin.Context) {
 		httpx.NotFound(c, "Needed medicine order not found")
 		return
 	}
+	d.Events.Publish("neededMeds")
 	httpx.NoContent(c)
 }

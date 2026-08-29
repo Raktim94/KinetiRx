@@ -92,6 +92,7 @@ func (d *Deps) CreatePatientDue(c *gin.Context) {
 		httpx.Conflict(c, "Failed to create due-khata entry (id may already exist): "+err.Error())
 		return
 	}
+	d.Events.Publish("dueKhata")
 	httpx.Created(c, p)
 }
 
@@ -121,6 +122,7 @@ func (d *Deps) UpdatePatientDue(c *gin.Context) {
 		httpx.Internal(c, "Failed to update due-khata entry")
 		return
 	}
+	d.Events.Publish("dueKhata")
 	httpx.OK(c, p)
 }
 
@@ -135,5 +137,6 @@ func (d *Deps) DeletePatientDue(c *gin.Context) {
 		httpx.NotFound(c, "Due-khata entry not found")
 		return
 	}
+	d.Events.Publish("dueKhata")
 	httpx.NoContent(c)
 }

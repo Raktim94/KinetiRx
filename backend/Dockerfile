@@ -1,7 +1,18 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build stage ------------------------------------------------------
-FROM golang:1.26-alpine AS build
+# --platform=$BUILDPLATFORM pins this stage to the builder's own native
+# platform regardless of which platform the final image targets, so a
+# multi-arch build compiles natively (fast) instead of running the whole
+# build stage — apk installs, go mod download, go build — under slow QEMU
+# emulation. Go's own compiler cross-compiles to TARGETOS/TARGETARCH with
+# no emulation needed for that step; only the small runtime stage below
+# (apk installs + copying the already-built binary) runs per-target-platform,
+# which is cheap even emulated.
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS build
+
+ARG TARGETOS
+ARG TARGETARCH
 
 # git is required by `go mod download` for modules fetched via VCS; ca-certificates
 # is needed at build time so `go mod download` can talk to HTTPS module proxies.
@@ -17,7 +28,7 @@ COPY . .
 
 # CGO disabled -> fully static binary, works unmodified on the scratch/distroless
 # runtime image below. Trim debug symbols (-s -w) to shrink the binary.
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/kinetirx-server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-s -w" -o /out/kinetirx-server ./cmd/server
 
 # ---- Runtime stage ------------------------------------------------------
 FROM alpine:3.20 AS runtime

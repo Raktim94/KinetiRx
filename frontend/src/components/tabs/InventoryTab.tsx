@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   AlertTriangle,
+  Barcode as BarcodeIcon,
   Boxes,
   Coins,
   Download,
@@ -15,10 +16,13 @@ import {
   Trash2,
   Truck,
 } from 'lucide-react';
-import { Medicine } from '../../types';
+import { InvoiceConfig, Medicine } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
+import { getCurrencySymbol } from '../../utils/currency';
+import { BarcodeModal } from '../modals/BarcodeModal';
 
 interface InventoryTabProps {
+  invoiceConfig?: InvoiceConfig;
   medicines: Medicine[];
   setMedicines?: React.Dispatch<React.SetStateAction<Medicine[]>>;
   onOpenAddStockModal: () => void;
@@ -29,6 +33,7 @@ interface InventoryTabProps {
 }
 
 export const InventoryTab: React.FC<InventoryTabProps> = ({
+  invoiceConfig,
   medicines,
   setMedicines,
   onOpenAddStockModal,
@@ -39,6 +44,8 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'meds' | 'labs' | 'low' | 'expiry'>('all');
+  const [barcodeTarget, setBarcodeTarget] = useState<Medicine | null>(null);
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
 
   const filtered = medicines.filter(m => {
     const q = search.toLowerCase();
@@ -232,7 +239,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           <div>
             <p className="text-xs font-medium text-text-muted">Purchase Stock Valuation</p>
             <h4 className="text-lg font-bold text-warning font-mono mt-1">
-              ₹ {totalValuation.toFixed(2)}
+              {currencySymbol} {totalValuation.toFixed(2)}
             </h4>
           </div>
           <div className="w-10 h-10 rounded-2xl bg-warning/15 border border-warning/30 text-warning flex items-center justify-center">
@@ -244,7 +251,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           <div>
             <p className="text-xs font-medium text-text-muted">Total MRP Retail Value</p>
             <h4 className="text-lg font-bold text-success font-mono mt-1">
-              ₹ {totalRetailValue.toFixed(2)}
+              {currencySymbol} {totalRetailValue.toFixed(2)}
             </h4>
           </div>
           <div className="w-10 h-10 rounded-2xl bg-success/15 border border-success/30 text-success flex items-center justify-center">
@@ -274,7 +281,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                 : 'text-text-muted hover:text-text'
             }`}
           >
-            💊 Medicines Only ({physicalMeds.length})
+            Medicines Only ({physicalMeds.length})
           </button>
           <button
             onClick={() => setFilterType('labs')}
@@ -284,7 +291,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                 : 'text-text-muted hover:text-text'
             }`}
           >
-            🧪 Lab Tests & Services ({labItems.length})
+            Lab Tests & Services ({labItems.length})
           </button>
           <button
             onClick={() => setFilterType('low')}
@@ -428,15 +435,15 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     </td>
 
                     <td className="p-3.5 font-mono text-text-muted">
-                      ₹ {(i.omrp || 0).toFixed(2)}
+                      {currencySymbol} {(i.omrp || 0).toFixed(2)}
                     </td>
 
                     <td className="p-3.5 font-bold font-mono text-text">
-                      ₹ {i.mrp.toFixed(2)}
+                      {currencySymbol} {i.mrp.toFixed(2)}
                     </td>
 
                     <td className="p-3.5 font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                      ₹ {(i.rate || 0).toFixed(2)}
+                      {currencySymbol} {(i.rate || 0).toFixed(2)}
                     </td>
 
                     <td className="p-3.5 text-[11px] font-mono text-text-muted">
@@ -447,7 +454,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                       {isLab && !i.trackStock ? (
                         <span className="text-text-muted font-normal text-[11px]">Service Charge</span>
                       ) : (
-                        `₹ ${stockVal.toFixed(2)}`
+                        `${currencySymbol} ${stockVal.toFixed(2)}`
                       )}
                     </td>
 
@@ -481,13 +488,22 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     </td>
 
                     <td className="p-3.5 text-right">
-                      <button
-                        onClick={() => handleDeleteItem(i.id, i.name)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition border border-rose-500/20"
-                        title={`Delete ${i.name}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => setBarcodeTarget(i)}
+                          className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/30 text-primary transition border border-primary/20"
+                          title={`Barcode for ${i.name}`}
+                        >
+                          <BarcodeIcon className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem(i.id, i.name)}
+                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/30 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition border border-rose-500/20"
+                          title={`Delete ${i.name}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -496,6 +512,14 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           </tbody>
         </table>
       </div>
+
+      <BarcodeModal
+        isOpen={!!barcodeTarget}
+        onClose={() => setBarcodeTarget(null)}
+        medicine={barcodeTarget}
+        medicines={medicines}
+        setMedicines={setMedicines}
+      />
     </div>
   );
 };

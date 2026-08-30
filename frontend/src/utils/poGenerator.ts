@@ -160,10 +160,10 @@ export function shareOrderOnWhatsApp(
 ): void {
   const lines = orders.map(o => `• ${o.med} — Qty ${o.qty}${o.time ? ` (needed by ${o.time})` : ''}`);
   const message =
-    `📦 *PURCHASE ORDER ${poNumber}*\n` +
-    `🏥 ${shop.name}\n` +
-    `📍 ${shop.addr}\n` +
-    `📞 ${shop.phone}\n` +
+    `*PURCHASE ORDER ${poNumber}*\n` +
+    `${shop.name}\n` +
+    `${shop.addr}\n` +
+    `${shop.phone}\n` +
     `----------------------------------\n` +
     `To: ${distributorName}\n` +
     `----------------------------------\n` +

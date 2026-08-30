@@ -723,7 +723,7 @@ export function App() {
         dl: onboardingData.dlNo?.trim() || '',
         director: finalDirectorName,
         pharmacist: onboardingData.pharmacistName?.trim() || 'Registered Pharmacist',
-        currency: onboardingData.currency?.trim() || '₹',
+        currency: onboardingData.currency?.trim() || 'INR',
         waGroup: '',
         terms:
           onboardingData.welcomeNotes?.trim() ||
@@ -920,6 +920,7 @@ export function App() {
             {/* 1. DASHBOARD OVERVIEW */}
             {currentTab === 'dashboard' && (
               <DashboardTab
+                invoiceConfig={invoiceConfig}
                 medicines={medicines}
                 salesHistory={salesHistory}
                 dailyRegister={dailyRegister}
@@ -964,6 +965,7 @@ export function App() {
             {/* 3. DAILY SALES REGISTER */}
             {currentTab === 'daily-sales' && (
               <DailySalesTab
+                invoiceConfig={invoiceConfig}
                 currentUser={currentUser}
                 dailyRegister={dailyRegister}
                 setDailyRegister={setDailyRegister}
@@ -978,6 +980,7 @@ export function App() {
             {/* 4. DUE KHATA MANAGEMENT */}
             {currentTab === 'due-khata' && (
               <DueKhataTab
+                invoiceConfig={invoiceConfig}
                 patientsDue={patientsDue}
                 setPatientsDue={setPatientsDue}
                 shopName={invoiceConfig.name}
@@ -1007,6 +1010,7 @@ export function App() {
             {/* 6. MEDICINE STOCK ERP INVENTORY */}
             {currentTab === 'inventory' && (
               <InventoryTab
+                invoiceConfig={invoiceConfig}
                 medicines={medicines}
                 setMedicines={setMedicines}
                 onOpenAddStockModal={() => setAddStockModalOpen(true)}
@@ -1043,6 +1047,7 @@ export function App() {
             {/* 9. PATIENT MASTER DATABASE */}
             {currentTab === 'patients' && (
               <PatientsTab
+                invoiceConfig={invoiceConfig}
                 patients={patients}
                 setPatients={setPatients}
                 onViewPatientProfile={p => {
@@ -1057,6 +1062,7 @@ export function App() {
             {/* 10. DAILY EXPENDITURES REGISTER */}
             {currentTab === 'expenses' && (
               <ExpensesTab
+                invoiceConfig={invoiceConfig}
                 expenses={expenses}
                 setExpenses={setExpenses}
                 onOpenAddExpenseModal={() => setAddExpenseModalOpen(true)}
@@ -1137,6 +1143,7 @@ export function App() {
                 employees={employees}
                 distributors={distributors}
                 backupSnapshots={backupSnapshots}
+                onNavigateToSettings={() => handleSelectTab('invoice-settings')}
                 onExecuteFactoryReset={handleExecuteFactoryReset}
                 onRestoreSnapshot={handleRestoreSnapshot}
                 onCreateManualSnapshot={handleCreateSnapshot}
@@ -1159,6 +1166,7 @@ export function App() {
       {/* 2. AI Generic Finder & Live Market Modal */}
       <AIFinderModal
         isOpen={aiFinderOpen}
+        invoiceConfig={invoiceConfig}
         onClose={() => setAiFinderOpen(false)}
         initialQuery={aiFinderQuery}
         medicines={medicines}
@@ -1177,6 +1185,7 @@ export function App() {
       {/* 4. Add Medicine Stock Modal */}
       <AddStockModal
         isOpen={addStockModalOpen}
+        invoiceConfig={invoiceConfig}
         onClose={() => setAddStockModalOpen(false)}
         distributors={distributors}
         setDistributors={setDistributors}
@@ -1204,6 +1213,7 @@ export function App() {
       {/* 4B. Add New Lab Stock / Test Modal */}
       <AddLabStockModal
         isOpen={addLabStockModalOpen}
+        invoiceConfig={invoiceConfig}
         onClose={() => setAddLabStockModalOpen(false)}
         onSaveLabStock={labItem => setMedicines(prev => [labItem, ...prev])}
       />
@@ -1211,8 +1221,10 @@ export function App() {
       {/* 5. Add Special Need Medicine Modal */}
       <AddNeedMedModal
         isOpen={addNeedMedModalOpen}
+        invoiceConfig={invoiceConfig}
         onClose={() => setAddNeedMedModalOpen(false)}
         distributors={distributors}
+        setDistributors={setDistributors}
         patients={patients}
         medicines={medicines}
         prefillMedName={prefillNeedMed}
@@ -1245,6 +1257,8 @@ export function App() {
         isOpen={addOPDModalOpen}
         onClose={() => setAddOPDModalOpen(false)}
         onSaveOPD={visit => setOpdVisits(prev => [visit, ...prev])}
+        patients={patients}
+        onQuickAddPatient={p => setPatients(prev => [p, ...prev])}
       />
 
       {/* 8. Doctor Campaign Modal */}
@@ -1323,6 +1337,7 @@ export function App() {
       {/* 13. Universal Interactive KPI & Breakdown Modal */}
       <UniversalDetailsModal
         type={universalModalType}
+        invoiceConfig={invoiceConfig}
         onClose={() => setUniversalModalType(null)}
         medicines={medicines}
         opdVisits={opdVisits}

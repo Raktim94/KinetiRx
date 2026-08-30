@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Boxes, Plus, X } from 'lucide-react';
-import { Distributor, Medicine, MedicineGroup } from '../../types';
+import { Distributor, InvoiceConfig, Medicine, MedicineGroup } from '../../types';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface AddStockModalProps {
   isOpen: boolean;
+  invoiceConfig?: InvoiceConfig;
   onClose: () => void;
   distributors: Distributor[];
   setDistributors: React.Dispatch<React.SetStateAction<Distributor[]>>;
@@ -13,12 +15,14 @@ interface AddStockModalProps {
 
 export const AddStockModal: React.FC<AddStockModalProps> = ({
   isOpen,
+  invoiceConfig,
   onClose,
   distributors,
   setDistributors,
   medicineGroups,
   onSaveMedicine,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const [name, setName] = useState('');
   const [company, setCompany] = useState('Micro Labs / Cipla');
   const [distSelect, setDistSelect] = useState('NEW UMA MEDICINE DISTRIBUTOR');
@@ -30,6 +34,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
   const [salt, setSalt] = useState('');
   const [batch, setBatch] = useState('B26001');
   const [hsn, setHsn] = useState('300490');
+  const [gst, setGst] = useState('12.00');
   const [group, setGroup] = useState('General');
   const [rack, setRack] = useState('RACK-A1');
   const [stock, setStock] = useState('50');
@@ -79,7 +84,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
       omrp: parseFloat(omrp) || 0,
       mrp: parseFloat(mrp) || 0,
       scheme: '0.00',
-      gst: 12.0,
+      gst: parseFloat(gst) || 0,
       disc: 4.0,
       tabsPerStrip: parseInt(tabsPerStrip, 10) || 10,
       expiry: expiry || '2027-12',
@@ -217,6 +222,18 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
             </div>
 
             <div>
+              <label className="font-medium text-text-muted block mb-1">GST / Tax Rate (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={gst}
+                onChange={e => setGst(e.target.value)}
+                placeholder="12.00"
+                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono text-text placeholder:text-text-muted outline-none focus:border-primary focus:bg-bg"
+              />
+            </div>
+
+            <div>
               <label className="font-medium text-text-muted block mb-1">Doctor Specific Group</label>
               <select
                 value={group}
@@ -258,7 +275,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
             </div>
 
             <div>
-              <label className="font-medium text-text-muted block mb-1">Purchase Rate ₹</label>
+              <label className="font-medium text-text-muted block mb-1">Purchase Rate ({currencySymbol})</label>
               <input
                 type="number"
                 step="0.01"
@@ -271,7 +288,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
             </div>
 
             <div>
-              <label className="font-medium text-text-muted block mb-1">Old MRP (O.MRP) ₹</label>
+              <label className="font-medium text-text-muted block mb-1">Old MRP (O.MRP) ({currencySymbol})</label>
               <input
                 type="number"
                 step="0.01"
@@ -283,7 +300,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
             </div>
 
             <div>
-              <label className="font-medium text-text-muted block mb-1">Current MRP ₹</label>
+              <label className="font-medium text-text-muted block mb-1">Current MRP ({currencySymbol})</label>
               <input
                 type="number"
                 step="0.01"

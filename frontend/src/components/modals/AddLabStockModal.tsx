@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Activity, FlaskConical, Info, Plus, Sparkles, TestTube2, X } from 'lucide-react';
-import { Medicine } from '../../types';
+import { InvoiceConfig, Medicine } from '../../types';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface AddLabStockModalProps {
   isOpen: boolean;
+  invoiceConfig?: InvoiceConfig;
   onClose: () => void;
   onSaveLabStock: (labItem: Medicine) => void;
 }
@@ -109,9 +111,12 @@ const COMMON_LAB_TEMPLATES = [
 
 export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
   isOpen,
+  invoiceConfig,
   onClose,
   onSaveLabStock,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
+
   // Required fields according to user request
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('MRS Diagnostic & Lab Services');
@@ -225,7 +230,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
                 className="px-2.5 py-1 rounded-xl bg-bg hover:bg-purple-600/30 hover:border-purple-400/50 border border-border text-[10px] text-text hover:text-purple-800 dark:hover:text-purple-200 transition cursor-pointer flex items-center gap-1"
               >
                 <TestTube2 className="w-2.5 h-2.5 text-purple-600 dark:text-purple-400" />
-                <span>{tmpl.name.split('(')[0].trim()} (₹{tmpl.mrp})</span>
+                <span>{tmpl.name.split('(')[0].trim()} ({currencySymbol}{tmpl.mrp})</span>
               </button>
             ))}
           </div>
@@ -362,7 +367,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
             {/* MRP */}
             <div>
               <label className="block text-[11px] font-bold text-text mb-1">
-                MRP / Test Fee (₹) <span className="text-rose-600 dark:text-rose-400">*</span>
+                MRP / Test Fee ({currencySymbol}) <span className="text-rose-600 dark:text-rose-400">*</span>
               </label>
               <input
                 type="number"
@@ -378,7 +383,7 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
             {/* Purchase Rate / Processing Cost */}
             <div>
               <label className="block text-[11px] font-semibold text-text-muted mb-1">
-                Lab Cost / Rate (₹)
+                Lab Cost / Rate ({currencySymbol})
               </label>
               <input
                 type="number"

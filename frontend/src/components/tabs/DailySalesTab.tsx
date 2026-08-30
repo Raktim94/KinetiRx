@@ -28,12 +28,14 @@ import {
   Vault,
   Wallet,
 } from 'lucide-react';
-import { CurrentUser, DailyRegisterState, ExpenseRecord, SalesRecord } from '../../types';
+import { CurrentUser, DailyRegisterState, ExpenseRecord, InvoiceConfig, SalesRecord } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
 import { formatFullDateWithDay, formatReadableDate, getRelativeISODate, getTodayISODate } from '../../utils/dateUtils';
+import { getCurrencySymbol } from '../../utils/currency';
 import { AddExpenseModal } from '../modals/AddExpenseModal';
 
 interface DailySalesTabProps {
+  invoiceConfig?: InvoiceConfig;
   currentUser?: CurrentUser;
   dailyRegister: DailyRegisterState;
   setDailyRegister?: React.Dispatch<React.SetStateAction<DailyRegisterState>>;
@@ -45,6 +47,7 @@ interface DailySalesTabProps {
 }
 
 export const DailySalesTab: React.FC<DailySalesTabProps> = ({
+  invoiceConfig,
   currentUser,
   dailyRegister,
   setDailyRegister,
@@ -54,6 +57,8 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
   onPrintInvoice,
   onOpenAddExpenseModal,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
+
   // Today's system date string (YYYY-MM-DD)
   const todayStr = getTodayISODate();
   const [selectedDate, setSelectedDate] = useState<string>(dailyRegister.date || todayStr);
@@ -202,7 +207,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
     }
 
     setSaveFeedback(
-      `Auto-synced: ₹${newTodaySell} Sales, ₹${newPhonePe} PhonePe & ₹${newExpenses} Expenses from ${dayExpensesList.length} vouchers for ${selectedDate}!`
+      `Auto-synced: ${currencySymbol}${newTodaySell} Sales, ${currencySymbol}${newPhonePe} PhonePe & ${currencySymbol}${newExpenses} Expenses from ${dayExpensesList.length} vouchers for ${selectedDate}!`
     );
     setTimeout(() => setSaveFeedback(null), 3500);
   };
@@ -225,7 +230,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
       }
     }
 
-    setSaveFeedback(`Logged ₹${newExpense.amt.toFixed(2)} (${newExpense.desc}) and updated Daily Register.`);
+    setSaveFeedback(`Logged ${currencySymbol}${newExpense.amt.toFixed(2)} (${newExpense.desc}) and updated Daily Register.`);
     setTimeout(() => setSaveFeedback(null), 3500);
   };
 
@@ -246,7 +251,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
       }));
     }
 
-    setSaveFeedback(`Removed expense voucher of ₹${amount.toFixed(2)}.`);
+    setSaveFeedback(`Removed expense voucher of ${currencySymbol}${amount.toFixed(2)}.`);
     setTimeout(() => setSaveFeedback(null), 3500);
   };
 
@@ -257,7 +262,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
     if (setDailyRegister) {
       setDailyRegister(prev => ({ ...prev, prevBD: carryAmount }));
     }
-    setSaveFeedback(`Carried forward ₹${carryAmount.toFixed(2)} as Previous Cash B/D.`);
+    setSaveFeedback(`Carried forward ${currencySymbol}${carryAmount.toFixed(2)} as Previous Cash B/D.`);
     setTimeout(() => setSaveFeedback(null), 3500);
   };
 
@@ -406,21 +411,21 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
             <div className="p-4 rounded-2xl bg-surface-elevated border border-border">
               <p className="text-xs text-text-muted">Total Lifetime Gross Sales</p>
               <h4 className="text-2xl font-bold text-primary font-mono mt-1.5">
-                ₹ {lifetimeSalesTotal.toFixed(2)}
+                {currencySymbol} {lifetimeSalesTotal.toFixed(2)}
               </h4>
             </div>
 
             <div className="p-4 rounded-2xl bg-surface-elevated border border-border">
               <p className="text-xs text-text-muted">Total Lifetime Expenses</p>
               <h4 className="text-2xl font-bold text-warning font-mono mt-1.5">
-                ₹ {lifetimeExpenseTotal.toFixed(2)}
+                {currencySymbol} {lifetimeExpenseTotal.toFixed(2)}
               </h4>
             </div>
 
             <div className="p-4 rounded-2xl bg-surface-elevated border border-border">
               <p className="text-xs text-text-muted">Net Business Profit / Income</p>
               <h4 className="text-2xl font-bold text-success font-mono mt-1.5">
-                ₹ {lifetimeProfit.toFixed(2)}
+                {currencySymbol} {lifetimeProfit.toFixed(2)}
               </h4>
             </div>
           </div>
@@ -506,7 +511,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               id="btn-reset-register-zero"
               type="button"
               onClick={() => {
-                if (!window.confirm('Reset all Daily Register fields (Opening B/D, Sales, PhonePe, Expenses, Bank Shift) to ₹0.00?')) return;
+                if (!window.confirm(`Reset all Daily Register fields (Opening B/D, Sales, PhonePe, Expenses, Bank Shift) to ${currencySymbol}0.00?`)) return;
                 setInputValues({
                   prevBD: '0',
                   todaySell: '0',
@@ -530,14 +535,14 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     totalExpenses: 0,
                   }));
                 }
-                setSaveFeedback('Daily Register & Drawer balance successfully reset to ₹0.00!');
+                setSaveFeedback(`Daily Register & Drawer balance successfully reset to ${currencySymbol}0.00!`);
                 setTimeout(() => setSaveFeedback(null), 3500);
               }}
               className="bg-danger/10 hover:bg-danger/20 text-danger border border-danger/40 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
               title="Reset register figures and drawer cash to 0"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset to ₹0</span>
+              <span>Reset to {currencySymbol}0</span>
             </button>
 
             {/* Quick Add Daily Expenditure */}
@@ -597,16 +602,16 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
           </div>
           <div className="p-3 rounded-2xl bg-success/10 border border-success/25">
             <span className="text-success block text-[11px]">Cash Inflow Received</span>
-            <span className="text-base font-bold text-success font-mono">₹ {dayCashSales.toFixed(2)}</span>
+            <span className="text-base font-bold text-success font-mono">{currencySymbol} {dayCashSales.toFixed(2)}</span>
           </div>
           <div className="p-3 rounded-2xl bg-danger/10 border border-danger/25">
             <span className="text-danger block text-[11px]">PhonePe / UPI Inflow</span>
-            <span className="text-base font-bold text-danger font-mono">₹ {dayUpiSales.toFixed(2)}</span>
+            <span className="text-base font-bold text-danger font-mono">{currencySymbol} {dayUpiSales.toFixed(2)}</span>
           </div>
           <div className="p-3 rounded-2xl bg-warning/10 border border-warning/25">
             <span className="text-warning block text-[11px]">Daily Expenditures Logged</span>
             <span className="text-base font-bold text-warning font-mono">
-              ₹ {dayExpensesCalculated.toFixed(2)} ({dayExpensesList.length} Vouchers)
+              {currencySymbol} {dayExpensesCalculated.toFixed(2)} ({dayExpensesList.length} Vouchers)
             </span>
           </div>
         </div>
@@ -618,7 +623,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               <DollarSign className="w-3.5 h-3.5" /> Section A: Cash Inflows
             </span>
             <span className="text-text-muted text-[11px]">
-              {isEditing ? '⚡ Direct manual entry enabled on all fields' : '🔒 Click "Unlock & Edit" above to modify values'}
+              {isEditing ? 'Direct manual entry enabled on all fields' : 'Click "Unlock & Edit" above to modify values'}
             </span>
           </div>
 
@@ -651,7 +656,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-text-muted font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-text-muted font-mono font-bold text-sm">{currencySymbol}</span>
                 <input
                   type="number"
                   step="any"
@@ -691,7 +696,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-primary font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-primary font-mono font-bold text-sm">{currencySymbol}</span>
                 <input
                   type="number"
                   step="any"
@@ -719,10 +724,10 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                 Total Gross In Hand <span className="text-text-muted/70 font-normal">(Opening Balance + Sales)</span>
               </label>
               <div id="calc-total-gross" className="text-2xl font-bold text-text mt-2 font-mono">
-                ₹ {grossInHand.toFixed(2)}
+                {currencySymbol} {grossInHand.toFixed(2)}
               </div>
               <p className="text-[10px] text-text-muted">
-                ₹ {numPrevBD.toFixed(2)} (B/D) + ₹ {numTodaySell.toFixed(2)} (Sales)
+                {currencySymbol} {numPrevBD.toFixed(2)} (B/D) + {currencySymbol} {numTodaySell.toFixed(2)} (Sales)
               </p>
             </div>
           </div>
@@ -735,7 +740,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               <Wallet className="w-3.5 h-3.5" /> Section B: Deductions & Outflows
             </span>
             <span className="text-text-muted text-[11px]">
-              Total Deductions: <strong className="text-danger font-mono">₹ {totalDeductions.toFixed(2)}</strong>
+              Total Deductions: <strong className="text-danger font-mono">{currencySymbol} {totalDeductions.toFixed(2)}</strong>
             </span>
           </div>
 
@@ -758,7 +763,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-danger font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-danger font-mono font-bold text-sm">{currencySymbol}</span>
                 <input
                   type="number"
                   step="any"
@@ -797,13 +802,13 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     onClick={() => {
                       const updated = Number(dayExpensesCalculated.toFixed(2));
                       handleBufferChange('expenses', String(updated));
-                      setSaveFeedback(`Expenses auto-synced to ₹${updated.toFixed(2)} from ${dayExpensesList.length} vouchers.`);
+                      setSaveFeedback(`Expenses auto-synced to ${currencySymbol}${updated.toFixed(2)} from ${dayExpensesList.length} vouchers.`);
                       setTimeout(() => setSaveFeedback(null), 3000);
                     }}
                     className="text-[10px] text-warning hover:text-text bg-warning/15 border border-warning/30 px-1.5 py-0.5 rounded-lg transition cursor-pointer"
                     title="Auto-calculate total from daily expenditure vouchers"
                   >
-                    Sync Vouchers (₹{dayExpensesCalculated.toFixed(2)})
+                    Sync Vouchers ({currencySymbol}{dayExpensesCalculated.toFixed(2)})
                   </button>
                   <span className="text-[10px] text-warning">
                     {isEditing ? <Unlock className="w-3 h-3 text-success" /> : <Lock className="w-3 h-3" />}
@@ -812,7 +817,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-warning font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-warning font-mono font-bold text-sm">{currencySymbol}</span>
                 <input
                   type="number"
                   step="any"
@@ -851,7 +856,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
               </div>
 
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-accent font-mono font-bold text-sm">₹</span>
+                <span className="absolute left-3 top-2.5 text-accent font-mono font-bold text-sm">{currencySymbol}</span>
                 <input
                   type="number"
                   step="any"
@@ -885,7 +890,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                 Final Physical Cash-In-Drawer Balance
               </span>
               <p className="text-xs text-text-muted mt-0.5">
-                Calculated: [Gross In Hand ₹{grossInHand.toFixed(2)}] − [Deductions ₹{totalDeductions.toFixed(2)}]
+                Calculated: [Gross In Hand {currencySymbol}{grossInHand.toFixed(2)}] − [Deductions {currencySymbol}{totalDeductions.toFixed(2)}]
               </p>
             </div>
           </div>
@@ -893,7 +898,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
           <div className="flex items-center gap-4 flex-wrap">
             <div className="text-right">
               <div id="calc-final-bd" className="text-3xl font-extrabold text-success font-mono">
-                ₹ {finalDrawerCash.toFixed(2)}
+                {currencySymbol} {finalDrawerCash.toFixed(2)}
               </div>
               <span className="text-[11px] text-text-muted">Closing Cash Balance</span>
             </div>
@@ -1074,7 +1079,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   <th className="p-3">Quantity</th>
                   <th className="p-3">Patient / Buyer</th>
                   <th className="p-3">Payment Mode</th>
-                  <th className="p-3 text-right">Total (₹)</th>
+                  <th className="p-3 text-right">Total ({currencySymbol})</th>
                   {onPrintInvoice && <th className="p-3 text-center">Action</th>}
                 </tr>
               </thead>
@@ -1111,7 +1116,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                         </span>
                       </td>
                       <td className="p-3 text-right font-mono font-bold text-text text-sm">
-                        ₹ {Number(s.total || s.amt || 0).toFixed(2)}
+                        {currencySymbol} {Number(s.total || s.amt || 0).toFixed(2)}
                       </td>
                       {onPrintInvoice && (
                         <td className="p-3 text-center">
@@ -1164,7 +1169,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     <th className="p-3">Expense Date</th>
                     <th className="p-3">Category</th>
                     <th className="p-3">Description / Remarks</th>
-                    <th className="p-3 text-right">Amount (₹)</th>
+                    <th className="p-3 text-right">Amount ({currencySymbol})</th>
                     <th className="p-3 text-center">Action</th>
                   </tr>
                 </thead>
@@ -1186,7 +1191,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                         </td>
                         <td className="p-3 font-medium text-text">{e.desc}</td>
                         <td className="p-3 font-mono font-bold text-warning text-right text-sm">
-                          ₹ {e.amt.toFixed(2)}
+                          {currencySymbol} {e.amt.toFixed(2)}
                         </td>
                         <td className="p-3 text-center">
                           <button
@@ -1211,7 +1216,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                   Total Daily Expenditures for {selectedDate}: <b>{dayExpensesList.length} vouchers</b>
                 </span>
                 <span className="font-mono font-bold text-warning text-sm">
-                  Total: ₹ {dayExpensesCalculated.toFixed(2)}
+                  Total: {currencySymbol} {dayExpensesCalculated.toFixed(2)}
                 </span>
               </div>
             )}
@@ -1275,7 +1280,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                     <th className="p-3">Quantity</th>
                     <th className="p-3">Patient / Buyer</th>
                     <th className="p-3">Payment Mode</th>
-                    <th className="p-3 text-right">Total (₹)</th>
+                    <th className="p-3 text-right">Total ({currencySymbol})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border text-text">
@@ -1303,7 +1308,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                           </span>
                         </td>
                         <td className="p-3 text-right font-mono font-bold text-text">
-                          ₹ {Number(s.total || s.amt || 0).toFixed(2)}
+                          {currencySymbol} {Number(s.total || s.amt || 0).toFixed(2)}
                         </td>
                       </tr>
                     ))

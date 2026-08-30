@@ -171,7 +171,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
           </div>
 
           <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-300 text-[11px]">
-            💡 This expenditure will be automatically recorded in the <b>Daily Sales Register</b> and deducted from the Physical Cash Drawer balance.
+            This expenditure will be automatically recorded in the <b>Daily Sales Register</b> and deducted from the Physical Cash Drawer balance.
           </div>
 
           <div className="flex justify-end gap-2.5 pt-3 border-t border-border">

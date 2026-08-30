@@ -22,16 +22,25 @@ type Deps struct {
 	GeminiAPIKey string
 	HTTPClient   *http.Client
 	Events       *events.Bus
+	// DatabaseURL and BackupEncryptionKey are only used by the S3 backup
+	// feature (pg_dump/pg_restore need the raw connection string; the
+	// encryption key seals the S3 secret access key at rest). Both may be
+	// empty/nil — BackupEncryptionKey in particular is optional, since most
+	// deployments never touch this feature.
+	DatabaseURL         string
+	BackupEncryptionKey []byte
 }
 
 // NewDeps builds a Deps with a sane default HTTP client (bounded timeout —
 // outbound calls to Gemini must never hang a request indefinitely).
-func NewDeps(db *pgxpool.Pool, tokens *auth.TokenIssuer, geminiAPIKey string) *Deps {
+func NewDeps(db *pgxpool.Pool, tokens *auth.TokenIssuer, geminiAPIKey, databaseURL string, backupEncryptionKey []byte) *Deps {
 	return &Deps{
-		DB:           db,
-		Tokens:       tokens,
-		GeminiAPIKey: geminiAPIKey,
-		HTTPClient:   &http.Client{Timeout: 60 * time.Second},
-		Events:       events.NewBus(),
+		DB:                  db,
+		Tokens:              tokens,
+		GeminiAPIKey:        geminiAPIKey,
+		HTTPClient:          &http.Client{Timeout: 60 * time.Second},
+		Events:              events.NewBus(),
+		DatabaseURL:         databaseURL,
+		BackupEncryptionKey: backupEncryptionKey,
 	}
 }

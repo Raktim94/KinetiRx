@@ -47,6 +47,9 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-kinetirx}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-kinetirx}?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      # Optional — S3-compatible offsite backup (Settings -> S3 Backup) stays
+      # unavailable, with a clear in-app error, until this is set.
+      BACKUP_ENCRYPTION_KEY: ${BACKUP_ENCRYPTION_KEY:-}
       # Optional — if unset, sign in for the first time in the app itself
       # to create the admin account instead (POST /api/auth/setup).
       KINETIRX_ADMIN_PASSWORD: ${KINETIRX_ADMIN_PASSWORD:-}

@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  CloudUpload,
   Database,
   Download,
   Eye,
@@ -45,6 +46,7 @@ import {
   WorksheetTask,
 } from '../../types';
 import { ApiError, authApi, securityApi } from '../../lib/api';
+import { S3BackupPanel } from '../S3BackupPanel';
 
 interface SystemResetTabProps {
   currentUser?: CurrentUser;
@@ -74,6 +76,7 @@ interface SystemResetTabProps {
   onCreateManualSnapshot: (label?: string) => void;
   onDeleteSnapshot: (snapshotId: string) => void;
   onRestoreFromFile: (fileContent: string) => boolean;
+  onNavigateToSettings?: () => void;
 }
 
 export const SystemResetTab: React.FC<SystemResetTabProps> = ({
@@ -97,6 +100,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
   onCreateManualSnapshot,
   onDeleteSnapshot,
   onRestoreFromFile,
+  onNavigateToSettings,
 }) => {
   // Password Verification State
   const [enteredPass, setEnteredPass] = useState('');
@@ -178,7 +182,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
   };
 
   // Active Tab View: 'reset_wizard' | 'backups' | 'file_transfer'
-  const [activeSubTab, setActiveSubTab] = useState<'reset_wizard' | 'backups' | 'file_transfer'>('reset_wizard');
+  const [activeSubTab, setActiveSubTab] = useState<'reset_wizard' | 'backups' | 'file_transfer' | 's3_backup'>('reset_wizard');
 
   // New Organization Onboarding Form State
   const [onboardingForm, setOnboardingForm] = useState<OrganizationOnboardingData>({
@@ -188,7 +192,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
     address: invoiceConfig.addr || '',
     gstin: invoiceConfig.gstin || invoiceConfig.gst || '',
     dlNo: invoiceConfig.dl || '',
-    currency: invoiceConfig.currency || '₹',
+    currency: invoiceConfig.currency || 'INR',
     openingCash: 0,
     adminPassword: '',
     directorName: invoiceConfig.director || '',
@@ -285,7 +289,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
     setConfirmResetText('');
     setStatusMessage({
       type: 'success',
-      text: '🎉 System successfully reset! 5-Day backup saved. Fresh organization initialized.',
+      text: 'System successfully reset! 5-Day backup saved. Fresh organization initialized.',
     });
   };
 
@@ -321,7 +325,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
     setRestoreError(null);
     setStatusMessage({
       type: 'success',
-      text: `✅ Backup "${snapshotToRestore.label}" successfully restored!`,
+      text: `Backup "${snapshotToRestore.label}" successfully restored!`,
     });
   };
 
@@ -381,7 +385,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
         if (success) {
           setStatusMessage({
             type: 'success',
-            text: `✅ File "${file.name}" restored successfully!`,
+            text: `File "${file.name}" restored successfully!`,
           });
         } else {
           setStatusMessage({
@@ -402,6 +406,15 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
 
   return (
     <div className="space-y-6 text-text max-w-6xl mx-auto pb-12">
+      {onNavigateToSettings && (
+        <button
+          type="button"
+          onClick={onNavigateToSettings}
+          className="text-xs text-text-muted hover:text-text font-semibold flex items-center gap-1 transition cursor-pointer"
+        >
+          <span>← Back to Invoice & Shop Settings</span>
+        </button>
+      )}
       {/* 1. TOP HEADER BANNER */}
       <div className="p-6 rounded-3xl bg-danger/8 backdrop-blur-2xl border border-danger/30 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -660,7 +673,23 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
           <Database className="w-3.5 h-3.5" />
           <span>Manual Snapshot & JSON Export/Import</span>
         </button>
+
+        <button
+          id="subtab-s3-backup"
+          onClick={() => setActiveSubTab('s3_backup')}
+          className={`px-4 py-2 rounded-2xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
+            activeSubTab === 's3_backup'
+              ? 'bg-emerald-600 text-text shadow-lg border border-emerald-400/30'
+              : 'bg-surface/5 text-text-muted hover:text-text hover:bg-surface/10 border border-border'
+          }`}
+        >
+          <CloudUpload className="w-3.5 h-3.5" />
+          <span>S3 Offsite Backup</span>
+        </button>
       </div>
+
+      {/* 4D. SUBTAB: S3 OFFSITE BACKUP */}
+      {activeSubTab === 's3_backup' && <S3BackupPanel />}
 
       {/* 4A. SUBTAB 1: FACTORY RESET WIZARD */}
       {activeSubTab === 'reset_wizard' && (
@@ -938,7 +967,7 @@ export const SystemResetTab: React.FC<SystemResetTabProps> = ({
                 onClick={() => {
                   onCreateManualSnapshot(newSnapshotLabel.trim() || undefined);
                   setNewSnapshotLabel('');
-                  setStatusMessage({ type: 'success', text: '✅ Instant backup snapshot created successfully!' });
+                  setStatusMessage({ type: 'success', text: 'Instant backup snapshot created successfully!' });
                 }}
                 className="bg-primary hover:bg-primary-hover text-primary-foreground px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-primary/30 transition cursor-pointer"
               >

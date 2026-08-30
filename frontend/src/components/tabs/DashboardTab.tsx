@@ -46,6 +46,7 @@ import {
 import {
   DailyRegister,
   ExpenseRecord,
+  InvoiceConfig,
   MarketingCampaign,
   Medicine,
   NeededMedOrder,
@@ -62,8 +63,10 @@ import {
   getRelativeMonthYear,
   getTodayISODate,
 } from '../../utils/dateUtils';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface DashboardTabProps {
+  invoiceConfig?: InvoiceConfig;
   medicines: Medicine[];
   salesHistory?: SalesRecord[];
   sales?: SalesRecord[];
@@ -88,6 +91,7 @@ interface DashboardTabProps {
 }
 
 export const DashboardTab: React.FC<DashboardTabProps> = ({
+  invoiceConfig,
   medicines = [],
   salesHistory = [],
   sales = [],
@@ -110,6 +114,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
   onNavigateTab,
   onNavigateToTab,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const allSales = salesHistory.length > 0 ? salesHistory : (sales.length > 0 ? sales : []);
   const navigate = onNavigateTab || onNavigateToTab || (() => {});
 
@@ -390,7 +395,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           </div>
           <div className="mt-3">
             <h3 id="dash-revenue" className="text-2xl font-bold font-mono text-text">
-              ₹ {computedTodaySales.toFixed(2)}
+              {currencySymbol} {computedTodaySales.toFixed(2)}
             </h3>
             <p className="text-[11px] text-success font-medium mt-1 flex items-center gap-1">
               <span>{todaySalesList.length} Billed Orders</span>
@@ -413,7 +418,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           </div>
           <div className="mt-3">
             <h3 id="dash-due" className="text-2xl font-bold font-mono text-danger">
-              ₹ {totalDueAmount.toFixed(2)}
+              {currencySymbol} {totalDueAmount.toFixed(2)}
             </h3>
             <p className="text-[11px] text-danger font-medium mt-1 flex items-center gap-1">
               <span>{patientsDue.length} Patients with Dues</span>
@@ -436,7 +441,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           </div>
           <div className="mt-3">
             <h3 id="dash-cash-balance" className="text-2xl font-bold font-mono text-primary">
-              ₹ {drawerCash.toFixed(2)}
+              {currencySymbol} {drawerCash.toFixed(2)}
             </h3>
             <p className="text-[11px] text-primary font-medium mt-1 flex items-center gap-1">
               <span>Physical Closing Cash</span>
@@ -482,7 +487,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
           </div>
           <div className="mt-3">
             <h3 id="dash-stock-value" className="text-2xl font-bold font-mono text-text">
-              ₹ {totalStockValuation.toFixed(2)}
+              {currencySymbol} {totalStockValuation.toFixed(2)}
             </h3>
             <p className="text-[11px] text-warning font-medium mt-1 flex items-center gap-1">
               <span>Purchase valuation</span>
@@ -522,7 +527,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
                 <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(val: number) => [`₹ ${val.toFixed(2)}`, '']}
+                  formatter={(val: number) => [`${currencySymbol} ${val.toFixed(2)}`, '']}
                   contentStyle={{
                     backgroundColor: 'var(--color-surface-elevated)',
                     backdropFilter: 'blur(12px)',
@@ -567,7 +572,7 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(val: number) => [`₹ ${val.toFixed(2)}`, '']}
+                  formatter={(val: number) => [`${currencySymbol} ${val.toFixed(2)}`, '']}
                   contentStyle={{
                     backgroundColor: 'var(--color-surface-elevated)',
                     backdropFilter: 'blur(12px)',

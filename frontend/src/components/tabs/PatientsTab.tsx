@@ -17,12 +17,14 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
-import { PatientRecord } from '../../types';
+import { InvoiceConfig, PatientRecord } from '../../types';
 import { exportToCSV, formatWhatsAppPhone } from '../../utils/exportCsv';
+import { getCurrencySymbol } from '../../utils/currency';
 import { AddPatientModal } from '../modals/AddPatientModal';
 import { EditPatientModal } from '../modals/EditPatientModal';
 
 interface PatientsTabProps {
+  invoiceConfig?: InvoiceConfig;
   patients: PatientRecord[];
   setPatients?: React.Dispatch<React.SetStateAction<PatientRecord[]>>;
   onViewPatientProfile: (p: PatientRecord) => void;
@@ -31,12 +33,14 @@ interface PatientsTabProps {
 }
 
 export const PatientsTab: React.FC<PatientsTabProps> = ({
+  invoiceConfig,
   patients,
   setPatients,
   onViewPatientProfile,
   shopName,
   waGroupLink,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const [search, setSearch] = useState('');
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
   const [patientToEdit, setPatientToEdit] = useState<PatientRecord | null>(null);
@@ -67,7 +71,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
       alert('Invalid phone number for WhatsApp invite.');
       return;
     }
-    const msg = `Hello ${p.name},\nJoin our official WhatsApp channel for healthcare updates, doctor visit schedules, and medicine discounts at ${shopName}:\n👉 ${waGroupLink}\nThank you for choosing us!`;
+    const msg = `Hello ${p.name},\nJoin our official WhatsApp channel for healthcare updates, doctor visit schedules, and medicine discounts at ${shopName}:\n${waGroupLink}\nThank you for choosing us!`;
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   };
@@ -161,7 +165,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
             <TrendingDown className="w-4 h-4 text-danger" />
             <span>Total Outstanding Dues</span>
           </p>
-          <h3 className="text-2xl font-bold text-danger font-mono">₹ {totalDuesSum.toFixed(2)}</h3>
+          <h3 className="text-2xl font-bold text-danger font-mono">{currencySymbol} {totalDuesSum.toFixed(2)}</h3>
           <p className="text-[11px] text-text-muted">{patientsWithDueCount} Patients with pending balance</p>
         </div>
 
@@ -217,7 +221,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                 <th className="p-3.5">Age / Gender</th>
                 <th className="p-3.5">Address</th>
                 <th className="p-3.5">Assigned Doctor</th>
-                <th className="p-3.5 text-danger font-bold">Outstanding Due (₹)</th>
+                <th className="p-3.5 text-danger font-bold">Outstanding Due ({currencySymbol})</th>
                 <th className="p-3.5 text-center">Profile & WhatsApp</th>
               </tr>
             </thead>
@@ -258,7 +262,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                       {p.doc || p.doctor || 'Self Prescribed / OTC'}
                     </td>
                     <td className="p-3.5 font-bold text-danger font-mono text-sm">
-                      ₹ {(p.totalDue || 0).toFixed(2)}
+                      {currencySymbol} {(p.totalDue || 0).toFixed(2)}
                     </td>
                     <td className="p-3.5 text-center">
                       <div className="flex items-center justify-center gap-1.5">

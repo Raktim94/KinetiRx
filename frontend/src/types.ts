@@ -46,6 +46,7 @@ export interface Medicine {
   isLabTest?: boolean;
   trackStock?: boolean;
   itemType?: 'medicine' | 'lab_test';
+  barcode?: string;
 }
 
 export interface LabTest {
@@ -57,6 +58,7 @@ export interface LabTest {
   stock: number;
   mrp: number;
   tabsPerStrip: number;
+  barcode?: string;
 }
 
 export interface PatientRecord {
@@ -115,6 +117,8 @@ export interface SalesRecord {
     qty: number;
     price: number;
     total: number;
+    hsn?: string;
+    gst?: number;
   }>;
   subtotal?: number;
   discountPercent?: number;
@@ -155,6 +159,18 @@ export interface DailyRegisterState {
 
 export type DailyRegister = DailyRegisterState;
 
+export interface NeededMedItem {
+  id: string;
+  med: string;
+  qty: number;
+  unit?: string;
+  tabsPerStrip?: number;
+  pack?: string;
+  salt?: string;
+  mrp?: number;
+  stock?: number;
+}
+
 export interface NeededMedOrder {
   id: string;
   patientId?: string;
@@ -164,11 +180,14 @@ export interface NeededMedOrder {
   dist: string;
   time: string;
   qty: number;
+  items?: NeededMedItem[];
+  notes?: string;
   status: 'Distributor Ordered' | 'Processing' | 'Pending' | 'Delivered' | 'Cancelled';
 }
 
 export interface OPDVisit {
   id: string;
+  patientId?: string;
   name: string;
   phone: string;
   ageSex: string;
@@ -267,6 +286,7 @@ export interface CartItem {
   mrp?: number;
   rate?: number;
   gst?: number;
+  hsn?: string;
   stock?: number;
   quantity?: number;
   isLoose?: boolean;

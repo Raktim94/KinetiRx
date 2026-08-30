@@ -22,9 +22,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /out/kinetirx-server .
 # ---- Runtime stage ------------------------------------------------------
 FROM alpine:3.20 AS runtime
 
-# ca-certificates: required for outbound TLS calls to the Gemini API.
-# tzdata: lets the app resolve local timezones if ever needed; harmless if unused.
-RUN apk add --no-cache ca-certificates tzdata \
+# ca-certificates: required for outbound TLS calls to the Gemini API and to
+# any S3-compatible backup endpoint. tzdata: lets the app resolve local
+# timezones if ever needed; harmless if unused. postgresql16-client: pg_dump
+# and pg_restore, shelled out to by the S3 offsite backup feature — matches
+# the postgres:16-alpine major version in deploy/docker-compose.yml, since
+# pg_dump's custom format is not guaranteed compatible across major versions.
+RUN apk add --no-cache ca-certificates tzdata postgresql16-client \
     && addgroup -S kinetirx \
     && adduser -S -G kinetirx kinetirx
 

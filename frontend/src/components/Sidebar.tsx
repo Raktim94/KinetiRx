@@ -11,7 +11,6 @@ import {
   LogOut,
   Megaphone,
   Receipt,
-  RotateCcw,
   ScanLine,
   ShieldCheck,
   Stethoscope,
@@ -395,36 +394,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </button>
                 )}
 
-                {isPermitted('invoice-settings') && (
+                {(isPermitted('invoice-settings') || isPermitted('system-reset')) && (
                   <button
-                    id="nav-invoice-settings"
+                    id="nav-settings"
                     onClick={() => handleTabClick('invoice-settings')}
-                    className={navItemClass(isTabActive('invoice-settings'))}
+                    className={navItemClass(isTabActive('invoice-settings') || isTabActive('system-reset'))}
                   >
                     <div className="flex items-center space-x-2.5">
                       <FileText className="w-4 h-4 text-success" />
-                      <span>Invoice Settings</span>
+                      <span>Settings</span>
                     </div>
-                  </button>
-                )}
-
-                {isPermitted('system-reset') && (
-                  <button
-                    id="nav-system-reset"
-                    onClick={() => handleTabClick('system-reset')}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all font-medium ${
-                      isTabActive('system-reset')
-                        ? 'bg-danger/10 border border-danger/30 text-danger font-semibold shadow-sm'
-                        : 'text-text-muted hover:text-danger hover:bg-danger/10 border border-transparent'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-2.5">
-                      <RotateCcw className={`w-4 h-4 text-danger ${isTabActive('system-reset') ? 'animate-spin-reverse' : ''}`} />
-                      <span>Reset & 5-Day Backup</span>
-                    </div>
-                    <span className="bg-danger/15 text-danger text-[9px] font-bold px-1.5 py-0.5 rounded border border-danger/30">
-                      Admin
-                    </span>
                   </button>
                 )}
               </div>

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"kinetirx/backend/internal/crypto"
 )
 
 // Config holds all runtime configuration for the KinetiRx backend.
@@ -28,6 +30,12 @@ type Config struct {
 	AllowedOrigins []string
 	// GinMode controls gin's run mode ("release" in production).
 	GinMode string
+	// BackupEncryptionKey encrypts the S3 backup secret access key at rest.
+	// Deliberately optional (unlike JWTSecret/DatabaseURL) so deployments that
+	// never touch the S3 backup feature aren't broken by its absence — it is
+	// validated lazily, only when an operator actually tries to save S3
+	// backup config. Set via BACKUP_ENCRYPTION_KEY (hex, `openssl rand -hex 32`).
+	BackupEncryptionKey []byte
 }
 
 // Load reads configuration from the environment and validates required values.
@@ -58,6 +66,14 @@ func Load() (*Config, error) {
 	}
 	if len(missing) > 0 {
 		return nil, fmt.Errorf("missing required environment variable(s): %v", missing)
+	}
+
+	if rawKey := os.Getenv("BACKUP_ENCRYPTION_KEY"); rawKey != "" {
+		key, err := crypto.ParseKeyHex(rawKey)
+		if err != nil {
+			return nil, err
+		}
+		cfg.BackupEncryptionKey = key
 	}
 
 	return cfg, nil

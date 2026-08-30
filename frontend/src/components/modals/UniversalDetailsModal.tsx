@@ -30,12 +30,14 @@ import {
 import {
   DailyRegister,
   ExpenseRecord,
+  InvoiceConfig,
   Medicine,
   OPDVisit,
   PatientDue,
   PatientRecord,
   SalesRecord,
 } from '../../types';
+import { getCurrencySymbol } from '../../utils/currency';
 
 export type ModalType =
   | 'expiry'
@@ -53,6 +55,7 @@ export type ModalType =
 
 interface UniversalDetailsModalProps {
   type: ModalType;
+  invoiceConfig?: InvoiceConfig;
   onClose: () => void;
   medicines: Medicine[];
   opdVisits: OPDVisit[];
@@ -66,6 +69,7 @@ interface UniversalDetailsModalProps {
 
 export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
   type,
+  invoiceConfig,
   onClose,
   medicines,
   opdVisits,
@@ -77,6 +81,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
 }) => {
   if (!type) return null;
 
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const [searchTerm, setSearchTerm] = useState('');
 
   // 1. Short expiry list (<= 6 months from mid-2026, e.g. <= 2026-12)
@@ -185,7 +190,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-text">Customer Due Khata Ledger</h3>
                 <p className="text-[11px] text-rose-700 dark:text-rose-300 font-bold">
-                  Total Outstanding Balance: ₹ {totalDueSum.toFixed(2)} ({dueList.length} Patients)
+                  Total Outstanding Balance: {currencySymbol} {totalDueSum.toFixed(2)} ({dueList.length} Patients)
                 </p>
               </div>
             </div>
@@ -199,7 +204,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-text">Itemized Sales History & Invoices</h3>
                 <p className="text-[11px] text-primary font-bold">
-                  Total Billed Revenue: ₹ {totalSalesSum.toFixed(2)} ({salesList.length} Transactions)
+                  Total Billed Revenue: {currencySymbol} {totalSalesSum.toFixed(2)} ({salesList.length} Transactions)
                 </p>
               </div>
             </div>
@@ -213,7 +218,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-text">Daily Cash Drawer Reconciliation</h3>
                 <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">
-                  Closing Cash In Drawer: ₹ {netDrawerCash.toFixed(2)}
+                  Closing Cash In Drawer: {currencySymbol} {netDrawerCash.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -394,7 +399,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                         <td className="p-3 font-mono text-text-muted">{p.phone}</td>
                         <td className="p-3 text-text-muted">{p.addr}</td>
                         <td className="p-3 font-mono font-bold text-rose-600 dark:text-rose-400 text-right text-sm">
-                          ₹ {p.due.toFixed(2)}
+                          {currencySymbol} {p.due.toFixed(2)}
                         </td>
                         <td className="p-3 text-center">
                           <a
@@ -428,7 +433,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     <th className="p-3">Customer / Patient</th>
                     <th className="p-3">Items Sold</th>
                     <th className="p-3">Payment Mode</th>
-                    <th className="p-3 font-bold text-text text-right">Bill Total (₹)</th>
+                    <th className="p-3 font-bold text-text text-right">Bill Total ({currencySymbol})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border text-text">
@@ -456,7 +461,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                           </span>
                         </td>
                         <td className="p-3 font-mono font-bold text-text text-right">
-                          ₹ {Number(s.total || s.amt || 0).toFixed(2)}
+                          {currencySymbol} {Number(s.total || s.amt || 0).toFixed(2)}
                         </td>
                       </tr>
                     ))
@@ -473,19 +478,19 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                 <div className="bg-surface p-4 rounded-2xl border border-border backdrop-blur-md">
                   <span className="text-[10px] text-text-muted uppercase font-bold">Opening Cash Float (B/D)</span>
                   <h4 className="text-base font-bold text-text font-mono mt-1">
-                    ₹ {openingBD.toFixed(2)}
+                    {currencySymbol} {openingBD.toFixed(2)}
                   </h4>
                 </div>
                 <div className="bg-success/10 p-4 rounded-2xl border border-success/20 backdrop-blur-md">
                   <span className="text-[10px] text-success uppercase font-bold">+ Gross Sales Inflow</span>
                   <h4 className="text-base font-bold text-success font-mono mt-1">
-                    ₹ {grossTodaySales.toFixed(2)}
+                    {currencySymbol} {grossTodaySales.toFixed(2)}
                   </h4>
                 </div>
                 <div className="bg-warning/10 p-4 rounded-2xl border border-warning/20 backdrop-blur-md">
                   <span className="text-[10px] text-warning uppercase font-bold">- Deductions (Online+Exp+Bank)</span>
                   <h4 className="text-base font-bold text-warning font-mono mt-1">
-                    ₹ {(phonePeOnline + recordedExpenses + bankDeposit).toFixed(2)}
+                    {currencySymbol} {(phonePeOnline + recordedExpenses + bankDeposit).toFixed(2)}
                   </h4>
                 </div>
               </div>
@@ -496,13 +501,13 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     Net Physical Cash Balance in Drawer
                   </span>
                   <h3 className="text-3xl font-extrabold font-mono text-success mt-1">
-                    ₹ {netDrawerCash.toFixed(2)}
+                    {currencySymbol} {netDrawerCash.toFixed(2)}
                   </h3>
                 </div>
                 <div className="text-right text-xs">
                   <span className="text-[10px] text-success/80 block">Digital Split Recorded:</span>
                   <span className="text-xs font-mono font-bold text-text">
-                    UPI/PhonePe: ₹{phonePeOnline.toFixed(2)} | Bank Shift: ₹{bankDeposit.toFixed(2)}
+                    UPI/PhonePe: {currencySymbol}{phonePeOnline.toFixed(2)} | Bank Shift: {currencySymbol}{bankDeposit.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -519,8 +524,8 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     <th className="p-3">Generic & Category</th>
                     <th className="p-3">Rack / Batch</th>
                     <th className="p-3 text-right">In-Hand Stock</th>
-                    <th className="p-3 text-right">Purchase Rate (₹)</th>
-                    <th className="p-3 text-right">MRP (₹)</th>
+                    <th className="p-3 text-right">Purchase Rate ({currencySymbol})</th>
+                    <th className="p-3 text-right">MRP ({currencySymbol})</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border text-text">
@@ -559,10 +564,10 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                           </span>
                         </td>
                         <td className="p-3 text-right font-mono text-text-muted">
-                          ₹ {(Number(m.rate) || Number(m.mrp || 0) * 0.7).toFixed(2)}
+                          {currencySymbol} {(Number(m.rate) || Number(m.mrp || 0) * 0.7).toFixed(2)}
                         </td>
                         <td className="p-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                          ₹ {Number(m.mrp || 0).toFixed(2)}
+                          {currencySymbol} {Number(m.mrp || 0).toFixed(2)}
                         </td>
                       </tr>
                     ))
@@ -620,7 +625,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                     <div>
                       <span className="text-text-muted block text-[10px] uppercase font-semibold">Outstanding Due:</span>
                       <span className="font-bold text-rose-600 dark:text-rose-400 font-mono text-base block">
-                        ₹ {Number(selectedPatient.totalDue || (selectedPatient as any).due || (selectedPatient as any).dueAmount || 0).toFixed(2)}
+                        {currencySymbol} {Number(selectedPatient.totalDue || (selectedPatient as any).due || (selectedPatient as any).dueAmount || 0).toFixed(2)}
                       </span>
                       <span className="text-[10px] text-text-muted">
                         {selectedPatient.totalVisits || 1} Total Recorded Visits
@@ -650,7 +655,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                           <th className="p-2.5">Invoice #</th>
                           <th className="p-2.5">Medicines Dispensed</th>
                           <th className="p-2.5 text-center">Payment</th>
-                          <th className="p-2.5 text-right">Bill Total (₹)</th>
+                          <th className="p-2.5 text-right">Bill Total ({currencySymbol})</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-border text-text">
@@ -668,7 +673,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                               <td className="p-2.5 text-text">{s.items || s.name}</td>
                               <td className="p-2.5 text-center font-mono text-[11px] text-text-muted">{s.mode}</td>
                               <td className="p-2.5 font-mono font-bold text-text text-right">
-                                ₹ {Number(s.amt || s.total || 0).toFixed(2)}
+                                {currencySymbol} {Number(s.amt || s.total || 0).toFixed(2)}
                               </td>
                             </tr>
                           ))
@@ -689,7 +694,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                             <th className="p-2.5">Doctor</th>
                             <th className="p-2.5">BP / Vitals</th>
                             <th className="p-2.5">Next Re-visit</th>
-                            <th className="p-2.5 text-right">Fees (₹)</th>
+                            <th className="p-2.5 text-right">Fees ({currencySymbol})</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border text-text">
@@ -700,7 +705,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                               <td className="p-2.5 font-mono text-text-muted">{v.bp || '--'} mmHg</td>
                               <td className="p-2.5 font-mono text-emerald-700 dark:text-emerald-300">{v.rvdate || '--'}</td>
                               <td className="p-2.5 font-mono font-bold text-text text-right">
-                                ₹ {Number(v.fee || 0).toFixed(2)}
+                                {currencySymbol} {Number(v.fee || 0).toFixed(2)}
                               </td>
                             </tr>
                           ))}

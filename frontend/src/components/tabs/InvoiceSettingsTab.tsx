@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { InvoiceConfig, InvoicePrintData, SalesRecord } from '../../types';
 import {
+  exportGSTFilingSummary,
   exportInvoicesHTML,
   exportInvoicesJSON,
   exportToCSV,
@@ -33,6 +34,7 @@ import {
   salesRecordToInvoicePrintData,
 } from '../../utils/exportCsv';
 import { PrinterFormat, resolvePrinterFormat } from '../../utils/receiptPrint';
+import { CURRENCY_OPTIONS, getCurrencySymbol } from '../../utils/currency';
 
 const PRINTER_FORMAT_OPTIONS: { value: PrinterFormat; label: string; hint: string }[] = [
   { value: 'thermal_80mm', label: '80mm Thermal Receipt', hint: 'Standard-width till roll — most common counter printers' },
@@ -58,6 +60,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
   onNavigateToReset,
 }) => {
   const [formData, setFormData] = useState<InvoiceConfig>(invoiceConfig);
+  const currencySymbol = getCurrencySymbol(invoiceConfig.currency);
   const [purgeNotice, setPurgeNotice] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -222,11 +225,11 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
       'Billed Items',
       'Qty',
       'Payment Mode',
-      'Subtotal (₹)',
+      `Subtotal (${currencySymbol})`,
       'Discount (%)',
-      'Paid (₹)',
-      'Due (₹)',
-      'Grand Total (₹)',
+      `Paid (${currencySymbol})`,
+      `Due (${currencySymbol})`,
+      `Grand Total (${currencySymbol})`,
     ];
 
     const rows = filteredInvoices.map(s => [
@@ -266,6 +269,15 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
     exportInvoicesJSON('Invoices_Backup', filteredInvoices, invoiceConfig);
   };
 
+  const handleDownloadGSTFiling = () => {
+    if (filteredInvoices.length === 0) {
+      alert('No invoices found for the selected date filter to export.');
+      return;
+    }
+    const dateRangeTag = filterFrom && filterTo ? `${filterFrom}_to_${filterTo}` : filterFrom ? `from_${filterFrom}` : 'all_dates';
+    exportGSTFilingSummary(`GST_Filing_HSN_Summary_${dateRangeTag}`, filteredInvoices);
+  };
+
   const handlePrintSingle = (s: SalesRecord) => {
     if (onPrintInvoice) {
       const data = salesRecordToInvoicePrintData(s);
@@ -288,7 +300,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
     const invNumber = s.inv || s.invoiceNo || `INV-${s.id}`;
     const patientName = s.cust || s.patient || s.name || 'Customer';
     const totalAmt = Number(s.total || s.amt || 0).toFixed(2);
-    const msg = `🧾 *INVOICE COPY #${invNumber}*\n🏥 *${invoiceConfig.name}*\n📍 ${invoiceConfig.addr}\n📞 Ph: ${invoiceConfig.phone}\n----------------------------------\n👤 *Patient:* ${patientName}\n📅 *Date:* ${s.date}\n💊 *Items:* ${s.items || s.name}\n💰 *Amount:* ₹${totalAmt}\n💳 *Payment Mode:* ${s.mode}\n----------------------------------\n${invoiceConfig.terms}\n\n👉 Join WhatsApp Channel: ${invoiceConfig.waGroup}`;
+    const msg = `*INVOICE COPY #${invNumber}*\n*${invoiceConfig.name}*\n${invoiceConfig.addr}\nPh: ${invoiceConfig.phone}\n----------------------------------\n*Patient:* ${patientName}\n*Date:* ${s.date}\n*Items:* ${s.items || s.name}\n*Amount:* ${currencySymbol}${totalAmt}\n*Payment Mode:* ${s.mode}\n----------------------------------\n${invoiceConfig.terms}\n\nJoin WhatsApp Channel: ${invoiceConfig.waGroup}`;
 
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
@@ -469,7 +481,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
 
           <div className="flex items-center gap-2">
             <span className="bg-primary/20 text-primary border border-primary/30 text-xs px-3 py-1 rounded-full font-mono font-bold">
-              {filteredInvoices.length} Invoices Found (₹ {filteredTotalAmt.toFixed(2)})
+              {filteredInvoices.length} Invoices Found ({currencySymbol} {filteredTotalAmt.toFixed(2)})
             </span>
           </div>
         </div>
@@ -572,7 +584,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
         </div>
 
         {/* BATCH DOWNLOAD ACTION BUTTONS */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
           <button
             type="button"
             onClick={handleDownloadExcel}
@@ -589,6 +601,16 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
           >
             <Printer className="w-4 h-4" />
             <span>Download / Print Invoices (PDF Batch)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDownloadGSTFiling}
+            title="HSN-wise taxable value & tax summary (GSTR-1 Table 12 format) — assumes intra-state sales, split evenly as CGST + SGST"
+            className="bg-orange-600 hover:bg-orange-500 text-white font-bold p-3 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition cursor-pointer text-xs"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Export GST Filing Data (HSN Summary)</span>
           </button>
 
           <button
@@ -611,7 +633,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                 <th className="p-3">Doctor Ref</th>
                 <th className="p-3">Items & Quantity</th>
                 <th className="p-3">Payment</th>
-                <th className="p-3 text-right">Total (₹)</th>
+                <th className="p-3 text-right">Total ({currencySymbol})</th>
                 <th className="p-3 text-center">Invoice Actions</th>
               </tr>
             </thead>
@@ -668,7 +690,7 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                       </td>
 
                       <td className="p-3 text-right font-mono font-bold text-text text-sm">
-                        ₹ {Number(s.total || s.amt || 0).toFixed(2)}
+                        {currencySymbol} {Number(s.total || s.amt || 0).toFixed(2)}
                       </td>
 
                       <td className="p-3 text-center">
@@ -850,6 +872,24 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
                 className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono text-text placeholder:text-text-muted outline-none focus:border-primary focus:bg-bg backdrop-blur-md"
                 required
               />
+            </div>
+
+            <div>
+              <label className="font-medium text-text-muted block mb-1">
+                Currency
+              </label>
+              <select
+                id="inv-cfg-currency"
+                value={formData.currency || 'INR'}
+                onChange={e => setFormData({ ...formData, currency: e.target.value })}
+                className="w-full p-2.5 bg-surface border border-border rounded-xl text-text outline-none focus:border-primary font-medium backdrop-blur-md"
+              >
+                {CURRENCY_OPTIONS.map(c => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

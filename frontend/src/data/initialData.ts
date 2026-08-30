@@ -35,7 +35,7 @@ export const initialInvoiceConfig: InvoiceConfig = {
   lastPurgeDate: todayISO,
   director: 'Master Admin',
   pharmacist: 'Registered Pharmacist',
-  currency: '₹',
+  currency: 'INR',
   printerType: 'thermal_80mm',
   headerTheme: 'modern_minimal',
 };

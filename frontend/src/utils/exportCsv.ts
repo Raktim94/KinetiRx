@@ -1,4 +1,5 @@
 import { InvoiceConfig, InvoicePrintData, SalesRecord } from '../types';
+import { getCurrencySymbol } from './currency';
 
 export function exportToCSV(filename: string, headers: string[], rows: (string | number | undefined)[][]) {
   // UTF-8 BOM so Excel automatically recognizes unicode / Indian currency and Bengali characters
@@ -41,6 +42,7 @@ export function exportInvoicesHTML(
   config: InvoiceConfig,
   dateRangeLabel: string = 'Archive'
 ) {
+  const currencySymbol = getCurrencySymbol(config.currency);
   const invoiceBlocks = invoices
     .map((inv, idx) => {
       const invNum = inv.inv || inv.invoiceNo || `INV-${inv.id}`;
@@ -63,8 +65,8 @@ export function exportInvoicesHTML(
           <tr>
             <td>${item.name}</td>
             <td style="text-align:center;">${item.qty}</td>
-            <td style="text-align:right;">₹${Number(item.price).toFixed(2)}</td>
-            <td style="text-align:right; font-weight:bold;">₹${Number(item.total).toFixed(2)}</td>
+            <td style="text-align:right;">${currencySymbol}${Number(item.price).toFixed(2)}</td>
+            <td style="text-align:right; font-weight:bold;">${currencySymbol}${Number(item.total).toFixed(2)}</td>
           </tr>
         `
           )
@@ -74,8 +76,8 @@ export function exportInvoicesHTML(
           <tr>
             <td>${inv.items || inv.name || 'Pharmacy Medicines'}</td>
             <td style="text-align:center;">${inv.qty || 1}</td>
-            <td style="text-align:right;">₹${totalAmt}</td>
-            <td style="text-align:right; font-weight:bold;">₹${totalAmt}</td>
+            <td style="text-align:right;">${currencySymbol}${totalAmt}</td>
+            <td style="text-align:right; font-weight:bold;">${currencySymbol}${totalAmt}</td>
           </tr>
         `;
       }
@@ -127,11 +129,11 @@ export function exportInvoicesHTML(
             ${config.terms || 'Goods once sold cannot be returned without original cash memo.'}
           </div>
           <div style="text-align: right; font-family: monospace;">
-            <p style="margin: 2px 0;">Subtotal: ₹${subtotal}</p>
-            ${discount > 0 ? `<p style="margin: 2px 0; color: #0284c7;">Discount (${discount}%): -₹${((Number(subtotal) * discount) / 100).toFixed(2)}</p>` : ''}
-            <p style="margin: 4px 0; font-size: 14px; font-weight: bold; color: #0f172a;">Grand Total: ₹${totalAmt}</p>
-            <p style="margin: 2px 0; color: #166534; font-weight: bold;">Paid: ₹${paid}</p>
-            ${Number(due) > 0 ? `<p style="margin: 2px 0; color: #e11d48; font-weight: bold;">Due Balance: ₹${due}</p>` : ''}
+            <p style="margin: 2px 0;">Subtotal: ${currencySymbol}${subtotal}</p>
+            ${discount > 0 ? `<p style="margin: 2px 0; color: #0284c7;">Discount (${discount}%): -${currencySymbol}${((Number(subtotal) * discount) / 100).toFixed(2)}</p>` : ''}
+            <p style="margin: 4px 0; font-size: 14px; font-weight: bold; color: #0f172a;">Grand Total: ${currencySymbol}${totalAmt}</p>
+            <p style="margin: 2px 0; color: #166534; font-weight: bold;">Paid: ${currencySymbol}${paid}</p>
+            ${Number(due) > 0 ? `<p style="margin: 2px 0; color: #e11d48; font-weight: bold;">Due Balance: ${currencySymbol}${due}</p>` : ''}
           </div>
         </div>
       </div>
@@ -179,7 +181,7 @@ export function exportInvoicesHTML(
           </div>
           <div class="no-print">
             <button onclick="window.print()" style="background: #4f46e5; color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;">
-              🖨️ Print / Save as PDF
+              Print / Save as PDF
             </button>
           </div>
         </div>
@@ -219,6 +221,66 @@ export function exportInvoicesJSON(filename: string, invoices: SalesRecord[], co
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+// GST filing export — HSN-wise summary of outward supplies (the same shape
+// as GSTR-1's Table 12). MRP-based retail pricing in India is GST-inclusive,
+// so each line's taxable value is derived by reversing the tax out of the
+// billed total: taxable = total / (1 + gstRate/100). Assumes intra-state
+// sales (the near-universal case for a single local retail counter), so the
+// tax is split evenly into CGST + SGST rather than IGST.
+export function exportGSTFilingSummary(filename: string, invoices: SalesRecord[]) {
+  const buckets = new Map<
+    string,
+    { hsn: string; gstRate: number; qty: number; taxableValue: number; taxAmount: number; totalValue: number }
+  >();
+
+  invoices.forEach(inv => {
+    (inv.itemsDetail || []).forEach(item => {
+      const hsn = item.hsn?.trim() || 'N/A';
+      const gstRate = Number(item.gst) || 0;
+      const key = `${hsn}__${gstRate}`;
+      const total = Number(item.total) || 0;
+      const taxableValue = gstRate > 0 ? total / (1 + gstRate / 100) : total;
+      const taxAmount = total - taxableValue;
+
+      const existing = buckets.get(key);
+      if (existing) {
+        existing.qty += Number(item.qty) || 0;
+        existing.taxableValue += taxableValue;
+        existing.taxAmount += taxAmount;
+        existing.totalValue += total;
+      } else {
+        buckets.set(key, {
+          hsn,
+          gstRate,
+          qty: Number(item.qty) || 0,
+          taxableValue,
+          taxAmount,
+          totalValue: total,
+        });
+      }
+    });
+  });
+
+  const rows = Array.from(buckets.values())
+    .sort((a, b) => a.hsn.localeCompare(b.hsn) || a.gstRate - b.gstRate)
+    .map(b => [
+      b.hsn,
+      b.gstRate.toFixed(2),
+      b.qty,
+      b.taxableValue.toFixed(2),
+      (b.taxAmount / 2).toFixed(2),
+      (b.taxAmount / 2).toFixed(2),
+      b.taxAmount.toFixed(2),
+      b.totalValue.toFixed(2),
+    ]);
+
+  exportToCSV(
+    filename,
+    ['HSN/SAC Code', 'GST Rate (%)', 'Total Quantity', 'Taxable Value', 'CGST', 'SGST', 'Total Tax', 'Total Invoice Value'],
+    rows
+  );
 }
 
 // Convert SalesRecord to InvoicePrintData for onPrintInvoice trigger

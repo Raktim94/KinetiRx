@@ -8,10 +8,12 @@ import {
   Search,
   User,
 } from 'lucide-react';
-import { PatientRecord } from '../../types';
+import { InvoiceConfig, PatientRecord } from '../../types';
 import { exportToCSV, formatWhatsAppPhone } from '../../utils/exportCsv';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface DueKhataTabProps {
+  invoiceConfig?: InvoiceConfig;
   patientsDue: PatientRecord[];
   setPatientsDue: React.Dispatch<React.SetStateAction<PatientRecord[]>>;
   shopName: string;
@@ -19,12 +21,14 @@ interface DueKhataTabProps {
 }
 
 export const DueKhataTab: React.FC<DueKhataTabProps> = ({
+  invoiceConfig,
   patientsDue,
   setPatientsDue,
   shopName,
   shopPhone,
 }) => {
   const [search, setSearch] = useState('');
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
 
   const filtered = patientsDue.filter(
     p =>
@@ -41,7 +45,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
       alert(`Invalid phone number for ${p.name}`);
       return;
     }
-    const msg = `Dear ${p.name},\nThis is a gentle payment reminder from ${shopName} that your pending account due balance is ₹${p.totalDue.toFixed(2)} (Ref: ${p.id}).\nKindly clear your dues at your convenience.\nHelpline: ${shopPhone}\nThank you!`;
+    const msg = `Dear ${p.name},\nThis is a gentle payment reminder from ${shopName} that your pending account due balance is ${currencySymbol}${p.totalDue.toFixed(2)} (Ref: ${p.id}).\nKindly clear your dues at your convenience.\nHelpline: ${shopPhone}\nThank you!`;
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   };
@@ -51,7 +55,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
     if (!p) return;
 
     const collectedInput = prompt(
-      `Collect due payment for ${p.name} (Current Outstanding: ₹${p.totalDue.toFixed(2)}):`,
+      `Collect due payment for ${p.name} (Current Outstanding: ${currencySymbol}${p.totalDue.toFixed(2)}):`,
       p.totalDue.toString()
     );
 
@@ -69,7 +73,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
             })
             .filter(item => item.totalDue > 0)
         );
-        alert(`Collected ₹${amount.toFixed(2)} from ${p.name}. Balance updated!`);
+        alert(`Collected ${currencySymbol}${amount.toFixed(2)} from ${p.name}. Balance updated!`);
       }
     }
   };
@@ -109,7 +113,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="bg-danger/15 border border-danger/30 px-3.5 py-2 rounded-2xl text-xs font-bold text-danger backdrop-blur-md">
-            Total Outstanding: <span className="font-mono text-sm text-danger">₹ {totalDueSum.toFixed(2)}</span>
+            Total Outstanding: <span className="font-mono text-sm text-danger">{currencySymbol} {totalDueSum.toFixed(2)}</span>
           </div>
 
           <button
@@ -145,7 +149,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                 <th className="p-3.5">Doctor / Reference</th>
                 <th className="p-3.5">Reason For Due</th>
                 <th className="p-3.5">Last Transaction</th>
-                <th className="p-3.5 text-danger font-bold">Total Due (₹)</th>
+                <th className="p-3.5 text-danger font-bold">Total Due ({currencySymbol})</th>
                 <th className="p-3.5 text-center">Fast Actions</th>
               </tr>
             </thead>
@@ -171,7 +175,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                     <td className="p-3.5 text-text-muted">{p.reason}</td>
                     <td className="p-3.5 text-text-muted font-mono">{p.lastDate}</td>
                     <td className="p-3.5 font-extrabold text-danger font-mono text-sm">
-                      ₹ {p.totalDue.toFixed(2)}
+                      {currencySymbol} {p.totalDue.toFixed(2)}
                     </td>
                     <td className="p-3.5 text-center">
                       <div className="flex items-center justify-center gap-2">

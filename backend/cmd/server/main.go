@@ -18,6 +18,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"kinetirx/backend/internal/auth"
+	"kinetirx/backend/internal/backup"
 	"kinetirx/backend/internal/config"
 	"kinetirx/backend/internal/db"
 	"kinetirx/backend/internal/handlers"
@@ -75,9 +76,14 @@ func main() {
 	}
 
 	tokens := auth.NewTokenIssuer(cfg.JWTSecret, cfg.JWTAccessTokenTTL)
-	deps := handlers.NewDeps(pool, tokens, cfg.GeminiAPIKey)
+	deps := handlers.NewDeps(pool, tokens, cfg.GeminiAPIKey, cfg.DatabaseURL, cfg.BackupEncryptionKey)
 	if cfg.GeminiAPIKey == "" {
 		log.Println("startup: GEMINI_API_KEY not set — /api/ocr/parse-bill and /api/ai/ask will return fallback responses")
+	}
+	if len(cfg.BackupEncryptionKey) == 0 {
+		log.Println("startup: BACKUP_ENCRYPTION_KEY not set — S3 offsite backup can't be configured until it is")
+	} else {
+		go backup.StartScheduler(ctx, pool, cfg.BackupEncryptionKey, cfg.DatabaseURL)
 	}
 
 	router := gin.New()

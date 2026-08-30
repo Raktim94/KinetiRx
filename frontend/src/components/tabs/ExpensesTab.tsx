@@ -10,21 +10,25 @@ import {
   Vault,
   Wallet,
 } from 'lucide-react';
-import { ExpenseRecord } from '../../types';
+import { ExpenseRecord, InvoiceConfig } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
 import { getTodayISODate } from '../../utils/dateUtils';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface ExpensesTabProps {
+  invoiceConfig?: InvoiceConfig;
   expenses: ExpenseRecord[];
   setExpenses?: React.Dispatch<React.SetStateAction<ExpenseRecord[]>>;
   onOpenAddExpenseModal: () => void;
 }
 
 export const ExpensesTab: React.FC<ExpensesTabProps> = ({
+  invoiceConfig,
   expenses,
   setExpenses,
   onOpenAddExpenseModal,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const today = getTodayISODate();
   const [search, setSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState('all');
@@ -78,11 +82,11 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="bg-orange-500/20 border border-orange-500/30 px-3.5 py-2 rounded-2xl text-xs font-bold text-orange-700 dark:text-orange-300 backdrop-blur-md">
-            Today's Logged: <span className="font-mono text-sm text-orange-800 dark:text-orange-200">₹ {todayExpensesSum.toFixed(2)}</span>
+            Today's Logged: <span className="font-mono text-sm text-orange-800 dark:text-orange-200">{currencySymbol} {todayExpensesSum.toFixed(2)}</span>
           </div>
 
           <div className="bg-surface border border-border px-3.5 py-2 rounded-2xl text-xs font-bold text-text-muted backdrop-blur-md">
-            All-Time Total: <span className="font-mono text-sm text-text">₹ {totalExpenseSum.toFixed(2)}</span>
+            All-Time Total: <span className="font-mono text-sm text-text">{currencySymbol} {totalExpenseSum.toFixed(2)}</span>
           </div>
 
           <button
@@ -164,7 +168,7 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
                 <th className="p-3.5">Expense Date</th>
                 <th className="p-3.5">Category</th>
                 <th className="p-3.5">Description / Remarks</th>
-                <th className="p-3.5 font-bold text-text text-right">Amount (₹)</th>
+                <th className="p-3.5 font-bold text-text text-right">Amount ({currencySymbol})</th>
                 {setExpenses && <th className="p-3.5 text-center">Action</th>}
               </tr>
             </thead>
@@ -186,7 +190,7 @@ export const ExpensesTab: React.FC<ExpensesTabProps> = ({
                     </td>
                     <td className="p-3.5 text-text font-medium">{e.desc}</td>
                     <td className="p-3.5 font-mono font-bold text-warning text-right text-sm">
-                      ₹ {Number(e.amt).toFixed(2)}
+                      {currencySymbol} {Number(e.amt).toFixed(2)}
                     </td>
                     {setExpenses && (
                       <td className="p-3.5 text-center">

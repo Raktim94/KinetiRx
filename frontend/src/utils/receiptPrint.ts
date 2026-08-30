@@ -1,5 +1,6 @@
 import { InvoiceConfig, InvoicePrintData } from '../types';
 import { escHtml as esc, printHtml } from './printUtils';
+import { getCurrencySymbol } from './currency';
 
 export type PrinterFormat = 'a4' | 'thermal_80mm' | 'thermal_58mm';
 
@@ -12,8 +13,8 @@ export function resolvePrinterFormat(config: InvoiceConfig, override?: PrinterFo
   return 'thermal_80mm';
 }
 
-function money(n: number): string {
-  return `Rs ${n.toFixed(2)}`;
+function moneyFor(currencySymbol: string) {
+  return (n: number): string => `${currencySymbol} ${n.toFixed(2)}`;
 }
 
 // Thermal receipts (58mm / 80mm) — self-contained HTML, no dependency on the
@@ -26,6 +27,7 @@ function money(n: number): string {
 // (no driver, no app-side setup) render a correctly-sized slip via the
 // browser's native print dialog.
 function buildThermalHtml(config: InvoiceConfig, invoice: InvoicePrintData, widthMm: 58 | 80): string {
+  const money = moneyFor(getCurrencySymbol(config.currency));
   const fontSize = widthMm === 58 ? '10.5px' : '11.5px';
   const itemRows = invoice.items
     .map(
@@ -113,6 +115,7 @@ function buildThermalHtml(config: InvoiceConfig, invoice: InvoicePrintData, widt
 // never loaded Tailwind, so borders/flex layout/colors silently dropped out
 // of the printed page). Rebuilt here from data with real CSS rules instead.
 function buildA4Html(config: InvoiceConfig, invoice: InvoicePrintData): string {
+  const currencySymbol = getCurrencySymbol(config.currency);
   const itemRows = invoice.items
     .map(
       (it, idx) => `
@@ -120,8 +123,8 @@ function buildA4Html(config: InvoiceConfig, invoice: InvoicePrintData): string {
         <td class="c">${idx + 1}</td>
         <td class="b">${esc(it.name)}</td>
         <td class="c">${it.qty}</td>
-        <td class="r">Rs ${Math.abs(it.price).toFixed(2)}</td>
-        <td class="r b">Rs ${it.total.toFixed(2)}</td>
+        <td class="r">${currencySymbol} ${Math.abs(it.price).toFixed(2)}</td>
+        <td class="r b">${currencySymbol} ${it.total.toFixed(2)}</td>
       </tr>`
     )
     .join('');
@@ -208,14 +211,14 @@ function buildA4Html(config: InvoiceConfig, invoice: InvoicePrintData): string {
         ${config.waGroup ? `<div class="paid" style="margin-top:4px;">WhatsApp Group: ${esc(config.waGroup)}</div>` : ''}
       </div>
       <div class="totals">
-        <div class="row"><span>Sub-Total:</span><span>Rs ${invoice.subtotal.toFixed(2)}</span></div>
+        <div class="row"><span>Sub-Total:</span><span>${currencySymbol} ${invoice.subtotal.toFixed(2)}</span></div>
         ${invoice.discountPercent > 0
-          ? `<div class="row" style="color:#4338ca;font-weight:700;"><span>Discount (${invoice.discountPercent}%):</span><span>- Rs ${(invoice.subtotal * (invoice.discountPercent / 100)).toFixed(2)}</span></div>`
+          ? `<div class="row" style="color:#4338ca;font-weight:700;"><span>Discount (${invoice.discountPercent}%):</span><span>- ${currencySymbol} ${(invoice.subtotal * (invoice.discountPercent / 100)).toFixed(2)}</span></div>`
           : ''}
-        <div class="grand"><span>Grand Total:</span><span>Rs ${invoice.grandTotal.toFixed(2)}</span></div>
-        <div class="row paid"><span>Paid:</span><span>Rs ${invoice.paidAmount.toFixed(2)}</span></div>
+        <div class="grand"><span>Grand Total:</span><span>${currencySymbol} ${invoice.grandTotal.toFixed(2)}</span></div>
+        <div class="row paid"><span>Paid:</span><span>${currencySymbol} ${invoice.paidAmount.toFixed(2)}</span></div>
         ${invoice.dueAmount > 0
-          ? `<div class="row due" style="border-top:1px dashed #fca5a5;padding-top:2px;"><span>Due Balance:</span><span>Rs ${invoice.dueAmount.toFixed(2)}</span></div>`
+          ? `<div class="row due" style="border-top:1px dashed #fca5a5;padding-top:2px;"><span>Due Balance:</span><span>${currencySymbol} ${invoice.dueAmount.toFixed(2)}</span></div>`
           : ''}
       </div>
     </div>

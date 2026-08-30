@@ -53,6 +53,7 @@ import { Distributor, ExpenseRecord, InvoiceConfig, Medicine } from '../../types
 import { exportToCSV } from '../../utils/exportCsv';
 import { formatFullDateWithDay, getTodayISODate } from '../../utils/dateUtils';
 import { ocrApi } from '../../lib/api';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface ScannedInvoiceItem {
   id?: string;
@@ -106,6 +107,8 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
   expenses,
   setExpenses,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig.currency);
+
   // Current UI state
   const [activeInputMethod, setActiveInputMethod] = useState<'upload' | 'camera' | 'paste'>('upload');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -1101,7 +1104,7 @@ INV NO: A002223, Date: 2026-08-19
                     }}
                     className="w-3.5 h-3.5 rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
                   />
-                  <span>Record ₹{scannedResult.totalCost.toFixed(2)} in Daily Expense Ledger</span>
+                  <span>Record {currencySymbol}{scannedResult.totalCost.toFixed(2)} in Daily Expense Ledger</span>
                 </label>
               </div>
             </div>
@@ -1112,7 +1115,7 @@ INV NO: A002223, Date: 2026-08-19
             <div className="p-3.5 rounded-2xl bg-surface border border-border space-y-1">
               <p className="text-text-muted">Total Purchase Cost</p>
               <h4 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                ₹ {scannedResult.totalCost.toFixed(2)}
+                {currencySymbol} {scannedResult.totalCost.toFixed(2)}
               </h4>
             </div>
 
@@ -1199,9 +1202,9 @@ INV NO: A002223, Date: 2026-08-19
                   <th className="p-3">Batch / Expiry</th>
                   <th className="p-3">HSN</th>
                   <th className="p-3">Purchase Rate</th>
-                  <th className="p-3">MRP (₹)</th>
+                  <th className="p-3">MRP ({currencySymbol})</th>
                   <th className="p-3">GST% / Disc</th>
-                  <th className="p-3 text-right font-bold">Line Cost (₹)</th>
+                  <th className="p-3 text-right font-bold">Line Cost ({currencySymbol})</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
@@ -1252,11 +1255,11 @@ INV NO: A002223, Date: 2026-08-19
                         <td className="p-3 font-mono text-text-muted text-[11px]">{item.hsn}</td>
 
                         <td className="p-3 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
-                          ₹ {item.rate.toFixed(2)}
+                          {currencySymbol} {item.rate.toFixed(2)}
                         </td>
 
                         <td className="p-3 font-mono">
-                          <span className="font-bold text-text block">₹ {item.mrp.toFixed(2)}</span>
+                          <span className="font-bold text-text block">{currencySymbol} {item.mrp.toFixed(2)}</span>
                           <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">{marginPercent}% Margin</span>
                         </td>
 
@@ -1268,7 +1271,7 @@ INV NO: A002223, Date: 2026-08-19
                         </td>
 
                         <td className="p-3 text-right font-mono font-bold text-text text-sm">
-                          ₹ {rowCost.toFixed(2)}
+                          {currencySymbol} {rowCost.toFixed(2)}
                         </td>
 
                         <td className="p-3 text-center">
@@ -1310,7 +1313,7 @@ INV NO: A002223, Date: 2026-08-19
                 {scannedResult.items.length} Line Items &bull; {newMedsCount} New Medicines Added
               </span>
               <span className="text-xl font-mono font-black text-emerald-700 dark:text-emerald-300">
-                ₹ {scannedResult.totalCost.toFixed(2)}
+                {currencySymbol} {scannedResult.totalCost.toFixed(2)}
               </span>
             </div>
           </div>
@@ -1376,7 +1379,7 @@ INV NO: A002223, Date: 2026-08-19
               </div>
 
               <div>
-                <label className="font-semibold text-text-muted block mb-1">Purchase Rate (₹)</label>
+                <label className="font-semibold text-text-muted block mb-1">Purchase Rate ({currencySymbol})</label>
                 <input
                   type="number"
                   step="0.01"
@@ -1387,7 +1390,7 @@ INV NO: A002223, Date: 2026-08-19
               </div>
 
               <div>
-                <label className="font-semibold text-text-muted block mb-1">Retail MRP (₹)</label>
+                <label className="font-semibold text-text-muted block mb-1">Retail MRP ({currencySymbol})</label>
                 <input
                   type="number"
                   step="0.01"
@@ -1477,7 +1480,7 @@ INV NO: A002223, Date: 2026-08-19
                   <span className="text-[11px] text-emerald-600 dark:text-emerald-400">
                     {entry.itemCount} Items ({entry.newMedsCount} new added)
                   </span>
-                  <span className="font-mono font-bold text-text">₹ {entry.totalCost.toFixed(2)}</span>
+                  <span className="font-mono font-bold text-text">{currencySymbol} {entry.totalCost.toFixed(2)}</span>
                 </div>
               </div>
             ))}

@@ -474,3 +474,132 @@ export const aiApi = {
 export const healthApi = {
   check: () => request<{ status: string; timestamp: string }>('/api/health'),
 };
+
+// ---------------------------------------------------------------------------
+// S3-compatible offsite backup — everything here is admin-only server-side.
+// ---------------------------------------------------------------------------
+
+export interface BackupConfigStatus {
+  configured: boolean;
+  endpoint?: string;
+  bucket?: string;
+  region?: string;
+  accessKeyId?: string;
+  intervalDays?: number;
+  retainCount?: number;
+  updatedAt?: string;
+}
+
+export interface BackupConfigInput {
+  endpoint: string;
+  bucket: string;
+  region?: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  intervalDays?: number;
+  retainCount?: number;
+}
+
+export interface BackupRecord {
+  id: string;
+  source: 'scheduled' | 'manual';
+  status: 'pending' | 'verified' | 'failed';
+  s3Key?: string;
+  sizeBytes?: number;
+  sha256?: string;
+  error?: string;
+  startedAt: string;
+  completedAt?: string;
+}
+
+export interface BackupStatus {
+  config: BackupConfigStatus;
+  lastVerifiedAt?: string;
+  nextDueAt?: string;
+}
+
+async function requestBlob(path: string, options: RequestInit = {}): Promise<{ blob: Blob; filename: string }> {
+  const token = currentToken();
+  const headers: Record<string, string> = { ...((options.headers as Record<string, string>) || {}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+  } catch {
+    throw new ApiError({ type: 'network_error', title: 'Could not reach the KinetiRx server. Check your connection and try again.', status: 0 });
+  }
+
+  if (!res.ok) {
+    if (res.status === 401) {
+      clearToken();
+      if (unauthorizedHandler) unauthorizedHandler();
+    }
+    let parsed: Partial<ApiErrorBody> | null = null;
+    try {
+      parsed = JSON.parse(await res.text());
+    } catch {
+      // response wasn't JSON (e.g. the download endpoint aborted mid-stream)
+    }
+    throw new ApiError({
+      type: parsed?.type || 'internal_error',
+      title: parsed?.title || `Request failed (${res.status})`,
+      status: res.status,
+    });
+  }
+
+  const disposition = res.headers.get('Content-Disposition') || '';
+  const match = disposition.match(/filename="([^"]+)"/);
+  const filename = match ? match[1] : 'backup.dump';
+  return { blob: await res.blob(), filename };
+}
+
+export const backupApi = {
+  getConfig: () => request<BackupConfigStatus>('/api/backup/config'),
+  saveConfig: (input: BackupConfigInput) =>
+    request<BackupConfigStatus>('/api/backup/config', { method: 'POST', body: JSON.stringify(input) }),
+  deleteConfig: () => request<void>('/api/backup/config', { method: 'DELETE' }),
+  status: () => request<BackupStatus>('/api/backup/status'),
+  list: () => request<{ backups: BackupRecord[] }>('/api/backup'),
+  triggerNow: () => request<BackupRecord>('/api/backup', { method: 'POST' }),
+  restoreFromHistory: (id: string) =>
+    request<{ restored: boolean }>(`/api/backup/${encodeURIComponent(id)}/restore`, {
+      method: 'POST',
+      body: JSON.stringify({ confirm: 'RESTORE' }),
+    }),
+  downloadLocal: () => requestBlob('/api/backup/download'),
+  restoreFromUpload: async (file: File) => {
+    const formData = new FormData();
+    formData.append('confirm', 'RESTORE');
+    formData.append('file', file);
+    const token = currentToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE_URL}/api/backup/restore-upload`, { method: 'POST', headers, body: formData });
+    } catch {
+      throw new ApiError({ type: 'network_error', title: 'Could not reach the KinetiRx server. Check your connection and try again.', status: 0 });
+    }
+    const text = await res.text();
+    let body: unknown = null;
+    try {
+      body = text ? JSON.parse(text) : null;
+    } catch {
+      body = null;
+    }
+    if (!res.ok) {
+      if (res.status === 401) {
+        clearToken();
+        if (unauthorizedHandler) unauthorizedHandler();
+      }
+      const parsed = body as Partial<ApiErrorBody> | null;
+      throw new ApiError({
+        type: parsed?.type || 'internal_error',
+        title: parsed?.title || `Request failed (${res.status})`,
+        status: res.status,
+      });
+    }
+    return body as { restored: boolean };
+  },
+};

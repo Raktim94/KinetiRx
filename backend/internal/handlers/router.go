@@ -197,5 +197,22 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 			sec.PUT("", middleware.RequireAdmin(), d.SetMasterPin)
 			sec.POST("/verify", middleware.RateLimit(10, time.Minute), d.VerifyMasterPin)
 		}
+
+		// S3-compatible offsite backup — admin only across the board: every
+		// route here either exposes/alters where the org's full database can
+		// be exfiltrated to, or overwrites the live database outright.
+		bk := authed.Group("/backup")
+		bk.Use(middleware.RequireAdmin())
+		{
+			bk.GET("/config", d.GetBackupConfig)
+			bk.POST("/config", d.PutBackupConfig)
+			bk.DELETE("/config", d.DeleteBackupConfig)
+			bk.GET("/status", d.GetBackupStatus)
+			bk.GET("", d.ListBackups)
+			bk.POST("", d.TriggerBackup)
+			bk.POST("/:id/restore", d.RestoreBackup)
+			bk.GET("/download", d.DownloadLocalBackup)
+			bk.POST("/restore-upload", d.RestoreFromUpload)
+		}
 	}
 }

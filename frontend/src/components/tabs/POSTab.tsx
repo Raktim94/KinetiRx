@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   AlertCircle,
+  Barcode as BarcodeIcon,
   CheckCircle2,
   CreditCard,
   DollarSign,
@@ -13,6 +14,7 @@ import {
   Plus,
   Printer,
   RotateCcw,
+  ScanLine,
   Search,
   Send,
   Sparkles,
@@ -36,6 +38,9 @@ import {
 import { initialLabTests } from '../../data/initialData';
 import { formatWhatsAppPhone } from '../../utils/exportCsv';
 import { getTodayISODate } from '../../utils/dateUtils';
+import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
+import { CameraScannerModal } from '../modals/CameraScannerModal';
+import { getCurrencySymbol } from '../../utils/currency';
 
 export interface POSTabProps {
   medicines: Medicine[];
@@ -79,6 +84,7 @@ export const POSTab: React.FC<POSTabProps> = ({
   onOrderSpecialMed,
 }) => {
   // Discount percentage state (0% to 100%)
+  const currencySymbol = getCurrencySymbol(invoiceConfig.currency);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
 
   // Patient Form States
@@ -237,12 +243,36 @@ export const POSTab: React.FC<POSTabProps> = ({
         tabsPerStrip: tabs,
         rack: item.rack,
         gst: 'gst' in item ? Number(item.gst) || 0 : 0,
+        hsn: 'hsn' in item ? item.hsn : undefined,
         totalPrice: Number((qty * unitPrice).toFixed(2)),
       };
 
       setCart(prev => [...prev, newItem]);
     }
   };
+
+  // Barcode scan (hardware USB scanner + camera) → find matching medicine/lab test and add to cart
+  const [showCameraScanner, setShowCameraScanner] = useState(false);
+  const [scanFeedback, setScanFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  const handleBarcodeScan = (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) return;
+    const match: Medicine | LabTest | undefined =
+      medicines.find(m => m.barcode === trimmed) || labTests.find(t => t.barcode === trimmed);
+    if (match) {
+      handleAddToCart(match, 'strip', 1);
+      setScanFeedback({ ok: true, msg: `Added: ${match.name}` });
+    } else {
+      setSearchQuery(trimmed);
+      setScanFeedback({ ok: false, msg: `No item found for barcode ${trimmed} — showing search instead` });
+    }
+    setShowCameraScanner(false);
+    window.setTimeout(() => setScanFeedback(null), 3500);
+  };
+
+  // Hardware USB scanner acts as a fast keyboard — listen while POS is mounted
+  useBarcodeScanner({ onScan: handleBarcodeScan, enabled: true });
 
   // Quantity modification handlers
   const handleUpdateQty = (cartId: string, newQty: number) => {
@@ -336,6 +366,8 @@ export const POSTab: React.FC<POSTabProps> = ({
         qty: q,
         price: p,
         total: Number((p * q).toFixed(2)),
+        hsn: c.hsn,
+        gst: c.gst,
       };
     });
 
@@ -550,7 +582,7 @@ export const POSTab: React.FC<POSTabProps> = ({
 
     // Save active invoice state and trigger PDF Print Modal
     setLastGeneratedInvoice(invoiceData);
-    setCheckoutSuccessMsg(`Invoice #${invNumber} generated successfully for ₹ ${grandTotal.toFixed(2)}!`);
+    setCheckoutSuccessMsg(`Invoice #${invNumber} generated successfully for ${currencySymbol} ${grandTotal.toFixed(2)}!`);
 
     // Launch PDF Print Modal
     onPrintInvoice(invoiceData);
@@ -568,8 +600,8 @@ export const POSTab: React.FC<POSTabProps> = ({
       return;
     }
 
-    const itemsSummary = cart.map(c => `• ${c.name} × ${c.qty} = ₹${(c.price * c.qty).toFixed(2)}`).join('\n');
-    const msg = `🧾 *TAX INVOICE / CASH MEMO*\n🏥 *${invoiceConfig.name}*\n📍 ${invoiceConfig.addr}\n📞 Ph: ${invoiceConfig.phone}\n${invoiceConfig.dl ? `📜 DL: ${invoiceConfig.dl}\n` : ''}${invoiceConfig.gst ? `🆔 GSTIN: ${invoiceConfig.gst}\n` : ''}\n----------------------------------\n👤 *Patient:* ${patientName || 'Customer'} (ID: ${patientId})\n👨‍⚕️ *Doctor:* ${docSelect === 'CUSTOM' ? customDoc : docSelect}\n📅 *Date:* ${new Date().toISOString().slice(0, 10)}\n----------------------------------\n*ITEMS BILLED:*\n${itemsSummary}\n----------------------------------\n*Sub-Total:* ₹${subtotal.toFixed(2)}\n*Discount (${safeDiscountPercent}%):* -₹${discountAmount.toFixed(2)}\n*GRAND TOTAL:* ₹${grandTotal.toFixed(2)}\n*Paid (${payMode}):* ₹${effectivePaid.toFixed(2)}\n${effectiveDue > 0 ? `*DUE BALANCE:* ₹${effectiveDue.toFixed(2)}\n` : ''}\n${invoiceConfig.terms}\n\n👉 Join WhatsApp Updates: ${invoiceConfig.waGroup}\n_Thank you for choosing ${invoiceConfig.name}!_`;
+    const itemsSummary = cart.map(c => `• ${c.name} × ${c.qty} = ${currencySymbol}${(c.price * c.qty).toFixed(2)}`).join('\n');
+    const msg = `*TAX INVOICE / CASH MEMO*\n*${invoiceConfig.name}*\n${invoiceConfig.addr}\nPh: ${invoiceConfig.phone}\n${invoiceConfig.dl ? `DL: ${invoiceConfig.dl}\n` : ''}${invoiceConfig.gst ? `GSTIN: ${invoiceConfig.gst}\n` : ''}\n----------------------------------\n*Patient:* ${patientName || 'Customer'} (ID: ${patientId})\n*Doctor:* ${docSelect === 'CUSTOM' ? customDoc : docSelect}\n*Date:* ${new Date().toISOString().slice(0, 10)}\n----------------------------------\n*ITEMS BILLED:*\n${itemsSummary}\n----------------------------------\n*Sub-Total:* ${currencySymbol}${subtotal.toFixed(2)}\n*Discount (${safeDiscountPercent}%):* -${currencySymbol}${discountAmount.toFixed(2)}\n*GRAND TOTAL:* ${currencySymbol}${grandTotal.toFixed(2)}\n*Paid (${payMode}):* ${currencySymbol}${effectivePaid.toFixed(2)}\n${effectiveDue > 0 ? `*DUE BALANCE:* ${currencySymbol}${effectiveDue.toFixed(2)}\n` : ''}\n${invoiceConfig.terms}\n\nJoin WhatsApp Updates: ${invoiceConfig.waGroup}\n_Thank you for choosing ${invoiceConfig.name}!_`;
 
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
@@ -585,7 +617,7 @@ export const POSTab: React.FC<POSTabProps> = ({
       alert('Please enter a valid 10-digit phone number!');
       return;
     }
-    const msg = `Hello ${patientName || 'Customer'},\nJoin our official WhatsApp channel for health updates, doctor schedules, and medicine discounts at ${invoiceConfig.name}:\n👉 ${invoiceConfig.waGroup}\nThank you for choosing us!`;
+    const msg = `Hello ${patientName || 'Customer'},\nJoin our official WhatsApp channel for health updates, doctor schedules, and medicine discounts at ${invoiceConfig.name}:\n${invoiceConfig.waGroup}\nThank you for choosing us!`;
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   };
@@ -830,8 +862,36 @@ export const POSTab: React.FC<POSTabProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span>AI Salt Finder</span>
               </button>
+
+              <button
+                id="btn-open-camera-scanner"
+                type="button"
+                onClick={() => setShowCameraScanner(true)}
+                title="Scan a barcode or QR code with your camera. A USB/handheld barcode scanner works automatically without clicking anything."
+                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition backdrop-blur-md cursor-pointer"
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                <span>Scan Barcode</span>
+              </button>
+
+              {scanFeedback && (
+                <span
+                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border flex items-center gap-1.5 animate-in fade-in ${
+                    scanFeedback.ok
+                      ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300'
+                  }`}
+                >
+                  <BarcodeIcon className="w-3 h-3" />
+                  <span>{scanFeedback.msg}</span>
+                </span>
+              )}
             </div>
           </div>
+
+          {showCameraScanner && (
+            <CameraScannerModal onClose={() => setShowCameraScanner(false)} onScan={handleBarcodeScan} />
+          )}
 
           {/* Items Table */}
           <div className="overflow-y-auto max-h-80 border border-border rounded-2xl bg-surface backdrop-blur-md">
@@ -841,7 +901,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                   <th className="p-3">Item Name & Brand</th>
                   <th className="p-3">Salt Composition</th>
                   <th className="p-3">Stock & Rack</th>
-                  <th className="p-3 font-mono">MRP (₹)</th>
+                  <th className="p-3 font-mono">MRP ({currencySymbol})</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
@@ -890,6 +950,15 @@ export const POSTab: React.FC<POSTabProps> = ({
                           >
                             {item.stock} Strips
                           </span>
+                          <span
+                            className={`block text-[10px] font-semibold ${
+                              item.stock > 0
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : 'text-rose-600 dark:text-rose-400'
+                            }`}
+                          >
+                            {item.stock > 0 ? 'স্টকে আছে (In Stock)' : 'স্টক নেই (Out of Stock)'}
+                          </span>
                           <span className="block text-[10px] text-text-muted">
                             Rack: <b className="text-text">{item.rack}</b>
                             {isExpiring && (
@@ -900,7 +969,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                           </span>
                         </td>
                         <td className="p-3 font-bold font-mono text-text">
-                          ₹ {item.mrp.toFixed(2)}
+                          {currencySymbol} {item.mrp.toFixed(2)}
                         </td>
                         <td className="p-3 text-center">
                           <div className="flex items-center justify-center gap-1.5 flex-wrap">
@@ -986,7 +1055,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                           {c.name}
                         </p>
                         <div className="flex items-center gap-2 text-[10px] text-text-muted font-mono">
-                          <span>Unit: ₹ {Math.abs(itemPrice).toFixed(2)}</span>
+                          <span>Unit: {currencySymbol} {Math.abs(itemPrice).toFixed(2)}</span>
                           {c.batch && <span>• B: {c.batch}</span>}
                           {c.rack && <span>• {c.rack}</span>}
                         </div>
@@ -1041,7 +1110,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                             isReturn ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'
                           }`}
                         >
-                          ₹ {rowTotal.toFixed(2)}
+                          {currencySymbol} {rowTotal.toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -1057,7 +1126,7 @@ export const POSTab: React.FC<POSTabProps> = ({
           {/* Subtotal */}
           <div className="flex justify-between items-center text-text-muted">
             <span className="font-medium">Sub-Total:</span>
-            <span className="font-bold font-mono text-text text-sm">₹ {subtotal.toFixed(2)}</span>
+            <span className="font-bold font-mono text-text text-sm">{currencySymbol} {subtotal.toFixed(2)}</span>
           </div>
 
           {/* Discount Selector */}
@@ -1068,7 +1137,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                 <span>Discount:</span>
               </span>
               <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
-                - ₹ {discountAmount.toFixed(2)}
+                - {currencySymbol} {discountAmount.toFixed(2)}
               </span>
             </div>
 
@@ -1112,7 +1181,7 @@ export const POSTab: React.FC<POSTabProps> = ({
               id="pos-grandtotal"
               className="font-black text-success text-xl font-mono"
             >
-              ₹ {grandTotal.toFixed(2)}
+              {currencySymbol} {grandTotal.toFixed(2)}
             </span>
           </div>
 
@@ -1128,13 +1197,13 @@ export const POSTab: React.FC<POSTabProps> = ({
                 onChange={e => handlePayModeChange(e.target.value)}
                 className="w-full p-2.5 bg-surface border border-border rounded-xl text-xs font-medium text-text outline-none focus:border-primary"
               >
-                <option value="Cash">💵 Cash</option>
-                <option value="PhonePe">📱 PhonePe / UPI</option>
-                <option value="Card">💳 Debit / Credit Card</option>
-                <option value="Due">📋 Full Due</option>
-                <option value="Partial">⚖️ Partial Cash + Partial Due</option>
-                <option value="PartialOnline">🔀 Partial Cash + Partial Online</option>
-                <option value="CUSTOM">✏️ Custom Payment Mode</option>
+                <option value="Cash">Cash</option>
+                <option value="PhonePe">PhonePe / UPI</option>
+                <option value="Card">Debit / Credit Card</option>
+                <option value="Due">Full Due</option>
+                <option value="Partial">Partial Cash + Partial Due</option>
+                <option value="PartialOnline">Partial Cash + Partial Online</option>
+                <option value="CUSTOM">Custom Payment Mode</option>
               </select>
 
               {payMode === 'CUSTOM' && (
@@ -1172,7 +1241,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                 type="text"
                 id="pos-due-amt"
                 readOnly
-                value={`₹ ${effectiveDue.toFixed(2)}`}
+                value={`${currencySymbol} ${effectiveDue.toFixed(2)}`}
                 className={`w-full p-2 border font-bold rounded-xl text-xs font-mono outline-none ${
                   effectiveDue > 0
                     ? 'bg-rose-500/10 border-rose-500/30 text-rose-700 dark:text-rose-300'

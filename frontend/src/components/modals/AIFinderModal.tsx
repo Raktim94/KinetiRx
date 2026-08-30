@@ -10,10 +10,12 @@ import {
   X,
 } from 'lucide-react';
 import { initialBrandSaltDictionary } from '../../data/initialData';
-import { Medicine } from '../../types';
+import { InvoiceConfig, Medicine } from '../../types';
+import { getCurrencySymbol } from '../../utils/currency';
 
 interface AIFinderModalProps {
   isOpen: boolean;
+  invoiceConfig?: InvoiceConfig;
   onClose: () => void;
   initialQuery?: string;
   medicines: Medicine[];
@@ -23,12 +25,14 @@ interface AIFinderModalProps {
 
 export const AIFinderModal: React.FC<AIFinderModalProps> = ({
   isOpen,
+  invoiceConfig,
   onClose,
   initialQuery = '',
   medicines,
   onAddToCart,
   onOrderSpecial,
 }) => {
+  const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const [query, setQuery] = useState(initialQuery);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -172,7 +176,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                             <b className="text-emerald-600 dark:text-emerald-400">{item.stock} Strips</b>
                           </p>
                           <p className="text-xs font-bold text-text font-mono mt-0.5">
-                            MRP: ₹ {item.mrp.toFixed(2)}
+                            MRP: {currencySymbol} {item.mrp.toFixed(2)}
                           </p>
                         </div>
                         <button
@@ -226,7 +230,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                           Company: <b className="text-text-muted">{alt.company}</b>
                         </p>
                         <p className="text-xs font-bold text-purple-700 dark:text-purple-300 font-mono mt-0.5">
-                          Est. MRP: ₹ {alt.mrp.toFixed(2)}
+                          Est. MRP: {currencySymbol} {alt.mrp.toFixed(2)}
                         </p>
                       </div>
                       <button

@@ -183,6 +183,7 @@ type NeededMedOrder struct {
 // OPDVisit is an out-patient department visit record.
 type OPDVisit struct {
 	ID        string    `json:"id"`
+	PatientID *string   `json:"patientId,omitempty"`
 	Name      string    `json:"name"`
 	Phone     string    `json:"phone"`
 	AgeSex    string    `json:"ageSex"`

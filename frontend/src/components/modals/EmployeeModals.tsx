@@ -19,6 +19,18 @@ const allAvailableModules: { id: TabType; label: string }[] = [
   { id: 'invoice-settings', label: 'Invoice & WhatsApp' },
 ];
 
+// A static default password ('changeme123') would give every newly created
+// employee account the exact same guessable password until they first log
+// in — generate a random one instead so it's actually secret from creation.
+function generateTempPassword(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  let out = '';
+  for (let i = 0; i < 10; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
+
 interface AddEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,7 +44,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 }) => {
   const [name, setName] = useState('');
   const [desig, setDesig] = useState('Pharmacist / Staff');
-  const [pass, setPass] = useState('changeme123');
+  const [pass, setPass] = useState(generateTempPassword);
   const [selectedPermissions, setSelectedPermissions] = useState<TabType[]>([
     'dashboard',
     'pos',
@@ -47,7 +59,7 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     if (isOpen) {
       setName('');
       setDesig('Pharmacist / Staff');
-      setPass('changeme123');
+      setPass(generateTempPassword());
       setSelectedPermissions(['dashboard', 'pos', 'daily-sales', 'inventory']);
       setSubmitting(false);
       setError(null);
@@ -175,15 +187,25 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             </div>
             <div>
               <label className="font-medium text-text-muted block mb-1">Login Password (min. 8 chars)</label>
-              <input
-                type="text"
-                value={pass}
-                onChange={e => setPass(e.target.value)}
-                placeholder="min. 8 characters"
-                minLength={8}
-                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-text placeholder:text-text-muted outline-none focus:border-primary focus:bg-bg"
-                required
-              />
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={pass}
+                  onChange={e => setPass(e.target.value)}
+                  placeholder="min. 8 characters"
+                  minLength={8}
+                  className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-text placeholder:text-text-muted outline-none focus:border-primary focus:bg-bg"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setPass(generateTempPassword())}
+                  className="px-2.5 bg-surface hover:bg-surface-elevated border border-border rounded-xl text-text-muted hover:text-text transition cursor-pointer shrink-0"
+                  title="Generate a new random password"
+                >
+                  <KeyRound className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 

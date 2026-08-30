@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { PatientRecord } from '../../types';
 import { getTodayISODate } from '../../utils/dateUtils';
+import { loadDoctors } from '../../data/doctors';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -25,6 +26,8 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
   onSavePatient,
   existingPatients,
 }) => {
+  const doctorList = loadDoctors();
+
   // Helper to generate next sequential Patient ID (e.g. P/107)
   const getNextPatientId = () => {
     let maxNum = 100;
@@ -216,10 +219,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
                 className="w-full p-2.5 bg-surface border border-border rounded-xl text-text outline-none focus:border-primary"
               >
                 <option value="Self Prescribed / OTC">Self Prescribed / OTC</option>
-                <option value="Dr. Sayan Majumdar (Cardio)">Dr. Sayan Majumdar (Cardio)</option>
-                <option value="Dr. T.K. Khan (Chest/Pulmo)">Dr. T.K. Khan (Chest/Pulmo)</option>
-                <option value="Dr. P. Sen (General Phys)">Dr. P. Sen (General Phys)</option>
-                <option value="Dr. R. Mishra (Gynae)">Dr. R. Mishra (Gynae)</option>
+                {doctorList.map((d, idx) => (
+                  <option key={idx} value={d}>
+                    {d}
+                  </option>
+                ))}
                 <option value="CUSTOM">-- Type Custom Doctor --</option>
               </select>
               {docSelect === 'CUSTOM' && (

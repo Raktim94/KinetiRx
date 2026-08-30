@@ -1,8 +1,6 @@
-export const defaultDoctors: string[] = [
-  'Dr. Sayan Majumdar (General Medicine)',
-  'Dr. T.K. Khan (Cardiologist / Chest)',
-  'Dr. Subhash Bose (Pediatrician)',
-];
+// Deliberately empty — a fresh install shouldn't show made-up staff names.
+// Doctors are added from the OPD modal's "+ Custom" / "Manage / Remove" flow.
+export const defaultDoctors: string[] = [];
 
 const LOCAL_STORAGE_KEY = 'kinetirx_doctor_list_v1';
 

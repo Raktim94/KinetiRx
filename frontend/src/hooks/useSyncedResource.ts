@@ -36,11 +36,21 @@ export function useSyncedList<T extends { id: string }>(
   onError: (message: string, err: unknown) => void
 ): [T[], Setter<T[]>, Setter<T[]>] {
   const [items, setItemsState] = useState<T[]>([]);
+  // Mirrors `items` synchronously (state updates are async/batched, so a
+  // second setItems() call in the same tick would otherwise see a stale
+  // `items` closure value as "prev").
+  const itemsRef = useRef<T[]>(items);
+  itemsRef.current = items;
+
   // setItemsRaw bypasses diffing entirely — used only to hydrate state from
   // a GET /list response on mount/refresh, where every item is already
   // persisted server-side and must NOT be re-POSTed as if newly created.
   const setItemsRaw = useCallback<Setter<T[]>>(updater => {
-    setItemsState(prev => resolveNext(prev, updater));
+    setItemsState(prev => {
+      const next = resolveNext(prev, updater);
+      itemsRef.current = next;
+      return next;
+    });
   }, []);
 
   const crudRef = useRef(crudClient);
@@ -48,33 +58,38 @@ export function useSyncedList<T extends { id: string }>(
 
   const setItems = useCallback<Setter<T[]>>(
     updater => {
-      setItemsState(prev => {
-        const next = resolveNext(prev, updater);
-        const crud = crudRef.current;
-        if (!crud) return next;
+      // The create/update/delete calls below are real side effects, so they
+      // must never run inside the setItemsState updater function itself —
+      // React (StrictMode always, concurrent rendering potentially) may
+      // invoke that updater more than once per call, which previously fired
+      // duplicate POSTs (and duplicate-key errors) for a single add/edit.
+      const prev = itemsRef.current;
+      const next = resolveNext(prev, updater);
+      itemsRef.current = next;
+      setItemsState(next);
 
-        const prevById = new Map(prev.map(i => [i.id, i]));
-        const nextById = new Map(next.map(i => [i.id, i]));
+      const crud = crudRef.current;
+      if (!crud) return;
 
-        for (const item of next) {
-          if (!prevById.has(item.id)) {
-            crud.create(item).catch(err => onError(describeError(err), err));
-          }
-        }
-        for (const item of prev) {
-          if (!nextById.has(item.id)) {
-            crud.remove(item.id).catch(err => onError(describeError(err), err));
-          }
-        }
-        for (const item of next) {
-          const prevItem = prevById.get(item.id);
-          if (prevItem && prevItem !== item && JSON.stringify(prevItem) !== JSON.stringify(item)) {
-            crud.update(item.id, item).catch(err => onError(describeError(err), err));
-          }
-        }
+      const prevById = new Map(prev.map(i => [i.id, i]));
+      const nextById = new Map(next.map(i => [i.id, i]));
 
-        return next;
-      });
+      for (const item of next) {
+        if (!prevById.has(item.id)) {
+          crud.create(item).catch(err => onError(describeError(err), err));
+        }
+      }
+      for (const item of prev) {
+        if (!nextById.has(item.id)) {
+          crud.remove(item.id).catch(err => onError(describeError(err), err));
+        }
+      }
+      for (const item of next) {
+        const prevItem = prevById.get(item.id);
+        if (prevItem && prevItem !== item && JSON.stringify(prevItem) !== JSON.stringify(item)) {
+          crud.update(item.id, item).catch(err => onError(describeError(err), err));
+        }
+      }
     },
     [onError]
   );

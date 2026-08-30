@@ -24,25 +24,29 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
 }) => {
   const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const [name, setName] = useState('');
-  const [company, setCompany] = useState('Micro Labs / Cipla');
-  const [distSelect, setDistSelect] = useState('NEW UMA MEDICINE DISTRIBUTOR');
+  const [company, setCompany] = useState('');
+  // '' means "nothing chosen yet" and is a real <option> below — never a
+  // hardcoded distributor name, which could silently desync from the
+  // dropdown's actual options (e.g. that name no longer existing in
+  // `distributors`) and leave the CUSTOM text input unreachable.
+  const [distSelect, setDistSelect] = useState('');
   const [distCustom, setDistCustom] = useState('');
   const [distGst, setDistGst] = useState('');
   const [distPhone, setDistPhone] = useState('');
   const [distAddr, setDistAddr] = useState('');
 
   const [salt, setSalt] = useState('');
-  const [batch, setBatch] = useState('B26001');
-  const [hsn, setHsn] = useState('300490');
-  const [gst, setGst] = useState('12.00');
+  const [batch, setBatch] = useState('');
+  const [hsn, setHsn] = useState('');
+  const [gst, setGst] = useState('');
   const [group, setGroup] = useState('General');
-  const [rack, setRack] = useState('RACK-A1');
-  const [stock, setStock] = useState('50');
-  const [rate, setRate] = useState('22.00');
-  const [omrp, setOmrp] = useState('0.00');
-  const [mrp, setMrp] = useState('30.00');
-  const [tabsPerStrip, setTabsPerStrip] = useState('10');
-  const [expiry, setExpiry] = useState('2027-12');
+  const [rack, setRack] = useState('');
+  const [stock, setStock] = useState('');
+  const [rate, setRate] = useState('');
+  const [omrp, setOmrp] = useState('');
+  const [mrp, setMrp] = useState('');
+  const [tabsPerStrip, setTabsPerStrip] = useState('');
+  const [expiry, setExpiry] = useState('');
 
   if (!isOpen) return null;
 
@@ -50,6 +54,10 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
     e.preventDefault();
     if (!name.trim()) {
       alert('Please enter medicine name');
+      return;
+    }
+    if (!distSelect) {
+      alert('Please select or type a distributor / supplier');
       return;
     }
 
@@ -141,7 +149,11 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
                   value={distSelect}
                   onChange={e => setDistSelect(e.target.value)}
                   className="w-full p-2.5 bg-surface border border-border rounded-xl text-text outline-none focus:border-primary"
+                  required
                 >
+                  <option value="" disabled className="bg-surface text-text-muted">
+                    -- Select Distributor --
+                  </option>
                   {distributors.map(d => (
                     <option key={d.id} value={d.name} className="bg-surface text-text">
                       {d.name}
@@ -242,7 +254,7 @@ export const AddStockModal: React.FC<AddStockModalProps> = ({
               >
                 {(medicineGroups.length > 0
                   ? medicineGroups.map(g => g.name)
-                  : ['General', 'Dr. Sayan Majumdar', 'Dr. T.K. Khan']
+                  : ['General']
                 ).map(name => (
                   <option key={name} value={name} className="bg-surface text-text">
                     {name}

@@ -119,18 +119,20 @@ export const AddLabStockModal: React.FC<AddLabStockModalProps> = ({
 
   // Required fields according to user request
   const [name, setName] = useState('');
-  const [brand, setBrand] = useState('MRS Diagnostic & Lab Services');
+  const [brand, setBrand] = useState('');
   const [salt, setSalt] = useState('');
   const [trackStock, setTrackStock] = useState<boolean>(false);
-  const [stockCount, setStockCount] = useState<string>('999');
-  const [mrp, setMrp] = useState('350.00');
+  const [stockCount, setStockCount] = useState<string>('');
+  const [mrp, setMrp] = useState('');
 
-  // Secondary helpful fields
-  const [rate, setRate] = useState('90.00');
-  const [rack, setRack] = useState('LAB-CHAMBER');
-  const [gst, setGst] = useState('0.0'); // Health diagnostic services often 0% GST
-  const [hsn, setHsn] = useState('999312'); // HSN/SAC for diagnostic & medical lab services
-  const [batch, setBatch] = useState('LAB-SRV');
+  // Secondary helpful fields — left blank; handleSubmit falls back to sane
+  // defaults (e.g. HSN 999312 for diagnostic services) only if truly unset,
+  // rather than showing a specific value that looks already-filled-in.
+  const [rate, setRate] = useState('');
+  const [rack, setRack] = useState('');
+  const [gst, setGst] = useState('');
+  const [hsn, setHsn] = useState('');
+  const [batch, setBatch] = useState('');
 
   if (!isOpen) return null;
 

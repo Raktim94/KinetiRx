@@ -25,7 +25,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
 }) => {
   const [patientId, setPatientId] = useState(() => getNextSequentialPatientId(patients));
   const [name, setName] = useState('');
-  const [ageSex, setAgeSex] = useState('45 / Male');
+  const [ageSex, setAgeSex] = useState('');
   const [phone, setPhone] = useState('');
   const [doctorList, setDoctorList] = useState<string[]>(() => loadDoctors());
   const [isManagingDoctors, setIsManagingDoctors] = useState(false);
@@ -41,7 +41,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
     d.setDate(d.getDate() + 7);
     return d.toISOString().slice(0, 10);
   });
-  const [btest, setBtest] = useState('CBC + Blood Sugar (F/PP)');
+  const [btest, setBtest] = useState('');
   const [matchedPatient, setMatchedPatient] = useState<PatientRecord | null>(null);
 
   // Sync next sequential patient ID and fresh doctor list whenever the modal opens
@@ -174,9 +174,13 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
 
     // If this patient isn't already in the master registry, register it
     if (!matchedPatient && onQuickAddPatient) {
-      const parts = ageSex.split('/');
-      const parsedAge = parseInt(parts[0], 10) || 45;
-      const parsedGender = parts[1] ? parts[1].trim() : 'Male';
+      // Only record age/gender if the pharmacist actually entered them —
+      // fabricating "45 / Male" for a patient whose age is genuinely unknown
+      // would silently record fake demographic data as if it were real.
+      const parts = ageSex.trim() ? ageSex.split('/') : [];
+      const parsedAgeNum = parts[0] ? parseInt(parts[0], 10) : NaN;
+      const parsedAge = !isNaN(parsedAgeNum) ? String(parsedAgeNum) : undefined;
+      const parsedGender = parts[1] ? parts[1].trim() : undefined;
 
       const newPatientRec: PatientRecord = {
         id: finalPatientId,
@@ -184,7 +188,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
         phone: phone.trim(),
         age: parsedAge,
         gender: parsedGender,
-        ageGender: ageSex.trim(),
+        ageGender: ageSex.trim() || undefined,
         addr: 'Local Area',
         address: 'Local Area',
         doc: finalDoctor,

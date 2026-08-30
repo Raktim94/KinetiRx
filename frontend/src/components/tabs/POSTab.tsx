@@ -36,6 +36,7 @@ import {
   SalesRecord,
 } from '../../types';
 import { initialLabTests } from '../../data/initialData';
+import { loadDoctors } from '../../data/doctors';
 import { formatWhatsAppPhone } from '../../utils/exportCsv';
 import { getTodayISODate } from '../../utils/dateUtils';
 import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
@@ -96,6 +97,9 @@ export const POSTab: React.FC<POSTabProps> = ({
   const [address, setAddress] = useState('');
   const [docSelect, setDocSelect] = useState('Self Prescribed / OTC');
   const [customDoc, setCustomDoc] = useState('');
+  // Read fresh every render (cheap sync localStorage read) so doctors added
+  // or removed from the OPD modal's manager show up here immediately.
+  const doctorList = loadDoctors();
 
   // POS Filter States
   const [billingMode, setBillingMode] = useState<'med' | 'lab'>('med');
@@ -633,6 +637,12 @@ export const POSTab: React.FC<POSTabProps> = ({
   // Filter items list
   const labStockItems = medicines.filter(m => m.isLabTest || m.itemType === 'lab_test');
   const currentList = billingMode === 'med' ? medicines : [...labTests, ...labStockItems];
+  // Real doctor-specific groups actually present in stock — never a
+  // hardcoded demo name. "General" is the default/unassigned bucket, not a
+  // doctor group, so it's excluded from this filter's own options.
+  const availableDoctorGroups = Array.from(
+    new Set(medicines.map(m => m.group).filter((g): g is string => !!g && g !== 'General'))
+  ).sort();
   const filteredItems = currentList.filter(item => {
     const q = searchQuery.toLowerCase();
     const matchQuery =
@@ -641,9 +651,7 @@ export const POSTab: React.FC<POSTabProps> = ({
       (item.company && item.company.toLowerCase().includes(q));
     const matchDoctorGroup =
       doctorGroupFilter === 'all' ||
-      (doctorGroupFilter === 'sayan' &&
-        'group' in item &&
-        item.group === 'Dr. Sayan Majumdar');
+      ('group' in item && item.group === doctorGroupFilter);
     return matchQuery && matchDoctorGroup;
   });
 
@@ -776,9 +784,11 @@ export const POSTab: React.FC<POSTabProps> = ({
                   className="w-full p-2.5 bg-surface border border-border rounded-xl text-text outline-none focus:border-primary backdrop-blur-md"
                 >
                   <option value="Self Prescribed / OTC">Self Prescribed / OTC</option>
-                  <option value="Dr. Sayan Majumdar">Dr. Sayan Majumdar (General Medicine)</option>
-                  <option value="Dr. T.K. Khan">Dr. T.K. Khan (Cardiologist)</option>
-                  <option value="Dr. Subhash Bose">Dr. Subhash Bose (Pediatrician)</option>
+                  {doctorList.map((d, idx) => (
+                    <option key={idx} value={d}>
+                      {d}
+                    </option>
+                  ))}
                   <option value="CUSTOM">-- Type Custom Doctor Name --</option>
                 </select>
                 {docSelect === 'CUSTOM' && (
@@ -829,7 +839,7 @@ export const POSTab: React.FC<POSTabProps> = ({
 
             {/* Filter & AI Search bar */}
             <div className="flex items-center gap-2 flex-wrap">
-              {billingMode === 'med' && (
+              {billingMode === 'med' && availableDoctorGroups.length > 0 && (
                 <select
                   id="pos-filter-group"
                   value={doctorGroupFilter}
@@ -837,7 +847,11 @@ export const POSTab: React.FC<POSTabProps> = ({
                   className="p-2 bg-surface border border-border rounded-xl text-xs text-text outline-none focus:border-primary"
                 >
                   <option value="all">All Medicines</option>
-                  <option value="sayan">Dr. Sayan Majumdar Group</option>
+                  {availableDoctorGroups.map(g => (
+                    <option key={g} value={g}>
+                      {g} Group
+                    </option>
+                  ))}
                 </select>
               )}
 

@@ -12,22 +12,23 @@ import (
 )
 
 type opdVisitInput struct {
-	ID       string `json:"id"`
-	Name     string `json:"name" binding:"required"`
-	Phone    string `json:"phone"`
-	AgeSex   string `json:"ageSex"`
-	Doc      string `json:"doc"`
-	Vdate    string `json:"vdate"`
-	Rvdate   string `json:"rvdate"`
-	Btest    string `json:"btest"`
-	Reminder string `json:"reminder"`
+	ID        string  `json:"id"`
+	PatientID *string `json:"patientId"`
+	Name      string  `json:"name" binding:"required"`
+	Phone     string  `json:"phone"`
+	AgeSex    string  `json:"ageSex"`
+	Doc       string  `json:"doc"`
+	Vdate     string  `json:"vdate"`
+	Rvdate    string  `json:"rvdate"`
+	Btest     string  `json:"btest"`
+	Reminder  string  `json:"reminder"`
 }
 
-const opdVisitColumns = `id, name, phone, age_sex, doc, vdate, rvdate, btest, reminder, created_at, updated_at`
+const opdVisitColumns = `id, patient_id, name, phone, age_sex, doc, vdate, rvdate, btest, reminder, created_at, updated_at`
 
 func scanOPDVisit(row pgx.Row) (models.OPDVisit, error) {
 	var o models.OPDVisit
-	err := row.Scan(&o.ID, &o.Name, &o.Phone, &o.AgeSex, &o.Doc, &o.Vdate, &o.Rvdate, &o.Btest, &o.Reminder,
+	err := row.Scan(&o.ID, &o.PatientID, &o.Name, &o.Phone, &o.AgeSex, &o.Doc, &o.Vdate, &o.Rvdate, &o.Btest, &o.Reminder,
 		&o.CreatedAt, &o.UpdatedAt)
 	return o, err
 }
@@ -80,9 +81,9 @@ func (d *Deps) CreateOPDVisit(c *gin.Context) {
 		id = uuid.NewString()
 	}
 	row := d.DB.QueryRow(c.Request.Context(),
-		`INSERT INTO opd_visits (id, name, phone, age_sex, doc, vdate, rvdate, btest, reminder)
-		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING `+opdVisitColumns,
-		id, in.Name, in.Phone, in.AgeSex, in.Doc, in.Vdate, in.Rvdate, in.Btest, in.Reminder)
+		`INSERT INTO opd_visits (id, patient_id, name, phone, age_sex, doc, vdate, rvdate, btest, reminder)
+		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING `+opdVisitColumns,
+		id, in.PatientID, in.Name, in.Phone, in.AgeSex, in.Doc, in.Vdate, in.Rvdate, in.Btest, in.Reminder)
 	o, err := scanOPDVisit(row)
 	if err != nil {
 		httpx.Conflict(c, "Failed to create OPD visit (id may already exist): "+err.Error())
@@ -99,10 +100,10 @@ func (d *Deps) UpdateOPDVisit(c *gin.Context) {
 		return
 	}
 	row := d.DB.QueryRow(c.Request.Context(),
-		`UPDATE opd_visits SET name = $2, phone = $3, age_sex = $4, doc = $5, vdate = $6, rvdate = $7, btest = $8,
-			reminder = $9, updated_at = now()
+		`UPDATE opd_visits SET patient_id = $2, name = $3, phone = $4, age_sex = $5, doc = $6, vdate = $7, rvdate = $8,
+			btest = $9, reminder = $10, updated_at = now()
 		 WHERE id = $1 RETURNING `+opdVisitColumns,
-		c.Param("id"), in.Name, in.Phone, in.AgeSex, in.Doc, in.Vdate, in.Rvdate, in.Btest, in.Reminder)
+		c.Param("id"), in.PatientID, in.Name, in.Phone, in.AgeSex, in.Doc, in.Vdate, in.Rvdate, in.Btest, in.Reminder)
 	o, err := scanOPDVisit(row)
 	if errors.Is(err, pgx.ErrNoRows) {
 		httpx.NotFound(c, "OPD visit not found")

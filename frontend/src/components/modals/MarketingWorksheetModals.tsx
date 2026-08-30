@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Megaphone, Plus, Wrench, X } from 'lucide-react';
 import { MarketingCampaign, WorksheetTask } from '../../types';
+import { getTodayISODate } from '../../utils/dateUtils';
 
 interface MarketingModalProps {
   isOpen: boolean;
@@ -15,9 +16,9 @@ export const MarketingModal: React.FC<MarketingModalProps> = ({
   campaignToEdit,
   onSaveCampaign,
 }) => {
-  const [doc, setDoc] = useState('Dr. Sayan Majumdar');
-  const [date, setDate] = useState('2026-08-23');
-  const [action, setAction] = useState('Handbill distribution & Announcement Miking');
+  const [doc, setDoc] = useState('');
+  const [date, setDate] = useState(getTodayISODate());
+  const [action, setAction] = useState('');
   const [status, setStatus] = useState<MarketingCampaign['status']>('7-Day Alert Active');
 
   useEffect(() => {
@@ -27,9 +28,9 @@ export const MarketingModal: React.FC<MarketingModalProps> = ({
       setAction(campaignToEdit.action);
       setStatus(campaignToEdit.status);
     } else {
-      setDoc('Dr. Sayan Majumdar');
-      setDate('2026-08-23');
-      setAction('Handbill distribution & Announcement Miking');
+      setDoc('');
+      setDate(getTodayISODate());
+      setAction('');
       setStatus('7-Day Alert Active');
     }
   }, [campaignToEdit, isOpen]);
@@ -156,8 +157,8 @@ export const WorksheetModal: React.FC<WorksheetModalProps> = ({
   onSaveTask,
 }) => {
   const [cat, setCat] = useState('Maintenance');
-  const [desc, setDesc] = useState('Fan & LED installation in OPD Chamber');
-  const [date, setDate] = useState('2026-08-20');
+  const [desc, setDesc] = useState('');
+  const [date, setDate] = useState(getTodayISODate());
   const [status, setStatus] = useState<WorksheetTask['status']>('Pending');
 
   useEffect(() => {
@@ -168,8 +169,8 @@ export const WorksheetModal: React.FC<WorksheetModalProps> = ({
       setStatus(taskToEdit.status);
     } else {
       setCat('Maintenance');
-      setDesc('Fan & LED installation in OPD Chamber');
-      setDate('2026-08-20');
+      setDesc('');
+      setDate(getTodayISODate());
       setStatus('Pending');
     }
   }, [taskToEdit, isOpen]);

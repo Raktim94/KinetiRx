@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Save, X } from 'lucide-react';
 import { PatientRecord } from '../../types';
+import { loadDoctors } from '../../data/doctors';
 
 interface EditPatientModalProps {
   isOpen: boolean;
@@ -24,13 +25,7 @@ export const EditPatientModal: React.FC<EditPatientModalProps> = ({
   const [customDoc, setCustomDoc] = useState('');
   const [reason, setReason] = useState('');
 
-  const knownDoctors = [
-    'Self Prescribed / OTC',
-    'Dr. Sayan Majumdar (Cardio)',
-    'Dr. T.K. Khan (Chest/Pulmo)',
-    'Dr. P. Sen (General Phys)',
-    'Dr. R. Mishra (Gynae)',
-  ];
+  const knownDoctors = ['Self Prescribed / OTC', ...loadDoctors()];
 
   useEffect(() => {
     if (patient) {

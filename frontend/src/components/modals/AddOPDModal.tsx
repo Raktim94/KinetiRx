@@ -218,7 +218,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
             <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-600 dark:text-sky-400">
               <Stethoscope className="w-4 h-4" />
             </div>
-            <span>Record OPD Patient Consultation (ওপিডি রোগী)</span>
+            <span>Record OPD Patient Consultation</span>
           </h3>
           <button onClick={onClose} className="text-text-muted hover:text-text p-1 rounded-lg transition cursor-pointer">
             <X className="w-5 h-5" />
@@ -230,7 +230,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
               <label className="font-medium text-text-muted block mb-1">
-                Patient Mobile Number <span className="text-text-muted font-normal">(মোবাইল)</span> *
+                Patient Mobile Number *
               </label>
               <input
                 type="text"
@@ -245,7 +245,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
 
             <div>
               <label className="font-medium text-text-muted block mb-1">
-                Patient ID <span className="text-text-muted font-normal">(অটো আইডি)</span>
+                Patient ID <span className="text-text-muted font-normal">(Auto)</span>
               </label>
               <input
                 type="text"
@@ -262,7 +262,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
               <label className="font-medium text-text-muted block mb-1">
-                Patient Full Name <span className="text-text-muted font-normal">(রোগীর নাম)</span> *
+                Patient Full Name *
               </label>
               <input
                 type="text"
@@ -290,7 +290,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <label className="font-medium text-text-muted block">
-                Assigned Doctor <span className="text-text-muted font-normal">(ডাক্তার)</span> *
+                Assigned Doctor *
               </label>
               <div className="flex items-center gap-1.5">
                 <button
@@ -304,7 +304,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
                   title="Remove or add doctors in preset list"
                 >
                   <Trash2 className="w-3 h-3 text-rose-600 dark:text-rose-400" />
-                  <span>{isManagingDoctors ? 'Close Manager' : 'Manage / Remove (ডাক্তার মুছুন)'}</span>
+                  <span>{isManagingDoctors ? 'Close Manager' : 'Manage / Remove'}</span>
                 </button>
 
                 {docSelect === 'CUSTOM' ? (
@@ -341,7 +341,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
                 <div className="flex items-center justify-between text-[11px] text-text-muted font-semibold border-b border-border pb-1.5">
                   <span className="flex items-center gap-1.5 text-rose-600 dark:text-rose-300">
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>ডাক্তার তালিকা থেকে মুছে ফেলুন (Click Remove to Delete):</span>
+                    <span>Click Remove to Delete:</span>
                   </span>
                   <span className="text-[10px] text-text-muted font-normal">
                     {doctorList.length} Doctors
@@ -350,7 +350,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
 
                 {doctorList.length === 0 ? (
                   <div className="p-3 text-center text-text-muted bg-surface rounded-xl text-[11px]">
-                    কোনো ডাক্তার সেভ করা নেই। নিচে নতুন ডাক্তার যোগ করুন।
+                    No doctors saved yet. Add a new doctor below.
                   </div>
                 ) : (
                   <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
@@ -422,11 +422,11 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
                 ))}
                 {doctorList.length === 0 && (
                   <option disabled value="">
-                    (কোনো ডাক্তার নেই - নিচে কাস্টম ডাক্তার লিখুন)
+                    (No doctors yet — type a custom doctor below)
                   </option>
                 )}
                 <option value="CUSTOM" className="bg-surface text-text">
-                  + Type Custom Doctor / নিজস্ব ডাক্তার লিখুন
+                  + Type Custom Doctor
                 </option>
               </select>
 
@@ -455,7 +455,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
                     )}
                   </div>
                   <p className="text-[10px] text-sky-700/80 dark:text-sky-300/80 pl-1">
-                    ✓ এই কাস্টম ডাক্তারের নামটি ওপিডি রেজিস্টার, প্রেসক্রিপশন ও এসএমএস রিমাইন্ডারে সেভ হবে।
+                    ✓ This custom doctor's name will be saved to the OPD register, prescriptions, and SMS reminders.
                   </p>
                 </div>
               )}

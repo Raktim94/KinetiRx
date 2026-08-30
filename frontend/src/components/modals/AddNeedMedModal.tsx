@@ -97,7 +97,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
   const [newDistEmail, setNewDistEmail] = useState('');
 
   // Order Commitment Time & Notes
-  const [time, setTime] = useState('Tomorrow Afternoon (আগামীকাল বিকেল)');
+  const [time, setTime] = useState('Tomorrow Afternoon');
   const [notes, setNotes] = useState('');
 
   // Quick Register New Patient inline toggle
@@ -450,7 +450,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
             <div className="w-8 h-8 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
               <FileCheck2 className="w-4 h-4" />
             </div>
-            <span>Special Need Medicine Order (জরুরি ওষুধ বুকিং)</span>
+            <span>Special Need Medicine Order</span>
           </h3>
           <button
             onClick={onClose}
@@ -466,7 +466,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
             <div className="flex justify-between items-center">
               <label className="font-bold text-primary flex items-center gap-1.5">
                 <UserCheck className="w-4 h-4 text-primary" />
-                <span>Link Registered Patient (রোগীর বিবরণ / আইডি):</span>
+                <span>Link Registered Patient:</span>
               </label>
 
               <button
@@ -619,7 +619,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
             <div className="flex justify-between items-center">
               <label className="font-bold text-text flex items-center gap-2">
                 <Pill className="w-4 h-4 text-primary" />
-                <span>Medicines Required List (প্রয়োজনীয় ওষুধের তালিকা)</span>
+                <span>Medicines Required List</span>
                 <span className="text-rose-600 dark:text-rose-400">*</span>
               </label>
               <span className="text-[11px] text-text-muted font-mono">
@@ -745,7 +745,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
                         <div className="text-right shrink-0 ml-2">
                           {m.stock > 0 ? (
                             <span className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-emerald-500/30 font-bold block">
-                              স্টকে আছে (In Stock): {m.stock}
+                              In Stock: {m.stock}
                             </span>
                           ) : (
                             <span className="bg-rose-500/20 text-rose-700 dark:text-rose-300 text-[10px] px-2 py-0.5 rounded-md font-mono border border-rose-500/30 font-bold block">
@@ -772,7 +772,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
               className="w-full py-2.5 bg-primary/10 hover:bg-primary/20 text-primary border border-dashed border-primary/40 rounded-xl font-bold flex items-center justify-center gap-1.5 transition cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Add Another Medicine (আরও ওষুধ যোগ করুন)</span>
+              <span>+ Add Another Medicine</span>
             </button>
           </div>
 
@@ -781,7 +781,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
             <div className="flex justify-between items-center flex-wrap gap-2">
               <label className="font-bold text-text flex items-center gap-1.5">
                 <Truck className="w-4 h-4 text-primary" />
-                <span>Procure From Distributor / Supplier (ডিলার / সরবরাহকারী):</span>
+                <span>Procure From Distributor / Supplier:</span>
               </label>
 
               <button
@@ -790,7 +790,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
                 className="text-[11px] text-primary hover:text-text font-semibold flex items-center gap-1 bg-primary/15 hover:bg-primary/25 border border-primary/40 px-2.5 py-1 rounded-xl transition cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
-                <span>+ Register New Supplier (নতুন ডিস্ট্রিবিউটর)</span>
+                <span>+ Register New Supplier</span>
               </button>
             </div>
 
@@ -903,7 +903,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
                 <div className="flex justify-between items-center border-b border-border pb-1.5">
                   <div className="flex items-center gap-1.5 font-bold text-xs text-text">
                     <Building2 className="w-4 h-4 text-primary" />
-                    <span>Register New Distributor / Supplier (নতুন সরবরাহকারী রেজিস্ট্রেশন)</span>
+                    <span>Register New Distributor / Supplier</span>
                   </div>
                   <button
                     type="button"
@@ -1012,13 +1012,13 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="font-semibold text-text-muted block mb-1">
-                Promise Delivery Time (ডেলিভারি সময়)
+                Promise Delivery Time
               </label>
               <input
                 type="text"
                 value={time}
                 onChange={e => setTime(e.target.value)}
-                placeholder="e.g. Tomorrow Afternoon (আগামীকাল বিকেল)"
+                placeholder="e.g. Tomorrow Afternoon"
                 className="w-full p-2.5 bg-surface border border-border rounded-xl text-text placeholder:text-text-muted outline-none focus:border-primary text-xs"
                 required
               />

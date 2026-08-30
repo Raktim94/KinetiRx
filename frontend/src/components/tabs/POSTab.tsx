@@ -957,7 +957,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                                 : 'text-rose-600 dark:text-rose-400'
                             }`}
                           >
-                            {item.stock > 0 ? 'স্টকে আছে (In Stock)' : 'স্টক নেই (Out of Stock)'}
+                            {item.stock > 0 ? 'In Stock' : 'Out of Stock'}
                           </span>
                           <span className="block text-[10px] text-text-muted">
                             Rack: <b className="text-text">{item.rack}</b>

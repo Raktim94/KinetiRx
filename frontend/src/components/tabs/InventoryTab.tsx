@@ -15,11 +15,13 @@ import {
   Tags,
   Trash2,
   Truck,
+  Upload,
 } from 'lucide-react';
 import { InvoiceConfig, Medicine } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
 import { getCurrencySymbol } from '../../utils/currency';
 import { BarcodeModal } from '../modals/BarcodeModal';
+import { ImportStockModal } from '../modals/ImportStockModal';
 
 interface InventoryTabProps {
   invoiceConfig?: InvoiceConfig;
@@ -44,7 +46,13 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'meds' | 'labs' | 'low' | 'expiry'>('all');
-  const [barcodeTarget, setBarcodeTarget] = useState<Medicine | null>(null);
+  // Stores just the id, not a snapshot of the Medicine object — BarcodeModal
+  // re-derives the live item from `medicines` below every render, so it
+  // reflects a freshly-generated barcode immediately instead of showing
+  // "No barcode assigned yet." until the modal is closed and reopened.
+  const [barcodeTargetId, setBarcodeTargetId] = useState<string | null>(null);
+  const barcodeTarget = medicines.find(m => m.id === barcodeTargetId) || null;
+  const [showImportModal, setShowImportModal] = useState(false);
   const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
 
   const filtered = medicines.filter(m => {
@@ -107,7 +115,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         m.dist,
         m.hsn,
         m.batch,
-        m.isLabTest ? (m.trackStock ? `${m.stock} Kits` : 'Service (No Limit)') : `${m.stock} Strips`,
+        m.isLabTest ? (m.trackStock ? `${m.stock} Kits` : 'Service (No Limit)') : `${m.stock} Units`,
         m.rate.toFixed(2),
         m.omrp.toFixed(2),
         m.mrp.toFixed(2),
@@ -185,6 +193,15 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Excel</span>
+          </button>
+
+          <button
+            id="btn-import-stock"
+            onClick={() => setShowImportModal(true)}
+            className="bg-surface-elevated hover:bg-border text-text border border-border font-semibold px-3.5 py-2 rounded-2xl text-xs flex items-center gap-1.5 backdrop-blur-md transition cursor-pointer"
+          >
+            <Upload className="w-3.5 h-3.5 text-primary" />
+            <span>Import CSV / Excel</span>
           </button>
 
           {/* ADD NEW STOCK BUTTON */}
@@ -429,7 +446,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                               : 'bg-surface-elevated text-text border border-border'
                           }`}
                         >
-                          {i.stock} Strips
+                          {i.stock} Units
                         </span>
                       )}
                     </td>
@@ -490,7 +507,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     <td className="p-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => setBarcodeTarget(i)}
+                          onClick={() => setBarcodeTargetId(i.id)}
                           className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/30 text-primary transition border border-primary/20"
                           title={`Barcode for ${i.name}`}
                         >
@@ -515,10 +532,18 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 
       <BarcodeModal
         isOpen={!!barcodeTarget}
-        onClose={() => setBarcodeTarget(null)}
+        onClose={() => setBarcodeTargetId(null)}
         medicine={barcodeTarget}
         medicines={medicines}
         setMedicines={setMedicines}
+      />
+
+      <ImportStockModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={imported => {
+          if (setMedicines) setMedicines(prev => [...imported, ...prev]);
+        }}
       />
     </div>
   );

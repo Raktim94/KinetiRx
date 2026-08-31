@@ -36,16 +36,17 @@ type medicineInput struct {
 	IsLabTest    bool    `json:"isLabTest"`
 	TrackStock   *bool   `json:"trackStock"`
 	ItemType     string  `json:"itemType"`
+	Barcode      *string `json:"barcode"`
 }
 
 const medicineColumns = `id, name, company, dist, distributor_id, hsn, batch, pack, salt, generic, group_name, rack,
-	stock, rate, omrp, mrp, scheme, gst, disc, tabs_per_strip, expiry, is_lab_test, track_stock, item_type, created_at, updated_at`
+	stock, rate, omrp, mrp, scheme, gst, disc, tabs_per_strip, expiry, is_lab_test, track_stock, item_type, barcode, created_at, updated_at`
 
 func scanMedicine(row pgx.Row) (models.Medicine, error) {
 	var m models.Medicine
 	err := row.Scan(&m.ID, &m.Name, &m.Company, &m.Dist, &m.Distributor, &m.HSN, &m.Batch, &m.Pack, &m.Salt, &m.Generic,
 		&m.Group, &m.Rack, &m.Stock, &m.Rate, &m.OMRP, &m.MRP, &m.Scheme, &m.GST, &m.Disc, &m.TabsPerStrip, &m.Expiry,
-		&m.IsLabTest, &m.TrackStock, &m.ItemType, &m.CreatedAt, &m.UpdatedAt)
+		&m.IsLabTest, &m.TrackStock, &m.ItemType, &m.Barcode, &m.CreatedAt, &m.UpdatedAt)
 	return m, err
 }
 
@@ -107,16 +108,16 @@ func (d *Deps) CreateMedicine(c *gin.Context) {
 
 	const q = `
 		INSERT INTO medicines (id, name, company, dist, distributor_id, hsn, batch, pack, salt, generic, group_name, rack,
-			stock, rate, omrp, mrp, scheme, gst, disc, tabs_per_strip, expiry, is_lab_test, track_stock, item_type)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
+			stock, rate, omrp, mrp, scheme, gst, disc, tabs_per_strip, expiry, is_lab_test, track_stock, item_type, barcode)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
 		RETURNING ` + medicineColumns
 
 	row := d.DB.QueryRow(c.Request.Context(), q, id, in.Name, in.Company, in.Dist, in.Distributor, in.HSN, in.Batch,
 		in.Pack, in.Salt, in.Generic, in.Group, in.Rack, in.Stock, in.Rate, in.OMRP, in.MRP, in.Scheme, in.GST, in.Disc,
-		in.TabsPerStrip, in.Expiry, in.IsLabTest, trackStock, itemType)
+		in.TabsPerStrip, in.Expiry, in.IsLabTest, trackStock, itemType, in.Barcode)
 	m, err := scanMedicine(row)
 	if err != nil {
-		httpx.Conflict(c, "Failed to create medicine (id may already exist): "+err.Error())
+		httpx.Conflict(c, "Failed to create medicine (id may already exist, or barcode already assigned to another item): "+err.Error())
 		return
 	}
 	d.Events.Publish("medicines")
@@ -144,20 +145,20 @@ func (d *Deps) UpdateMedicine(c *gin.Context) {
 			name = $2, company = $3, dist = $4, distributor_id = $5, hsn = $6, batch = $7, pack = $8, salt = $9,
 			generic = $10, group_name = $11, rack = $12, stock = $13, rate = $14, omrp = $15, mrp = $16, scheme = $17,
 			gst = $18, disc = $19, tabs_per_strip = $20, expiry = $21, is_lab_test = $22, track_stock = $23,
-			item_type = $24, updated_at = now()
+			item_type = $24, barcode = $25, updated_at = now()
 		WHERE id = $1
 		RETURNING ` + medicineColumns
 
 	row := d.DB.QueryRow(c.Request.Context(), q, c.Param("id"), in.Name, in.Company, in.Dist, in.Distributor, in.HSN,
 		in.Batch, in.Pack, in.Salt, in.Generic, in.Group, in.Rack, in.Stock, in.Rate, in.OMRP, in.MRP, in.Scheme, in.GST,
-		in.Disc, in.TabsPerStrip, in.Expiry, in.IsLabTest, trackStock, itemType)
+		in.Disc, in.TabsPerStrip, in.Expiry, in.IsLabTest, trackStock, itemType, in.Barcode)
 	m, err := scanMedicine(row)
 	if errors.Is(err, pgx.ErrNoRows) {
 		httpx.NotFound(c, "Medicine not found")
 		return
 	}
 	if err != nil {
-		httpx.Internal(c, "Failed to update medicine")
+		httpx.Internal(c, "Failed to update medicine (a duplicate barcode is a likely cause): "+err.Error())
 		return
 	}
 	d.Events.Publish("medicines")

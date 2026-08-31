@@ -411,20 +411,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </nav>
 
-        {/* Sidebar Status Pill (Storage / System Health) */}
-        <div className="px-3 py-2">
-          <div className="p-3 rounded-2xl bg-primary/8 border border-border backdrop-blur-xl">
-            <div className="flex justify-between items-center mb-1.5">
-              <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Cloud Sync & DB</p>
-              <span className="text-[10px] font-mono text-success font-semibold">Online</span>
-            </div>
-            <div className="h-1.5 w-full bg-bg rounded-full overflow-hidden mb-1.5">
-              <div className="h-full w-[78%] bg-primary rounded-full" />
-            </div>
-            <p className="text-[11px] text-text-muted font-mono">100% Encrypted Local ERP</p>
-          </div>
-        </div>
-
         {/* Sidebar Footer with Switch User Button */}
         <div className="p-3 border-t border-border text-[11px] flex items-center justify-between">
           {onOpenSwitchUser && (

@@ -46,6 +46,7 @@ type Medicine struct {
 	IsLabTest    bool      `json:"isLabTest"`
 	TrackStock   bool      `json:"trackStock"`
 	ItemType     string    `json:"itemType"`
+	Barcode      *string   `json:"barcode,omitempty"`
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 }

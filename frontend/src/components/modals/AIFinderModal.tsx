@@ -173,7 +173,7 @@ export const AIFinderModal: React.FC<AIFinderModalProps> = ({
                           <p className="font-bold text-text">{item.name}</p>
                           <p className="text-[10px] text-text-muted">
                             Rack: <b className="text-primary">{item.rack}</b> • Stock:{' '}
-                            <b className="text-emerald-600 dark:text-emerald-400">{item.stock} Strips</b>
+                            <b className="text-emerald-600 dark:text-emerald-400">{item.stock} Units</b>
                           </p>
                           <p className="text-xs font-bold text-text font-mono mt-0.5">
                             MRP: {currencySymbol} {item.mrp.toFixed(2)}

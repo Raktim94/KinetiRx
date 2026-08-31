@@ -41,6 +41,7 @@ import { formatWhatsAppPhone } from '../../utils/exportCsv';
 import { getTodayISODate } from '../../utils/dateUtils';
 import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
 import { CameraScannerModal } from '../modals/CameraScannerModal';
+import { BarcodeModal } from '../modals/BarcodeModal';
 import { getCurrencySymbol } from '../../utils/currency';
 
 export interface POSTabProps {
@@ -258,6 +259,16 @@ export const POSTab: React.FC<POSTabProps> = ({
   // Barcode scan (hardware USB scanner + camera) → find matching medicine/lab test and add to cart
   const [showCameraScanner, setShowCameraScanner] = useState(false);
   const [scanFeedback, setScanFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+  // Generate/print a barcode for a stock item right from the billing counter
+  // (previously only reachable via the Inventory tab) — reuses the same
+  // BarcodeModal + EAN-13 generator as InventoryTab. Only items actually
+  // backed by `medicines` (real stock rows) can get one; the separate
+  // hardcoded `labTests` demo list has no persisted record to attach it to.
+  // Stores just the id and re-derives the live item from `medicines` on
+  // every render, so a freshly-generated barcode shows immediately instead
+  // of leaving the modal stuck on "No barcode assigned yet."
+  const [barcodeTargetId, setBarcodeTargetId] = useState<string | null>(null);
+  const barcodeTarget = medicines.find(m => m.id === barcodeTargetId) || null;
 
   const handleBarcodeScan = (code: string) => {
     const trimmed = code.trim();
@@ -305,7 +316,7 @@ export const POSTab: React.FC<POSTabProps> = ({
   // Prompt for loose units
   const handlePromptLoose = (med: Medicine) => {
     const tabs = med.tabsPerStrip || 10;
-    const input = window.prompt(`How many loose tablets for ${med.name}? (Max per strip: ${tabs})`, '2');
+    const input = window.prompt(`How many loose units for ${med.name}? (Units per pack: ${tabs})`, '2');
     if (!input) return;
     const count = parseInt(input, 10);
     if (!isNaN(count) && count > 0) {
@@ -907,6 +918,14 @@ export const POSTab: React.FC<POSTabProps> = ({
             <CameraScannerModal onClose={() => setShowCameraScanner(false)} onScan={handleBarcodeScan} />
           )}
 
+          <BarcodeModal
+            isOpen={!!barcodeTarget}
+            onClose={() => setBarcodeTargetId(null)}
+            medicine={barcodeTarget}
+            medicines={medicines}
+            setMedicines={setMedicines}
+          />
+
           {/* Items Table */}
           <div className="overflow-y-auto max-h-80 border border-border rounded-2xl bg-surface backdrop-blur-md">
             <table className="w-full text-left border-collapse text-xs">
@@ -962,7 +981,7 @@ export const POSTab: React.FC<POSTabProps> = ({
                               isLowStock ? 'text-rose-600 dark:text-rose-400' : 'text-text'
                             }`}
                           >
-                            {item.stock} Strips
+                            {item.stock} Units
                           </span>
                           <span
                             className={`block text-[10px] font-semibold ${
@@ -1010,6 +1029,16 @@ export const POSTab: React.FC<POSTabProps> = ({
                             >
                               <Undo2 className="w-3 h-3" /> Return
                             </button>
+                            {medicines.some(m => m.id === item.id) && (
+                              <button
+                                type="button"
+                                onClick={() => setBarcodeTargetId(item.id)}
+                                title={item.barcode ? 'View / print barcode' : 'Generate a barcode for this item'}
+                                className="bg-primary/10 hover:bg-primary/25 text-primary border border-primary/30 p-1 rounded-lg transition cursor-pointer backdrop-blur-sm"
+                              >
+                                <BarcodeIcon className="w-3 h-3" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

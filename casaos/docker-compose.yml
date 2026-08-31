@@ -166,8 +166,6 @@ x-casaos:
       after every refresh; barcodes generated from now on persist properly
       and the barcode dialog updates immediately instead of needing to be
       reopened. Added a barcode/print action directly to POS item rows.
-      Removed the non-functional "Cloud Sync & DB" status panel from the
-      sidebar.
 
       1.4.2: Fixed Add Stock's "Type New Custom Distributor" option doing
       nothing on a fresh install with no distributors yet. Removed

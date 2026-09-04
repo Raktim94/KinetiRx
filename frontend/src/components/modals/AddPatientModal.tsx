@@ -12,7 +12,7 @@ import {
 import { PatientRecord } from '../../types';
 import { getTodayISODate } from '../../utils/dateUtils';
 import { loadDoctors } from '../../data/doctors';
-import { nextPatientIdApi } from '../../lib/api';
+import { getNextSequentialPatientId, reserveNextPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -31,21 +31,12 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
   // Local-only fallback used for the instant initial suggestion and if the
   // server reservation below fails (e.g. offline) — never the value actually
-  // submitted once a server-reserved ID has landed, since two terminals
-  // scanning their own locally loaded `existingPatients` list can compute
-  // the same "next" number and collide on patients.id (see AddPatientModal
-  // fix notes / migration 0009_patient_id_sequence).
-  const getLocalFallbackId = () => {
-    let maxNum = 100;
-    existingPatients.forEach(p => {
-      const match = p.id.match(/P\/(\d+)/i) || p.id.match(/PAT-(\d+)/i);
-      if (match && match[1]) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNum) maxNum = num;
-      }
-    });
-    return `P/${maxNum + 1}`;
-  };
+  // submitted once a server-reserved ID has landed. Shared with every other
+  // patient-creating modal via utils/patientUtils so the guess is always a
+  // plain raw number scanning every patient registered anywhere in the app,
+  // not just this modal's own locally loaded list (see migration
+  // 0009_patient_id_sequence).
+  const getLocalFallbackId = () => getNextSequentialPatientId(existingPatients);
 
   const [patientId, setPatientId] = useState(getLocalFallbackId());
   // Tracks the last value we auto-filled, so a background server reservation
@@ -91,16 +82,11 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
     // Field is still on our own unconfirmed guess — reserve the real,
     // collision-safe ID now, right before it's actually persisted.
-    let finalId = patientId.trim() || getLocalFallbackId();
+    let finalId = stripPatientIdPrefix(patientId) || getLocalFallbackId();
     if (patientId === autoFilledIdRef.current) {
-      try {
-        const { id } = await nextPatientIdApi.reserve();
-        finalId = `P/${id}`;
-        setPatientId(finalId);
-        autoFilledIdRef.current = finalId;
-      } catch (err) {
-        console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
-      }
+      finalId = await reserveNextPatientId(existingPatients);
+      setPatientId(finalId);
+      autoFilledIdRef.current = finalId;
     }
 
     const finalDoc = docSelect === 'CUSTOM' ? customDoc.trim() || 'Other Doctor' : docSelect;
@@ -167,14 +153,19 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
               <label className="font-semibold text-text-muted block mb-1">
                 Patient ID
               </label>
-              <input
-                type="text"
-                value={patientId}
-                onChange={e => setPatientId(e.target.value)}
-                placeholder="P/107"
-                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-primary outline-none focus:border-primary"
-                required
-              />
+              <div className="flex items-stretch rounded-xl border border-border bg-surface focus-within:border-primary overflow-hidden">
+                <span className="flex items-center pl-2.5 pr-1 font-mono font-bold text-text-muted select-none">
+                  P-
+                </span>
+                <input
+                  type="text"
+                  value={stripPatientIdPrefix(patientId)}
+                  onChange={e => setPatientId(stripPatientIdPrefix(e.target.value))}
+                  placeholder="107"
+                  className="w-full p-2.5 pl-0 bg-transparent font-mono font-bold text-primary outline-none"
+                  required
+                />
+              </div>
             </div>
 
             <div className="col-span-2">

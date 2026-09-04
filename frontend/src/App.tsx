@@ -1190,7 +1190,36 @@ export function App() {
         distributors={distributors}
         setDistributors={setDistributors}
         medicineGroups={medicineGroups}
-        onSaveMedicine={m => setMedicines(prev => [m, ...prev])}
+        onSaveMedicine={m =>
+          setMedicines(prev => {
+            // New stock of an item already on the shelf should top up that
+            // item's quantity, not create a second, duplicate-looking row —
+            // matched the same way InwardOCRTab's auto-scan already merges
+            // incoming stock: by name, or by batch number when both are set.
+            const existingIdx = prev.findIndex(
+              p =>
+                p.name.trim().toLowerCase() === m.name.trim().toLowerCase() ||
+                (m.batch && p.batch && p.batch.trim().toLowerCase() === m.batch.trim().toLowerCase())
+            );
+            if (existingIdx === -1) return [m, ...prev];
+            const updated = [...prev];
+            const current = updated[existingIdx];
+            updated[existingIdx] = {
+              ...current,
+              stock: Number((current.stock + m.stock).toFixed(2)),
+              rate: m.rate || current.rate,
+              omrp: m.omrp || current.omrp,
+              mrp: m.mrp || current.mrp,
+              batch: m.batch || current.batch,
+              expiry: m.expiry || current.expiry,
+              hsn: m.hsn || current.hsn,
+              gst: m.gst || current.gst,
+              dist: m.dist || current.dist,
+              rack: m.rack || current.rack,
+            };
+            return updated;
+          })
+        }
       />
 
       {/* 4C. Manage Doctor / Stock Groups Modal */}

@@ -15,6 +15,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { Distributor, InvoiceConfig, NeededMedOrder, PatientRecord } from '../../types';
+import { formatPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 import { exportToCSV } from '../../utils/exportCsv';
 import {
   downloadPurchaseOrder,
@@ -96,7 +97,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
       !search ||
       n.med.toLowerCase().includes(q) ||
       n.name.toLowerCase().includes(q) ||
-      (n.patientId && n.patientId.toLowerCase().includes(q)) ||
+      (n.patientId && stripPatientIdPrefix(n.patientId).toLowerCase().includes(stripPatientIdPrefix(search).toLowerCase())) ||
       n.phone.includes(search) ||
       n.dist.toLowerCase().includes(q);
 
@@ -121,7 +122,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
       ],
       neededMeds.map(n => [
         n.id,
-        n.patientId || 'N/A',
+        n.patientId ? formatPatientId(n.patientId) : 'N/A',
         n.med,
         n.name,
         n.phone,
@@ -135,7 +136,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
 
   const handlePatientClick = (patientId?: string) => {
     if (!patientId || !onViewPatientProfile) return;
-    const found = patients.find(p => p.id === patientId);
+    const found = patients.find(p => stripPatientIdPrefix(p.id) === stripPatientIdPrefix(patientId));
     if (found) {
       onViewPatientProfile(found);
     }
@@ -245,7 +246,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by Patient ID (e.g. P/101), Patient Name, Medicine, Phone, or Distributor..."
+            placeholder="Search by Patient ID (e.g. P-101 or 101), Patient Name, Medicine, Phone, or Distributor..."
             className="w-full pl-9 pr-3 py-2 bg-bg border border-border rounded-xl text-xs text-text placeholder:text-text-muted outline-none focus:border-primary"
           />
         </div>
@@ -303,7 +304,7 @@ export const MedicineOrdersTab: React.FC<MedicineOrdersTabProps> = ({
                             className="font-mono text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-500/15 border border-teal-500/30 px-1.5 py-0.5 rounded hover:bg-teal-500/25 transition cursor-pointer"
                             title="Click to view Patient Profile CV"
                           >
-                            {n.patientId}
+                            {formatPatientId(n.patientId)}
                           </button>
                         ) : (
                           <span className="font-mono text-[10px] text-text-muted bg-surface-elevated px-1.5 py-0.5 rounded">

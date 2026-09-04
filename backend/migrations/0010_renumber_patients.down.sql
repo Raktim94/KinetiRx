@@ -1,0 +1,4 @@
+-- Not reversible: the original (pre-renumbering) patient IDs are not
+-- recorded anywhere, so there is nothing to restore them to. Down is a
+-- deliberate no-op — rolling back only this migration leaves the clean
+-- 1..N numbering in place, which is safe to keep.

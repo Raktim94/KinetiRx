@@ -1,4 +1,5 @@
 import { Distributor, InvoiceConfig, NeededMedOrder } from '../types';
+import { formatPatientId } from './patientUtils';
 import { downloadHtml, escHtml as esc, printHtml } from './printUtils';
 
 // Groups the shortage book's still-open orders ("Pending" — not yet ordered,
@@ -37,7 +38,7 @@ export function buildPurchaseOrderHtml(
         <td class="c">${idx + 1}</td>
         <td class="b">${esc(o.med)}</td>
         <td class="c">${o.qty}</td>
-        <td>${esc(o.name)}${o.patientId ? ` (${esc(o.patientId)})` : ''}</td>
+        <td>${esc(o.name)}${o.patientId ? ` (${esc(formatPatientId(o.patientId))})` : ''}</td>
         <td>${esc(o.time || '-')}</td>
       </tr>`
     )

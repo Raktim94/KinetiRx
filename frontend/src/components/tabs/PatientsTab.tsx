@@ -24,6 +24,7 @@ import { getCurrencySymbol } from '../../utils/currency';
 import { AddPatientModal } from '../modals/AddPatientModal';
 import { EditPatientModal } from '../modals/EditPatientModal';
 import { ScanPatientIdModal } from '../modals/ScanPatientIdModal';
+import { formatPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 
 interface PatientsTabProps {
   invoiceConfig?: InvoiceConfig;
@@ -54,7 +55,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
     const matchesSearch =
       !search ||
       p.name.toLowerCase().includes(q) ||
-      p.id.toLowerCase().includes(q) ||
+      stripPatientIdPrefix(p.id).toLowerCase().includes(stripPatientIdPrefix(search).toLowerCase()) ||
       p.phone.includes(search) ||
       (p.addr && p.addr.toLowerCase().includes(q)) ||
       (p.doc && p.doc.toLowerCase().includes(q));
@@ -94,7 +95,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
         'Last Visit Date',
       ],
       patients.map(p => [
-        p.id,
+        formatPatientId(p.id),
         p.name,
         p.phone,
         `${p.age || '50'} Yrs / ${p.gender || 'M'}`,
@@ -196,7 +197,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
             id="patient-search-input"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by Patient ID (e.g. P/101), Name, Mobile Number, Address, Doctor..."
+            placeholder="Search by Patient ID (e.g. P-101 or 101), Name, Mobile Number, Address, Doctor..."
             className="w-full pl-9 pr-3 py-2 glass-input rounded-xl text-xs"
           />
         </div>
@@ -245,7 +246,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
                   <tr key={p.id} className="hover:bg-bg transition group">
                     <td className="p-3.5 font-mono font-bold text-primary">
                       <span className="bg-primary/12 border border-primary/30 px-2 py-0.5 rounded-md">
-                        {p.id}
+                        {formatPatientId(p.id)}
                       </span>
                     </td>
                     <td className="p-3.5 font-bold text-text text-sm">

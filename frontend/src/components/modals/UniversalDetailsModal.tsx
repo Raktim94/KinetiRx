@@ -38,6 +38,7 @@ import {
   SalesRecord,
 } from '../../types';
 import { getCurrencySymbol } from '../../utils/currency';
+import { formatPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 
 export type ModalType =
   | 'expiry'
@@ -246,7 +247,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-text">Patient Medical Profile: {selectedPatient.name}</h3>
                 <p className="text-[11px] text-text-muted font-mono">
-                  ID: {selectedPatient.id} • Phone: {selectedPatient.phone}
+                  ID: {formatPatientId(selectedPatient.id)} • Phone: {selectedPatient.phone}
                 </p>
               </div>
             </div>
@@ -582,7 +583,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
             // Match invoices from salesHistory for this patient
             const patientSales = salesHistory.filter(
               s =>
-                (s.patientId && s.patientId.toLowerCase() === selectedPatient.id.toLowerCase()) ||
+                (s.patientId && stripPatientIdPrefix(s.patientId).toLowerCase() === stripPatientIdPrefix(selectedPatient.id).toLowerCase()) ||
                 (s.phone && selectedPatient.phone && s.phone === selectedPatient.phone) ||
                 (s.cust && s.cust.toLowerCase() === selectedPatient.name.toLowerCase()) ||
                 (s.patient && s.patient.toLowerCase() === selectedPatient.name.toLowerCase())
@@ -603,7 +604,7 @@ export const UniversalDetailsModal: React.FC<UniversalDetailsModalProps> = ({
                       <span className="text-text-muted block text-[10px] uppercase font-semibold">Patient ID & Name:</span>
                       <span className="font-bold text-text block">{selectedPatient.name}</span>
                       <span className="font-mono text-xs text-teal-700 dark:text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded font-bold inline-block mt-0.5">
-                        {selectedPatient.id}
+                        {formatPatientId(selectedPatient.id)}
                       </span>
                     </div>
                     <div>

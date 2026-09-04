@@ -20,7 +20,7 @@ interface HeaderProps {
 const tabTitles: Record<string, { title: string; subtitle: string }> = {
   dashboard: { title: 'Dashboard & Analytics', subtitle: 'Overview & Alerts' },
   'daily-sales': { title: 'Daily Sales & Drawer Register', subtitle: 'Daily Sales & Cash Drawer' },
-  pos: { title: 'Smart Pharmacy & Lab POS', subtitle: 'Counter Billing & Invoicing' },
+  pos: { title: 'POS', subtitle: 'Counter Billing & Invoicing' },
   'due-khata': { title: 'Patient Due Register', subtitle: 'Patient Dues & Reminders' },
   opd: { title: 'OPD & Re-visit Clinical Register', subtitle: 'OPD Visits & Follow-ups' },
   patients: { title: 'Patient Database Profiles', subtitle: 'Patient Database & History' },

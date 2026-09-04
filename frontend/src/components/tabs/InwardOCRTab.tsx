@@ -730,12 +730,18 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     setEditingItemIdx(null);
     setEditFormData(null);
 
-    // Apply granular updates to live medicine catalog without touching other items
+    // Apply granular updates to live medicine catalog without touching other
+    // items. Matched against oldItem (the name/batch this row was actually
+    // committed to stock under), never editFormData — matching on the new,
+    // just-corrected name means "fixing a garbled OCR name" (the whole
+    // point of this edit form) can never find the already-committed record
+    // it's supposed to be fixing, silently leaving the garbled duplicate in
+    // live stock while the review table shows the correction as applied.
     setMedicines(prev =>
       prev.map(m => {
         if (
-          m.name.trim().toLowerCase() === editFormData.name.trim().toLowerCase() ||
-          (editFormData.batch && m.batch && m.batch.trim().toLowerCase() === editFormData.batch.trim().toLowerCase())
+          m.name.trim().toLowerCase() === oldItem.name.trim().toLowerCase() ||
+          (oldItem.batch && m.batch && m.batch.trim().toLowerCase() === oldItem.batch.trim().toLowerCase())
         ) {
           return {
             ...m,

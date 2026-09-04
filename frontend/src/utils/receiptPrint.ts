@@ -1,4 +1,5 @@
 import { InvoiceConfig, InvoicePrintData } from '../types';
+import { formatPatientId } from './patientUtils';
 import { escHtml as esc, printHtml } from './printUtils';
 import { getCurrencySymbol } from './currency';
 
@@ -178,7 +179,7 @@ function buildA4Html(config: InvoiceConfig, invoice: InvoicePrintData): string {
     <div class="grid-2">
       <div>
         <div class="sec-title">Patient Information</div>
-        <div>Patient ID: ${esc(invoice.patientId)}</div>
+        <div>Patient ID: ${esc(formatPatientId(invoice.patientId))}</div>
         <div class="b">${esc(invoice.patientName)}</div>
         <div>Phone: ${esc(invoice.phone)}</div>
         <div>${esc(invoice.ageGender)} • ${esc(invoice.address)}</div>

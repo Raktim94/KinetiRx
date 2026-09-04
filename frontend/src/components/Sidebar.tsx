@@ -185,7 +185,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   >
                     <div className="flex items-center space-x-2.5">
                       <Receipt className="w-4 h-4 text-success" />
-                      <span>Smart Pharmacy POS</span>
+                      <span>POS</span>
                     </div>
                     <span className="bg-success/15 text-success border border-success/30 text-[10px] font-bold px-2 py-0.5 rounded-full">
                       Live

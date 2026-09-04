@@ -43,7 +43,7 @@ import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
 import { CameraScannerModal } from '../modals/CameraScannerModal';
 import { BarcodeModal } from '../modals/BarcodeModal';
 import { getCurrencySymbol } from '../../utils/currency';
-import { nextPatientIdApi } from '../../lib/api';
+import { formatPatientId, getNextSequentialPatientId, reserveNextPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 
 export interface POSTabProps {
   medicines: Medicine[];
@@ -92,7 +92,7 @@ export const POSTab: React.FC<POSTabProps> = ({
 
   // Patient Form States
   const [phone, setPhone] = useState('');
-  const [patientId, setPatientId] = useState(() => getLocalFallbackPatientId(patientsDue));
+  const [patientId, setPatientId] = useState(() => getNextSequentialPatientId([...patients, ...patientsDue]));
   const [patientName, setPatientName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('Male');
@@ -116,20 +116,14 @@ export const POSTab: React.FC<POSTabProps> = ({
   const [checkoutSuccessMsg, setCheckoutSuccessMsg] = useState<string | null>(null);
 
   // Local-only fallback for the instant initial suggestion and for when the
-  // server reservation below fails (e.g. offline). Scanning the locally
-  // loaded `patientsDue` list for "highest number + 1" is what let two POS
-  // terminals compute the same "next" ID and collide on patients.id — see
-  // backend/migrations/0009_patient_id_sequence.
-  function getLocalFallbackPatientId(list: PatientRecord[]): string {
-    let maxNum = 100;
-    list.forEach(p => {
-      if (p.id && p.id.startsWith('P/')) {
-        const num = parseInt(p.id.replace('P/', ''), 10);
-        if (!isNaN(num) && num > maxNum) maxNum = num;
-      }
-    });
-    return `P/${maxNum + 1}`;
-  }
+  // server reservation below fails (e.g. offline). Shared with every other
+  // patient-creating modal (AddOPDModal etc.) via utils/patientUtils so the
+  // guess is always a plain raw number ("148", never "P/148" baked into the
+  // stored id) and always accounts for patients registered anywhere in the
+  // app — POS previously scanned only patientsDue for ids already carrying
+  // a literal "P/" prefix, so it could suggest a number lower than one
+  // already issued by the OPD modal (which never used that prefix).
+  const allKnownPatients = [...patients, ...patientsDue];
 
   // Tracks the last value we auto-filled, so we can tell whether the field
   // still holds our own guess (vs. one matched from an existing patient, or
@@ -145,7 +139,7 @@ export const POSTab: React.FC<POSTabProps> = ({
   // which is why the suggested ID kept jumping around and never matched a
   // real saved patient.
   const refreshLocalPatientIdGuess = () => {
-    const guess = getLocalFallbackPatientId(patientsDue);
+    const guess = getNextSequentialPatientId(allKnownPatients);
     setPatientId(guess);
     autoFilledPatientIdRef.current = guess;
   };
@@ -155,13 +149,7 @@ export const POSTab: React.FC<POSTabProps> = ({
   // handleGenerateBill, and only when the field is still on our own
   // unconfirmed guess for a patient that doesn't already exist.
   const reserveConfirmedPatientId = async (): Promise<string> => {
-    try {
-      const { id } = await nextPatientIdApi.reserve();
-      return `P/${id}`;
-    } catch (err) {
-      console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
-      return getLocalFallbackPatientId(patientsDue);
-    }
+    return reserveNextPatientId(allKnownPatients);
   };
 
   // Auto match patient by phone
@@ -176,7 +164,7 @@ export const POSTab: React.FC<POSTabProps> = ({
         patients.find(p => p.phone && p.phone.replace(/[^0-9]/g, '') === cleaned);
 
       if (matched) {
-        setPatientId(matched.id || getLocalFallbackPatientId(patientsDue));
+        setPatientId(matched.id || getNextSequentialPatientId(allKnownPatients));
         setPatientName(matched.name || '');
         if (matched.addr || matched.address) setAddress(matched.addr || matched.address || '');
         if (matched.age) setAge(String(matched.age));
@@ -191,10 +179,11 @@ export const POSTab: React.FC<POSTabProps> = ({
     const val = e.target.value;
     setPatientId(val);
 
-    if (val.trim().length >= 2) {
+    if (val.trim().length >= 1) {
+      const target = stripPatientIdPrefix(val).toLowerCase();
       const matched =
-        patientsDue.find(p => p.id.toLowerCase() === val.toLowerCase().trim()) ||
-        patients.find(p => p.id.toLowerCase() === val.toLowerCase().trim());
+        patientsDue.find(p => stripPatientIdPrefix(p.id).toLowerCase() === target) ||
+        patients.find(p => stripPatientIdPrefix(p.id).toLowerCase() === target);
 
       if (matched) {
         setPatientName(matched.name || '');
@@ -415,11 +404,12 @@ export const POSTab: React.FC<POSTabProps> = ({
     // to an existing patient by phone/ID lookup) and doesn't already belong
     // to a known patient — reserve the real, collision-safe ID now, right
     // before it's actually persisted.
-    let confirmedPatientId = patientId;
+    let confirmedPatientId = stripPatientIdPrefix(patientId);
     const isUnconfirmedGuess = patientId === autoFilledPatientIdRef.current;
+    const target = confirmedPatientId.toLowerCase();
     const alreadyKnownPatient =
-      patients.some(p => p.id.toLowerCase() === patientId.trim().toLowerCase()) ||
-      patientsDue.some(p => p.id.toLowerCase() === patientId.trim().toLowerCase());
+      patients.some(p => stripPatientIdPrefix(p.id).toLowerCase() === target) ||
+      patientsDue.some(p => stripPatientIdPrefix(p.id).toLowerCase() === target);
     if (isUnconfirmedGuess && !alreadyKnownPatient) {
       confirmedPatientId = await reserveConfirmedPatientId();
       setPatientId(confirmedPatientId);
@@ -451,7 +441,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     const invoiceData: InvoicePrintData = {
       invNo: invNumber,
       date: dateStr,
-      patientId: patientIdForBill || 'P/101',
+      patientId: patientIdForBill || '1',
       patientName: patientName.trim() || 'Counter Customer',
       phone: phone.trim() || 'N/A',
       ageGender: formattedAgeGender,
@@ -508,7 +498,7 @@ export const POSTab: React.FC<POSTabProps> = ({
         name: cart.map(c => `${c.name} (${c.qty})`).join(', '),
         cust: patientName.trim() || 'Counter Customer',
         patient: patientName.trim() || 'Counter Customer',
-        patientId: patientIdForBill || 'P/101',
+        patientId: patientIdForBill || '1',
         phone: phone.trim() || 'N/A',
         items: cart.map(c => `${c.name} (x${c.qty})`).join(', '),
         qty: `${cart.reduce((s, c) => s + Math.abs(c.qty), 0)} Items`,
@@ -551,7 +541,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     // 4. Update Due Khata if due exists
     if (effectiveDue > 0 && setPatientsDue) {
       setPatientsDue(prev => {
-        const existingIdx = prev.findIndex(p => p.id === patientIdForBill || (p.phone && p.phone === phone));
+        const existingIdx = prev.findIndex(p => stripPatientIdPrefix(p.id) === patientIdForBill || (p.phone && p.phone === phone));
         if (existingIdx >= 0) {
           const updated = [...prev];
           const cur = updated[existingIdx];
@@ -568,7 +558,7 @@ export const POSTab: React.FC<POSTabProps> = ({
           return updated;
         } else {
           const newDuePatient: PatientRecord = {
-            id: patientIdForBill || `P/${Date.now()}`,
+            id: patientIdForBill || String(Date.now()),
             name: patientName.trim() || 'Counter Customer',
             phone: phone.trim() || 'N/A',
             age: age.trim() || '30',
@@ -594,7 +584,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     if (setPatients && (patientName.trim() || phone.trim())) {
       setPatients(prev => {
         const existingIdx = prev.findIndex(
-          p => p.id.toLowerCase() === (patientIdForBill || '').toLowerCase() || (p.phone && p.phone === phone)
+          p => stripPatientIdPrefix(p.id).toLowerCase() === (patientIdForBill || '').toLowerCase() || (p.phone && p.phone === phone)
         );
         if (existingIdx >= 0) {
           const updated = [...prev];
@@ -628,7 +618,7 @@ export const POSTab: React.FC<POSTabProps> = ({
           return updated;
         } else {
           const newPatientRec: PatientRecord = {
-            id: patientIdForBill || `P/${Date.now()}`,
+            id: patientIdForBill || String(Date.now()),
             name: patientName.trim() || 'Counter Customer',
             phone: phone.trim() || 'N/A',
             age: age.trim() ? age.trim() : '30',
@@ -683,7 +673,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     }
 
     const itemsSummary = cart.map(c => `• ${c.name} × ${c.qty} = ${currencySymbol}${(c.price * c.qty).toFixed(2)}`).join('\n');
-    const msg = `*TAX INVOICE / CASH MEMO*\n*${invoiceConfig.name}*\n${invoiceConfig.addr}\nPh: ${invoiceConfig.phone}\n${invoiceConfig.dl ? `DL: ${invoiceConfig.dl}\n` : ''}${invoiceConfig.gst ? `GSTIN: ${invoiceConfig.gst}\n` : ''}\n----------------------------------\n*Patient:* ${patientName || 'Customer'} (ID: ${patientId})\n*Doctor:* ${docSelect === 'CUSTOM' ? customDoc : docSelect}\n*Date:* ${new Date().toISOString().slice(0, 10)}\n----------------------------------\n*ITEMS BILLED:*\n${itemsSummary}\n----------------------------------\n*Sub-Total:* ${currencySymbol}${subtotal.toFixed(2)}\n*Discount (${safeDiscountPercent}%):* -${currencySymbol}${discountAmount.toFixed(2)}\n*GRAND TOTAL:* ${currencySymbol}${grandTotal.toFixed(2)}\n*Paid (${payMode}):* ${currencySymbol}${effectivePaid.toFixed(2)}\n${effectiveDue > 0 ? `*DUE BALANCE:* ${currencySymbol}${effectiveDue.toFixed(2)}\n` : ''}\n${invoiceConfig.terms}\n\nJoin WhatsApp Updates: ${invoiceConfig.waGroup}\n_Thank you for choosing ${invoiceConfig.name}!_`;
+    const msg = `*TAX INVOICE / CASH MEMO*\n*${invoiceConfig.name}*\n${invoiceConfig.addr}\nPh: ${invoiceConfig.phone}\n${invoiceConfig.dl ? `DL: ${invoiceConfig.dl}\n` : ''}${invoiceConfig.gst ? `GSTIN: ${invoiceConfig.gst}\n` : ''}\n----------------------------------\n*Patient:* ${patientName || 'Customer'} (ID: ${formatPatientId(patientId)})\n*Doctor:* ${docSelect === 'CUSTOM' ? customDoc : docSelect}\n*Date:* ${new Date().toISOString().slice(0, 10)}\n----------------------------------\n*ITEMS BILLED:*\n${itemsSummary}\n----------------------------------\n*Sub-Total:* ${currencySymbol}${subtotal.toFixed(2)}\n*Discount (${safeDiscountPercent}%):* -${currencySymbol}${discountAmount.toFixed(2)}\n*GRAND TOTAL:* ${currencySymbol}${grandTotal.toFixed(2)}\n*Paid (${payMode}):* ${currencySymbol}${effectivePaid.toFixed(2)}\n${effectiveDue > 0 ? `*DUE BALANCE:* ${currencySymbol}${effectiveDue.toFixed(2)}\n` : ''}\n${invoiceConfig.terms}\n\nJoin WhatsApp Updates: ${invoiceConfig.waGroup}\n_Thank you for choosing ${invoiceConfig.name}!_`;
 
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
@@ -785,15 +775,20 @@ export const POSTab: React.FC<POSTabProps> = ({
               <label className="font-medium text-text-muted block mb-1 text-xs">
                 2. Patient ID
               </label>
-              <input
-                type="text"
-                id="pos-pid"
-                value={patientId}
-                onChange={handlePatientIdChange}
-                placeholder="P/101"
-                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-primary placeholder:text-text-muted focus:bg-bg focus:border-primary outline-none backdrop-blur-md"
-                title="Type registered Patient ID to auto-populate details"
-              />
+              <div className="flex items-stretch rounded-xl border border-border bg-surface focus-within:border-primary focus-within:bg-bg overflow-hidden">
+                <span className="flex items-center pl-2.5 pr-1 font-mono font-bold text-text-muted select-none">
+                  P-
+                </span>
+                <input
+                  type="text"
+                  id="pos-pid"
+                  value={stripPatientIdPrefix(patientId)}
+                  onChange={handlePatientIdChange}
+                  placeholder="101"
+                  className="w-full p-2.5 pl-0 bg-transparent font-mono font-bold text-primary placeholder:text-text-muted outline-none"
+                  title="Type registered Patient ID to auto-populate details"
+                />
+              </div>
             </div>
 
             <div className="lg:col-span-2">

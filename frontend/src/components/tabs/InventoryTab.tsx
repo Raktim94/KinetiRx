@@ -7,6 +7,7 @@ import {
   Download,
   Filter,
   FlaskConical,
+  Pencil,
   Plus,
   Search,
   ShoppingCart,
@@ -22,6 +23,7 @@ import { exportToCSV } from '../../utils/exportCsv';
 import { getCurrencySymbol } from '../../utils/currency';
 import { BarcodeModal } from '../modals/BarcodeModal';
 import { ImportStockModal } from '../modals/ImportStockModal';
+import { EditStockModal } from '../modals/EditStockModal';
 
 interface InventoryTabProps {
   invoiceConfig?: InvoiceConfig;
@@ -53,6 +55,10 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
   const [barcodeTargetId, setBarcodeTargetId] = useState<string | null>(null);
   const barcodeTarget = medicines.find(m => m.id === barcodeTargetId) || null;
   const [showImportModal, setShowImportModal] = useState(false);
+  // Same live-lookup-by-id pattern as barcodeTargetId above, so editing a
+  // second time in the same session always shows the latest saved values.
+  const [editTargetId, setEditTargetId] = useState<string | null>(null);
+  const editTarget = medicines.find(m => m.id === editTargetId) || null;
   const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
 
   const filtered = medicines.filter(m => {
@@ -507,6 +513,13 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
                     <td className="p-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
+                          onClick={() => setEditTargetId(i.id)}
+                          className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400 transition border border-emerald-500/20"
+                          title={`Edit ${i.name}`}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
                           onClick={() => setBarcodeTargetId(i.id)}
                           className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/30 text-primary transition border border-primary/20"
                           title={`Barcode for ${i.name}`}
@@ -536,6 +549,17 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
         medicine={barcodeTarget}
         medicines={medicines}
         setMedicines={setMedicines}
+      />
+
+      <EditStockModal
+        isOpen={!!editTarget}
+        medicine={editTarget}
+        invoiceCurrency={invoiceConfig?.currency}
+        onClose={() => setEditTargetId(null)}
+        onSave={updated => {
+          if (!setMedicines) return;
+          setMedicines(prev => prev.map(m => (m.id === updated.id ? updated : m)));
+        }}
       />
 
       <ImportStockModal

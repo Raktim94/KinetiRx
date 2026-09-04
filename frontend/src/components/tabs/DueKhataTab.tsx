@@ -9,6 +9,7 @@ import {
   User,
 } from 'lucide-react';
 import { InvoiceConfig, PatientRecord } from '../../types';
+import { formatPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 import { exportToCSV, formatWhatsAppPhone } from '../../utils/exportCsv';
 import { getCurrencySymbol } from '../../utils/currency';
 
@@ -33,7 +34,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
   const filtered = patientsDue.filter(
     p =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.id.toLowerCase().includes(search.toLowerCase()) ||
+      stripPatientIdPrefix(p.id).toLowerCase().includes(stripPatientIdPrefix(search).toLowerCase()) ||
       p.phone.includes(search)
   );
 
@@ -45,7 +46,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
       alert(`Invalid phone number for ${p.name}`);
       return;
     }
-    const msg = `Dear ${p.name},\nThis is a gentle payment reminder from ${shopName} that your pending account due balance is ${currencySymbol}${p.totalDue.toFixed(2)} (Ref: ${p.id}).\nKindly clear your dues at your convenience.\nHelpline: ${shopPhone}\nThank you!`;
+    const msg = `Dear ${p.name},\nThis is a gentle payment reminder from ${shopName} that your pending account due balance is ${currencySymbol}${p.totalDue.toFixed(2)} (Ref: ${formatPatientId(p.id)}).\nKindly clear your dues at your convenience.\nHelpline: ${shopPhone}\nThank you!`;
     const url = `https://api.whatsapp.com/send?phone=${formatted}&text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   };
@@ -83,7 +84,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
       'patient_due_register',
       ['Patient ID', 'Patient Name', 'Phone', 'Address', 'Doctor Reference', 'Reason', 'Last Date', 'Total Due (INR)'],
       patientsDue.map(p => [
-        p.id,
+        formatPatientId(p.id),
         p.name,
         p.phone,
         p.addr || '',
@@ -165,7 +166,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
                   <tr key={p.id} className="hover:bg-surface transition">
                     <td className="p-3.5">
                       <span className="font-bold text-text block">{p.name}</span>
-                      <span className="text-[10px] text-primary font-mono font-bold">{p.id}</span>
+                      <span className="text-[10px] text-primary font-mono font-bold">{formatPatientId(p.id)}</span>
                     </td>
                     <td className="p-3.5">
                       <span className="font-mono block text-text-muted font-semibold">{p.phone}</span>

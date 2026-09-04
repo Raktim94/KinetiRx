@@ -1128,7 +1128,7 @@ export const DailySalesTab: React.FC<DailySalesTabProps> = ({
                               onPrintInvoice({
                                 invNo,
                                 date: s.date,
-                                patientId: s.patientId || 'P/101',
+                                patientId: s.patientId || '1',
                                 patientName: s.cust || s.patient || s.name || 'Customer',
                                 phone: s.phone || 'N/A',
                                 ageGender: s.ageGender || '-- / Male',

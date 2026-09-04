@@ -15,23 +15,51 @@ export function cleanPhoneNumber(phone?: string | null): string {
 }
 
 /**
+ * Strips any "P-"/"P/" display prefix (in any case, with or without the
+ * separator) and surrounding whitespace, leaving the raw ID exactly as it
+ * is stored in the database. Every patient ID is stored raw (just digits,
+ * e.g. "148") — the "P-" is display-only, added by formatPatientId(). This
+ * is the inverse of formatPatientId(), used so a staff member can type
+ * "148", "P-148" or "P/148" into any ID/search field and get the same
+ * match.
+ */
+export function stripPatientIdPrefix(id?: string | null): string {
+  if (!id) return '';
+  return String(id).trim().replace(/^P[\s/-]*/i, '').trim();
+}
+
+/**
+ * Formats a raw patient ID for display: "148" -> "P-148". Used everywhere
+ * a Patient ID is shown to staff (tables, receipts, PDFs, search results)
+ * so the prefix is always consistent, regardless of how the ID was
+ * originally stored (older records may still carry a "P/" prefix baked
+ * into the stored id from before this was fixed — see
+ * backend/migrations/0010_renumber_patients — this normalizes those too).
+ * A non-numeric legacy/manual ID is returned unchanged rather than
+ * mangled.
+ */
+export function formatPatientId(id?: string | null): string {
+  const raw = stripPatientIdPrefix(id);
+  if (!raw) return '';
+  return /^\d+$/.test(raw) ? `P-${raw}` : raw;
+}
+
+/**
  * Calculates the next sequential numeric Patient ID (1, 2, 3...).
  * Scans existing records for the highest numeric ID in use so a fresh ID
  * never collides with one already registered, regardless of which modal
- * (OPD or Special Need Order) created the patient.
+ * (OPD, POS or Special Need Order) created the patient. Always returns a
+ * raw number (never "P-" prefixed) — every caller stores this directly as
+ * patients.id; format it for display with formatPatientId().
  */
 export function getNextSequentialPatientId(patients: PatientRecord[] = []): string {
   let maxNum = 0;
   if (Array.isArray(patients)) {
     patients.forEach(p => {
       if (p && p.id) {
-        // Extract all numeric sequences from the ID
-        const match = String(p.id).match(/\d+/g);
-        if (match && match.length > 0) {
-          const num = parseInt(match[match.length - 1], 10);
-          if (!isNaN(num) && num > maxNum) {
-            maxNum = num;
-          }
+        const num = parseInt(stripPatientIdPrefix(p.id), 10);
+        if (!isNaN(num) && num > maxNum) {
+          maxNum = num;
         }
       }
     });
@@ -84,6 +112,7 @@ export function findPatientByPhone(phone: string, patients: PatientRecord[] = []
  */
 export function findPatientById(id: string, patients: PatientRecord[] = []): PatientRecord | undefined {
   if (!id || !id.trim()) return undefined;
-  const target = id.trim().toLowerCase();
-  return patients.find(p => p.id && p.id.trim().toLowerCase() === target);
+  const target = stripPatientIdPrefix(id).toLowerCase();
+  if (!target) return undefined;
+  return patients.find(p => p.id && stripPatientIdPrefix(p.id).toLowerCase() === target);
 }

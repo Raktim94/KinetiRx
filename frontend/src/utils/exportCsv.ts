@@ -1,4 +1,5 @@
 import { InvoiceConfig, InvoicePrintData, SalesRecord } from '../types';
+import { formatPatientId } from './patientUtils';
 import { getCurrencySymbol } from './currency';
 
 export function exportToCSV(filename: string, headers: string[], rows: (string | number | undefined)[][]) {
@@ -102,7 +103,7 @@ export function exportInvoicesHTML(
             <strong>Patient Details:</strong><br>
             Name: <span style="color: #0f172a; font-weight: 600;">${patient}</span><br>
             Phone: ${phone}<br>
-            ID: ${inv.patientId || `P/${idx + 101}`}
+            ID: ${formatPatientId(inv.patientId) || `P-${idx + 1}`}
           </div>
           <div style="text-align: right;">
             <strong>Doctor Ref:</strong> ${doctor}<br>
@@ -303,7 +304,7 @@ export function salesRecordToInvoicePrintData(s: SalesRecord): InvoicePrintData 
   return {
     invNo: invNumber,
     date: s.date,
-    patientId: s.patientId || 'P/101',
+    patientId: s.patientId || '1',
     patientName: s.cust || s.patient || s.name || 'Counter Customer',
     phone: s.phone || 'N/A',
     ageGender: s.ageGender || '-- / Male',

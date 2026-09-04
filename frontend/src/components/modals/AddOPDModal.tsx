@@ -7,6 +7,7 @@ import {
   findPatientByPhone,
   getNextSequentialPatientId,
   reserveNextPatientId,
+  stripPatientIdPrefix,
 } from '../../utils/patientUtils';
 
 interface AddOPDModalProps {
@@ -137,7 +138,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
 
   // Auto-fetch patient info if Patient ID is entered or altered
   const handlePatientIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+    const val = stripPatientIdPrefix(e.target.value);
     setPatientId(val);
 
     const match = findPatientById(val, patients);
@@ -279,14 +280,19 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
               <label className="font-medium text-text-muted block mb-1">
                 Patient ID <span className="text-text-muted font-normal">(Auto)</span>
               </label>
-              <input
-                type="text"
-                value={patientId}
-                onChange={handlePatientIdChange}
-                placeholder="1"
-                className="w-full p-2.5 bg-surface border border-border rounded-xl font-mono font-bold text-teal-600 dark:text-teal-300 placeholder:text-text-muted outline-none focus:border-teal-400 focus:bg-bg"
-                title="Auto-generated sequential Patient ID — always unique across patients"
-              />
+              <div className="flex items-stretch rounded-xl border border-border bg-surface focus-within:border-teal-400 focus-within:bg-bg overflow-hidden">
+                <span className="flex items-center pl-2.5 pr-1 font-mono font-bold text-text-muted select-none">
+                  P-
+                </span>
+                <input
+                  type="text"
+                  value={stripPatientIdPrefix(patientId)}
+                  onChange={handlePatientIdChange}
+                  placeholder="1"
+                  className="w-full p-2.5 pl-0 bg-transparent font-mono font-bold text-teal-600 dark:text-teal-300 placeholder:text-text-muted outline-none"
+                  title="Auto-generated sequential Patient ID — always unique across patients"
+                />
+              </div>
             </div>
           </div>
 

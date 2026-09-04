@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Distributor, InvoiceConfig, Medicine, NeededMedItem, NeededMedOrder, PatientRecord } from '../../types';
 import { getTodayISODate } from '../../utils/dateUtils';
-import { reserveNextPatientId } from '../../utils/patientUtils';
+import { formatPatientId, reserveNextPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 import { getCurrencySymbol } from '../../utils/currency';
 
 interface AddNeedMedModalProps {
@@ -155,13 +155,14 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
     setPhone(p.phone);
     setPatientAddress(p.addr || p.address || 'Local Area');
     setSelectedPatientRecord(p);
-    setPatientSearchInput(`${p.id} - ${p.name}`);
+    setPatientSearchInput(`${formatPatientId(p.id)} - ${p.name}`);
     setIsPatientDropdownOpen(false);
   };
 
   const handleSelectPatientById = (idToMatch: string) => {
+    const target = stripPatientIdPrefix(idToMatch).toLowerCase();
     const found = patients.find(
-      p => p.id.toLowerCase() === idToMatch.toLowerCase().trim() || p.phone === idToMatch.trim()
+      p => stripPatientIdPrefix(p.id).toLowerCase() === target || p.phone === idToMatch.trim()
     );
     if (found) {
       handleSelectPatient(found);
@@ -174,8 +175,9 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
     setPatientSearchInput(val);
     setIsPatientDropdownOpen(true);
 
+    const target = stripPatientIdPrefix(val).toLowerCase();
     const exactMatch = patients.find(
-      p => p.id.toLowerCase() === val.toLowerCase().trim() || p.phone === val.trim()
+      p => stripPatientIdPrefix(p.id).toLowerCase() === target || p.phone === val.trim()
     );
     if (exactMatch) {
       setSelectedPatientId(exactMatch.id);
@@ -505,7 +507,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
                     >
                       <div>
                         <span className="font-bold text-text block">
-                          <span className="font-mono text-primary mr-1.5">[{p.id}]</span>
+                          <span className="font-mono text-primary mr-1.5">[{formatPatientId(p.id)}]</span>
                           {p.name}
                         </span>
                         <span className="text-[10px] text-text-muted font-mono">
@@ -529,7 +531,7 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>{patientName}</span>
                     <span className="font-mono text-xs text-primary bg-primary/20 px-1.5 rounded">
-                      {selectedPatientId}
+                      {formatPatientId(selectedPatientId)}
                     </span>
                   </div>
                   <p className="text-text-muted font-mono">

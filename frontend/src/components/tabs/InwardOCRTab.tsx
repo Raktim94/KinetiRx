@@ -203,8 +203,15 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
         const match = line.match(/(?:inv no|invoice):\s*([A-Za-z0-9-]+)/i);
         if (match) invNo = match[1].trim();
       } else {
-        const parts = line.split(/[,\t|]/).map(p => p.trim());
-        if (parts.length >= 2) {
+        // Route by whether this line actually uses the manual "Name, qty:
+        // 10, rate: 25, ..." label format (the paste-text convention), not
+        // by mere presence of a comma/pipe/tab — scanned/OCR'd invoices
+        // routinely have stray "|" and "[" characters left over from table
+        // borders, which would otherwise be misread as real field
+        // separators and garble the item name.
+        const isLabeledFormat = /\b(qty|rate|mrp|batch|exp|pack)\s*:/i.test(line);
+        const parts = isLabeledFormat ? line.split(/[,\t|]/).map(p => p.trim()) : [line];
+        if (isLabeledFormat && parts.length >= 2) {
           const rawName = parts[0].replace(/^[0-9]+[\.\)]\s*/, '').trim();
           if (
             rawName &&
@@ -254,18 +261,20 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
               tabsPerStrip: 10,
             });
           }
-        } else if (!nonItemLinePattern.test(line) && /[A-Za-z]{3,}/.test(line) && /\d/.test(line)) {
+        } else if (!isLabeledFormat && !nonItemLinePattern.test(line) && /[A-Za-z]{3,}/.test(line) && /\d/.test(line)) {
           // Whitespace-tabular row — the shape raw OCR of a printed
           // distributor invoice table produces, e.g.:
           // "5 10'S S-VOCITA LS TAB 300490 205.31 77S25T01 04/27 205.31 156.43 4.00 0.00 5% 450.52"
           // (Qty, Pack, Description, HSN, OMRP, Batch, ExpDt, MRP, Rate,
-          // Disc%, Scheme%, GST%, Amount). Column order/spacing from OCR is
-          // unreliable, so this only pulls out what's unambiguous by shape
-          // (a date-like expiry, an alphanumeric batch, the medicine name)
-          // and best-guesses MRP/Rate from the price-range numbers found —
-          // same "never block, fill the rest with sane defaults" contract
-          // as the labeled-field branch above.
-          const tokens = line.split(/\s+/).filter(Boolean);
+          // Disc%, Scheme%, GST%, Amount), often with leftover "|"/"["/"]"
+          // table-border marks OCR picks up between columns. Column
+          // order/spacing is unreliable, so this only pulls out what's
+          // unambiguous by shape (a date-like expiry, an alphanumeric
+          // batch, the medicine name) and best-guesses MRP/Rate from the
+          // price-range numbers found — same "never block, fill the rest
+          // with sane defaults" contract as the labeled-field branch above.
+          const cleanedLine = line.replace(/[|[\]]/g, ' ');
+          const tokens = cleanedLine.split(/\s+/).filter(Boolean);
           const numTokens: number[] = [];
           let batch = '';
           let exp = '';
@@ -279,7 +288,10 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
               batch = tok;
             } else if (/^-?\d+(\.\d+)?$/.test(clean)) {
               numTokens.push(parseFloat(clean));
-            } else if (/^[A-Za-z][A-Za-z'-]{1,}$/.test(tok)) {
+            } else if (tok.length >= 3 && /^[A-Za-z][A-Za-z'-]*$/.test(tok)) {
+              // Short (<=2 char) alphabetic tokens are almost always OCR
+              // noise from a garbled numeric/pack column, not part of a
+              // brand name, so they're excluded here to keep the name clean.
               nameTokens.push(tok);
             }
           });
@@ -351,7 +363,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
   // -------------------------------------------------------------
   // COMMIT INWARD INVOICE TO INVENTORY & DISTRIBUTORS
   // -------------------------------------------------------------
-  const handleCommitToStock = (invoiceDataToCommit?: ScannedInvoiceData) => {
+  const handleCommitToStock = (invoiceDataToCommit?: ScannedInvoiceData, confidenceNote?: string) => {
     const data = invoiceDataToCommit || scannedResult;
     if (!data) return;
 
@@ -483,7 +495,8 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
 
     setIsCommitted(true);
     setSuccessNotice(
-      `✓ Inward Stock Integrated Successfully! Added ${newMedsAddedCount} missing medicines to catalog, updated stock on ${existingMedsUpdatedCount} existing items, and registered distributor "${data.distributor}".`
+      `✓ Inward Stock Integrated Successfully! Added ${newMedsAddedCount} missing medicines to catalog, updated stock on ${existingMedsUpdatedCount} existing items, and registered distributor "${data.distributor}".` +
+        (confidenceNote ? ` ${confidenceNote}` : '')
     );
     setTimeout(() => setSuccessNotice(null), 6000);
   };
@@ -529,6 +542,12 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       // first OCR'd fully offline (Tesseract, vendored assets — see
       // utils/patientIdOcr.ts) and the recognized text is fed through the
       // same parser.
+      // Tracks whether the data came from the on-device fallback rather
+      // than the server AI — that path can't reliably read decimal points
+      // or exact batch codes off a photographed table, so anything it
+      // produces is worth a manual once-over before trusting the numbers.
+      let usedOnDeviceFallback = false;
+
       if (!extractedData && payload.textContent) {
         extractedData = parseInvoiceTextLocally(payload.textContent);
       } else if (!extractedData && payload.imageBase64) {
@@ -536,6 +555,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           setStatusMessage('Running on-device OCR (offline)... this can take a few seconds.');
           const recognizedText = await recognizeIdText(payload.imageBase64);
           extractedData = parseInvoiceTextLocally(recognizedText);
+          usedOnDeviceFallback = !!extractedData;
         } catch (ocrErr) {
           console.warn('On-device OCR failed:', ocrErr);
         }
@@ -565,7 +585,12 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       setIsCommitted(false);
 
       // Auto-commit immediately to provide instant real-time sync
-      handleCommitToStock(finalInvoiceData);
+      handleCommitToStock(
+        finalInvoiceData,
+        usedOnDeviceFallback
+          ? '⚠ Read via offline on-device OCR (no AI key configured) — double-check quantities, prices, and batch numbers below before billing against this stock.'
+          : undefined
+      );
     } catch (err: any) {
       console.error('Invoice processing failed:', err);
       setErrorNotice(err.message || 'Failed to extract invoice data. Please ensure the bill is legible.');

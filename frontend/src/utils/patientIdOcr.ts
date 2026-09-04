@@ -26,10 +26,47 @@ function getWorker(): Promise<Worker> {
   return workerPromise;
 }
 
+/**
+ * Downscales an image to a bounded max dimension before OCR. Recognition
+ * time (and memory) scales with pixel count, not text size, and a phone
+ * camera photo is routinely 3000-4000px on the long edge — full resolution
+ * buys no extra accuracy for printed text but can make on-device OCR
+ * painfully slow on older/low-spec machines. Capping this is what keeps
+ * offline scanning usable on "any computer", not just fast ones, without
+ * needing a lighter (less accurate) language model.
+ */
+async function downscaleForOcr(image: string | File | Blob, maxDim = 1600): Promise<string | File | Blob> {
+  try {
+    const blob = typeof image === 'string' ? await (await fetch(image)).blob() : image;
+    const bitmap = await createImageBitmap(blob);
+    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+    if (scale >= 1) {
+      bitmap.close?.();
+      return image;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close?.();
+      return image;
+    }
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    return canvas.toDataURL('image/jpeg', 0.85);
+  } catch {
+    // Any failure here (unsupported API, decode error) just means OCR runs
+    // against the original image instead — never block on this.
+    return image;
+  }
+}
+
 /** Runs offline OCR on an image (data URL, File, or Blob) and returns raw recognized text. */
 export async function recognizeIdText(image: string | File | Blob): Promise<string> {
   const worker = await getWorker();
-  const { data } = await worker.recognize(image);
+  const scaled = await downscaleForOcr(image);
+  const { data } = await worker.recognize(scaled);
   return data.text || '';
 }
 

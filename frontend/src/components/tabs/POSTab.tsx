@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   AlertCircle,
   Barcode as BarcodeIcon,
@@ -131,33 +131,38 @@ export const POSTab: React.FC<POSTabProps> = ({
     return `P/${maxNum + 1}`;
   }
 
-  // Tracks the last value we auto-filled, so a background server
-  // reservation never clobbers an ID already matched from an existing
-  // patient (phone/ID lookup) or typed by hand.
+  // Tracks the last value we auto-filled, so we can tell whether the field
+  // still holds our own guess (vs. one matched from an existing patient, or
+  // typed by hand) when a bill is actually finalized.
   const autoFilledPatientIdRef = useRef(patientId);
 
-  const reserveNewPatientId = () => {
-    const fallback = getLocalFallbackPatientId(patientsDue);
-    setPatientId(fallback);
-    autoFilledPatientIdRef.current = fallback;
-    nextPatientIdApi
-      .reserve()
-      .then(({ id }) => {
-        const reserved = `P/${id}`;
-        setPatientId(current => (current === autoFilledPatientIdRef.current ? reserved : current));
-        autoFilledPatientIdRef.current = reserved;
-      })
-      .catch(err => {
-        console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
-      });
+  // Refreshes the locally-guessed "next" Patient ID shown before a bill is
+  // finalized. Deliberately does NOT touch the server: patient_id_seq only
+  // gets consumed once, in reserveConfirmedPatientId below, right before a
+  // genuinely new patient is actually saved. Calling nextval() here instead
+  // (the old behavior) burned a real sequence number on every mount/reload
+  // and every "+ New Bill" click even when no patient was ever created,
+  // which is why the suggested ID kept jumping around and never matched a
+  // real saved patient.
+  const refreshLocalPatientIdGuess = () => {
+    const guess = getLocalFallbackPatientId(patientsDue);
+    setPatientId(guess);
+    autoFilledPatientIdRef.current = guess;
   };
 
-  // Reserve a real ID for the initial "new bill" state on mount (the
-  // synchronous useState above is just the instant-paint placeholder).
-  useEffect(() => {
-    reserveNewPatientId();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Atomically reserves the real next number from patient_id_seq so two POS
+  // terminals can never save the same ID. Only called from
+  // handleGenerateBill, and only when the field is still on our own
+  // unconfirmed guess for a patient that doesn't already exist.
+  const reserveConfirmedPatientId = async (): Promise<string> => {
+    try {
+      const { id } = await nextPatientIdApi.reserve();
+      return `P/${id}`;
+    } catch (err) {
+      console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
+      return getLocalFallbackPatientId(patientsDue);
+    }
+  };
 
   // Auto match patient by phone
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,7 +207,11 @@ export const POSTab: React.FC<POSTabProps> = ({
     }
   };
 
-  const handleStartNewBill = () => {
+  // Shared by the manual "+ New Bill" button and by handleGenerateBill once
+  // a bill has actually been finalized — clears the cart and patient form
+  // and puts a fresh local ID guess in place, without touching whatever
+  // invoice/success-message state the caller wants to keep around.
+  const resetBillingFields = () => {
     setCart([]);
     setPhone('');
     setPatientName('');
@@ -214,7 +223,11 @@ export const POSTab: React.FC<POSTabProps> = ({
     setCustomPayMode('');
     setPaidAmt('');
     setDiscountPercent(0);
-    reserveNewPatientId();
+    refreshLocalPatientIdGuess();
+  };
+
+  const handleStartNewBill = () => {
+    resetBillingFields();
     setLastGeneratedInvoice(null);
     setCheckoutSuccessMsg(null);
   };
@@ -392,11 +405,27 @@ export const POSTab: React.FC<POSTabProps> = ({
   };
 
   // GENERATE BILL & PRINT PDF
-  const handleGenerateBill = () => {
+  const handleGenerateBill = async () => {
     if (cart.length === 0) {
       alert('Your cart is empty. Please add medicines or lab tests before generating a bill.');
       return;
     }
+
+    // The field is still on our own auto-guess (never edited, never matched
+    // to an existing patient by phone/ID lookup) and doesn't already belong
+    // to a known patient — reserve the real, collision-safe ID now, right
+    // before it's actually persisted.
+    let confirmedPatientId = patientId;
+    const isUnconfirmedGuess = patientId === autoFilledPatientIdRef.current;
+    const alreadyKnownPatient =
+      patients.some(p => p.id.toLowerCase() === patientId.trim().toLowerCase()) ||
+      patientsDue.some(p => p.id.toLowerCase() === patientId.trim().toLowerCase());
+    if (isUnconfirmedGuess && !alreadyKnownPatient) {
+      confirmedPatientId = await reserveConfirmedPatientId();
+      setPatientId(confirmedPatientId);
+      autoFilledPatientIdRef.current = confirmedPatientId;
+    }
+    const patientIdForBill = confirmedPatientId;
 
     const finalDocName = docSelect === 'CUSTOM' ? customDoc.trim() || 'Other Doctor' : docSelect;
     const finalPayMode = payMode === 'CUSTOM' ? customPayMode.trim() || 'Other' : payMode;
@@ -422,7 +451,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     const invoiceData: InvoicePrintData = {
       invNo: invNumber,
       date: dateStr,
-      patientId: patientId || 'P/101',
+      patientId: patientIdForBill || 'P/101',
       patientName: patientName.trim() || 'Counter Customer',
       phone: phone.trim() || 'N/A',
       ageGender: formattedAgeGender,
@@ -479,7 +508,7 @@ export const POSTab: React.FC<POSTabProps> = ({
         name: cart.map(c => `${c.name} (${c.qty})`).join(', '),
         cust: patientName.trim() || 'Counter Customer',
         patient: patientName.trim() || 'Counter Customer',
-        patientId: patientId || 'P/101',
+        patientId: patientIdForBill || 'P/101',
         phone: phone.trim() || 'N/A',
         items: cart.map(c => `${c.name} (x${c.qty})`).join(', '),
         qty: `${cart.reduce((s, c) => s + Math.abs(c.qty), 0)} Items`,
@@ -522,7 +551,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     // 4. Update Due Khata if due exists
     if (effectiveDue > 0 && setPatientsDue) {
       setPatientsDue(prev => {
-        const existingIdx = prev.findIndex(p => p.id === patientId || (p.phone && p.phone === phone));
+        const existingIdx = prev.findIndex(p => p.id === patientIdForBill || (p.phone && p.phone === phone));
         if (existingIdx >= 0) {
           const updated = [...prev];
           const cur = updated[existingIdx];
@@ -539,7 +568,7 @@ export const POSTab: React.FC<POSTabProps> = ({
           return updated;
         } else {
           const newDuePatient: PatientRecord = {
-            id: patientId || `P/${Date.now()}`,
+            id: patientIdForBill || `P/${Date.now()}`,
             name: patientName.trim() || 'Counter Customer',
             phone: phone.trim() || 'N/A',
             age: age.trim() || '30',
@@ -565,7 +594,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     if (setPatients && (patientName.trim() || phone.trim())) {
       setPatients(prev => {
         const existingIdx = prev.findIndex(
-          p => p.id.toLowerCase() === (patientId || '').toLowerCase() || (p.phone && p.phone === phone)
+          p => p.id.toLowerCase() === (patientIdForBill || '').toLowerCase() || (p.phone && p.phone === phone)
         );
         if (existingIdx >= 0) {
           const updated = [...prev];
@@ -599,7 +628,7 @@ export const POSTab: React.FC<POSTabProps> = ({
           return updated;
         } else {
           const newPatientRec: PatientRecord = {
-            id: patientId || `P/${Date.now()}`,
+            id: patientIdForBill || `P/${Date.now()}`,
             name: patientName.trim() || 'Counter Customer',
             phone: phone.trim() || 'N/A',
             age: age.trim() ? age.trim() : '30',
@@ -634,6 +663,11 @@ export const POSTab: React.FC<POSTabProps> = ({
 
     // Launch PDF Print Modal
     onPrintInvoice(invoiceData);
+
+    // Bill is fully captured in invoiceData/sales history above, so the
+    // counter is free to reset immediately for the next customer instead of
+    // requiring a manual "+ New Bill" click.
+    resetBillingFields();
   };
 
   // Instant WhatsApp Bill Share

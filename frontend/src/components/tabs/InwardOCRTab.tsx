@@ -54,6 +54,7 @@ import { exportToCSV } from '../../utils/exportCsv';
 import { formatFullDateWithDay, getTodayISODate } from '../../utils/dateUtils';
 import { ocrApi } from '../../lib/api';
 import { getCurrencySymbol } from '../../utils/currency';
+import { recognizeIdText } from '../../utils/patientIdOcr';
 
 interface ScannedInvoiceItem {
   id?: string;
@@ -153,6 +154,13 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
   // -------------------------------------------------------------
   // HELPER: Local smart text parser for raw pasted invoice text
   // -------------------------------------------------------------
+  // Lines that are almost certainly letterhead/header/footer/totals rather
+  // than a medicine row — checked before treating any line as an item, in
+  // both the labeled-field and whitespace-tabular branches below, so scanned
+  // address/GST-summary lines don't get mistaken for a purchased item.
+  const nonItemLinePattern =
+    /^(qty|packing|description|hsn|omrp|batch|exp\s?dt|mrp|rate|disc|schem|gst\s?%|amount|gross\s?amount|net\s?am[tn]|less\s?discount|add\s?[cs]gst|[cs]gst\s?@|rupees|no\.\s?of\s?items|challan|jurisdiction|for\s+new|subject\s+to|e\.\s?&\s?o\.?e|m\/s|gstin|dl\s?no|ph(one)?[:.]|email|cash|user\s?:|time\s?:|inv\s?no|date\s?:|gst\s?invoice)/i;
+
   const parseInvoiceTextLocally = (text: string): ScannedInvoiceData | null => {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
     if (lines.length === 0) return null;
@@ -164,6 +172,22 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     let invNo = 'INV-' + Math.floor(100000 + Math.random() * 900000);
     let invDate = getTodayISODate();
     const items: ScannedInvoiceItem[] = [];
+
+    // Whole-text scan for a structurally valid GSTIN and an Indian mobile
+    // number — these have a fixed, unambiguous format, so this catches them
+    // on printed/scanned bills even without a "GSTIN:"/"Phone:" label,
+    // which raw OCR output usually doesn't preserve.
+    const gstinMatch = text.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/);
+    if (gstinMatch) gstin = gstinMatch[0];
+    const phoneMatch = text.match(/(?:\+?91[\s-]?|0)?\b([6-9]\d{9})\b/);
+    if (phoneMatch) phone = phoneMatch[1];
+
+    // Distributor letterhead is almost always the first non-empty line of a
+    // scanned/printed bill (top-to-bottom OCR reading order).
+    const firstLine = lines[0];
+    if (firstLine && /^[A-Za-z][A-Za-z .&'-]{4,60}$/.test(firstLine) && !/gst\s?invoice/i.test(firstLine)) {
+      distributor = firstLine.replace(/\s+/g, ' ').trim();
+    }
 
     lines.forEach(line => {
       const lower = line.toLowerCase();
@@ -182,7 +206,13 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
         const parts = line.split(/[,\t|]/).map(p => p.trim());
         if (parts.length >= 2) {
           const rawName = parts[0].replace(/^[0-9]+[\.\)]\s*/, '').trim();
-          if (rawName && !rawName.toLowerCase().startsWith('total') && !rawName.toLowerCase().startsWith('date') && !rawName.toLowerCase().startsWith('grand')) {
+          if (
+            rawName &&
+            !nonItemLinePattern.test(rawName) &&
+            !rawName.toLowerCase().startsWith('total') &&
+            !rawName.toLowerCase().startsWith('date') &&
+            !rawName.toLowerCase().startsWith('grand')
+          ) {
             let qty = 10;
             let rate = 50;
             let mrp = 75;
@@ -212,6 +242,63 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
               dmrp: 0,
               batch,
               exp,
+              mrp,
+              rate,
+              disc: 0,
+              scheme: '0.00',
+              gst: 12,
+              qty,
+              salt: 'Pharma Formulation',
+              company: distributor.split(' ')[0] || 'Pharma',
+              rack: 'RACK-GEN',
+              tabsPerStrip: 10,
+            });
+          }
+        } else if (!nonItemLinePattern.test(line) && /[A-Za-z]{3,}/.test(line) && /\d/.test(line)) {
+          // Whitespace-tabular row — the shape raw OCR of a printed
+          // distributor invoice table produces, e.g.:
+          // "5 10'S S-VOCITA LS TAB 300490 205.31 77S25T01 04/27 205.31 156.43 4.00 0.00 5% 450.52"
+          // (Qty, Pack, Description, HSN, OMRP, Batch, ExpDt, MRP, Rate,
+          // Disc%, Scheme%, GST%, Amount). Column order/spacing from OCR is
+          // unreliable, so this only pulls out what's unambiguous by shape
+          // (a date-like expiry, an alphanumeric batch, the medicine name)
+          // and best-guesses MRP/Rate from the price-range numbers found —
+          // same "never block, fill the rest with sane defaults" contract
+          // as the labeled-field branch above.
+          const tokens = line.split(/\s+/).filter(Boolean);
+          const numTokens: number[] = [];
+          let batch = '';
+          let exp = '';
+          const nameTokens: string[] = [];
+
+          tokens.forEach(tok => {
+            const clean = tok.replace(/[%,]/g, '');
+            if (/^\d{1,2}[/-]\d{2,4}$/.test(tok)) {
+              exp = tok.replace(/-/g, '/');
+            } else if (!batch && /^[A-Za-z0-9]{5,12}$/.test(tok) && /[A-Za-z]/.test(tok) && /\d/.test(tok)) {
+              batch = tok;
+            } else if (/^-?\d+(\.\d+)?$/.test(clean)) {
+              numTokens.push(parseFloat(clean));
+            } else if (/^[A-Za-z][A-Za-z'-]{1,}$/.test(tok)) {
+              nameTokens.push(tok);
+            }
+          });
+
+          const rawName = nameTokens.join(' ').trim();
+          if (rawName.length >= 3 && numTokens.length >= 2) {
+            const qty = Math.round(numTokens[0]) || 10;
+            const priceCandidates = numTokens.slice(1).filter(n => n > 1 && n < 100000);
+            const sortedDesc = [...priceCandidates].sort((a, b) => b - a);
+            const mrp = sortedDesc[0] ?? 75;
+            const rate = sortedDesc[1] ?? Math.round(mrp * 0.75 * 100) / 100;
+
+            items.push({
+              name: rawName.toUpperCase(),
+              pack: '10*T',
+              hsn: '300490',
+              dmrp: 0,
+              batch: batch || 'B-' + Math.floor(1000 + Math.random() * 9000),
+              exp: exp || '2028-12',
               mrp,
               rate,
               disc: 0,
@@ -409,6 +496,11 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     setErrorNotice(null);
     setStatusMessage('Reading invoice format and parsing distributor information...');
 
+    // Surfaced whenever the server call itself failed (bad/missing API key,
+    // model error, network issue) so the final error — if we still can't
+    // extract anything — tells the user *why* instead of just "not found".
+    let serverErrorDetail: string | null = null;
+
     try {
       let extractedData: ScannedInvoiceData | null = null;
 
@@ -423,20 +515,38 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           if (json.success && json.data && json.data.items && json.data.items.length > 0) {
             extractedData = json.data as unknown as ScannedInvoiceData;
           } else if (json.fallback) {
-            setStatusMessage(json.message || 'Server AI OCR is offline — falling back to local text parsing.');
+            setStatusMessage(json.message || 'Server AI OCR is offline — falling back to on-device OCR.');
           }
-        } catch (serverErr) {
-          console.warn('Backend OCR call failed, switching to local text parser if available:', serverErr);
+        } catch (serverErr: any) {
+          console.warn('Backend OCR call failed, switching to on-device/local parser if available:', serverErr);
+          serverErrorDetail = serverErr?.message || null;
+          setStatusMessage('Server AI OCR unavailable — falling back to on-device OCR.');
         }
       }
 
-      // 2. If no server response and textContent provided, try local text parser
+      // 2. If no server response, fall back to on-device parsing: pasted
+      // text goes straight through the tabular text parser; an image is
+      // first OCR'd fully offline (Tesseract, vendored assets — see
+      // utils/patientIdOcr.ts) and the recognized text is fed through the
+      // same parser.
       if (!extractedData && payload.textContent) {
         extractedData = parseInvoiceTextLocally(payload.textContent);
+      } else if (!extractedData && payload.imageBase64) {
+        try {
+          setStatusMessage('Running on-device OCR (offline)... this can take a few seconds.');
+          const recognizedText = await recognizeIdText(payload.imageBase64);
+          extractedData = parseInvoiceTextLocally(recognizedText);
+        } catch (ocrErr) {
+          console.warn('On-device OCR failed:', ocrErr);
+        }
       }
 
       if (!extractedData || !extractedData.items || extractedData.items.length === 0) {
-        throw new Error('Could not detect medicine items in the provided purchase bill. Please verify the image or paste invoice text.');
+        throw new Error(
+          serverErrorDetail
+            ? `Could not detect medicine items in the provided purchase bill. Server AI OCR failed: ${serverErrorDetail}. On-device OCR could not read it either — please verify the image is clear, or paste the invoice text instead.`
+            : 'Could not detect medicine items in the provided purchase bill. Please verify the image or paste invoice text.'
+        );
       }
 
       // 3. Mark which items are new vs existing in our medicine catalog

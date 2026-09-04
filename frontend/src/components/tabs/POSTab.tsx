@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AlertCircle,
   Barcode as BarcodeIcon,
@@ -43,6 +43,7 @@ import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
 import { CameraScannerModal } from '../modals/CameraScannerModal';
 import { BarcodeModal } from '../modals/BarcodeModal';
 import { getCurrencySymbol } from '../../utils/currency';
+import { nextPatientIdApi } from '../../lib/api';
 
 export interface POSTabProps {
   medicines: Medicine[];
@@ -91,7 +92,7 @@ export const POSTab: React.FC<POSTabProps> = ({
 
   // Patient Form States
   const [phone, setPhone] = useState('');
-  const [patientId, setPatientId] = useState(() => getNextPatientId(patientsDue));
+  const [patientId, setPatientId] = useState(() => getLocalFallbackPatientId(patientsDue));
   const [patientName, setPatientName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('Male');
@@ -114,8 +115,12 @@ export const POSTab: React.FC<POSTabProps> = ({
   const [lastGeneratedInvoice, setLastGeneratedInvoice] = useState<InvoicePrintData | null>(null);
   const [checkoutSuccessMsg, setCheckoutSuccessMsg] = useState<string | null>(null);
 
-  // Helper for sequential patient ID
-  function getNextPatientId(list: PatientRecord[]): string {
+  // Local-only fallback for the instant initial suggestion and for when the
+  // server reservation below fails (e.g. offline). Scanning the locally
+  // loaded `patientsDue` list for "highest number + 1" is what let two POS
+  // terminals compute the same "next" ID and collide on patients.id — see
+  // backend/migrations/0009_patient_id_sequence.
+  function getLocalFallbackPatientId(list: PatientRecord[]): string {
     let maxNum = 100;
     list.forEach(p => {
       if (p.id && p.id.startsWith('P/')) {
@@ -125,6 +130,34 @@ export const POSTab: React.FC<POSTabProps> = ({
     });
     return `P/${maxNum + 1}`;
   }
+
+  // Tracks the last value we auto-filled, so a background server
+  // reservation never clobbers an ID already matched from an existing
+  // patient (phone/ID lookup) or typed by hand.
+  const autoFilledPatientIdRef = useRef(patientId);
+
+  const reserveNewPatientId = () => {
+    const fallback = getLocalFallbackPatientId(patientsDue);
+    setPatientId(fallback);
+    autoFilledPatientIdRef.current = fallback;
+    nextPatientIdApi
+      .reserve()
+      .then(({ id }) => {
+        const reserved = `P/${id}`;
+        setPatientId(current => (current === autoFilledPatientIdRef.current ? reserved : current));
+        autoFilledPatientIdRef.current = reserved;
+      })
+      .catch(err => {
+        console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
+      });
+  };
+
+  // Reserve a real ID for the initial "new bill" state on mount (the
+  // synchronous useState above is just the instant-paint placeholder).
+  useEffect(() => {
+    reserveNewPatientId();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Auto match patient by phone
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +171,7 @@ export const POSTab: React.FC<POSTabProps> = ({
         patients.find(p => p.phone && p.phone.replace(/[^0-9]/g, '') === cleaned);
 
       if (matched) {
-        setPatientId(matched.id || getNextPatientId(patientsDue));
+        setPatientId(matched.id || getLocalFallbackPatientId(patientsDue));
         setPatientName(matched.name || '');
         if (matched.addr || matched.address) setAddress(matched.addr || matched.address || '');
         if (matched.age) setAge(String(matched.age));
@@ -181,7 +214,7 @@ export const POSTab: React.FC<POSTabProps> = ({
     setCustomPayMode('');
     setPaidAmt('');
     setDiscountPercent(0);
-    setPatientId(getNextPatientId(patientsDue));
+    reserveNewPatientId();
     setLastGeneratedInvoice(null);
     setCheckoutSuccessMsg(null);
   };

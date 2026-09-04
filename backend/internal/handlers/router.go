@@ -68,6 +68,7 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 		pat.Use(middleware.RequirePermission(models.TabType("patients")))
 		{
 			pat.GET("", d.ListPatients)
+			pat.GET("/next-id", d.NextPatientID)
 			pat.GET("/:id", d.GetPatient)
 			pat.POST("", d.CreatePatient)
 			pat.PUT("/:id", d.UpdatePatient)

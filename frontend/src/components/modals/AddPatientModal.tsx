@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   HeartPulse,
   MapPin,
@@ -12,6 +12,7 @@ import {
 import { PatientRecord } from '../../types';
 import { getTodayISODate } from '../../utils/dateUtils';
 import { loadDoctors } from '../../data/doctors';
+import { nextPatientIdApi } from '../../lib/api';
 
 interface AddPatientModalProps {
   isOpen: boolean;
@@ -28,8 +29,13 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 }) => {
   const doctorList = loadDoctors();
 
-  // Helper to generate next sequential Patient ID (e.g. P/107)
-  const getNextPatientId = () => {
+  // Local-only fallback used for the instant initial suggestion and if the
+  // server reservation below fails (e.g. offline) — never the value actually
+  // submitted once a server-reserved ID has landed, since two terminals
+  // scanning their own locally loaded `existingPatients` list can compute
+  // the same "next" number and collide on patients.id (see AddPatientModal
+  // fix notes / migration 0009_patient_id_sequence).
+  const getLocalFallbackId = () => {
     let maxNum = 100;
     existingPatients.forEach(p => {
       const match = p.id.match(/P\/(\d+)/i) || p.id.match(/PAT-(\d+)/i);
@@ -41,7 +47,39 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
     return `P/${maxNum + 1}`;
   };
 
-  const [patientId, setPatientId] = useState(getNextPatientId());
+  const [patientId, setPatientId] = useState(getLocalFallbackId());
+  // Tracks the last value we auto-filled, so a background server reservation
+  // never clobbers an ID the pharmacist has already started editing by hand.
+  const autoFilledIdRef = useRef(patientId);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const fallback = getLocalFallbackId();
+    setPatientId(fallback);
+    autoFilledIdRef.current = fallback;
+
+    let cancelled = false;
+    nextPatientIdApi
+      .reserve()
+      .then(({ id }) => {
+        if (cancelled) return;
+        const reserved = `P/${id}`;
+        setPatientId(current => (current === autoFilledIdRef.current ? reserved : current));
+        autoFilledIdRef.current = reserved;
+      })
+      .catch(err => {
+        // Offline or backend unreachable — keep the local fallback so
+        // registration still works; small residual collision risk only
+        // applies in this degraded case.
+        console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [age, setAge] = useState('');
@@ -71,7 +109,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
     const formattedAgeGender = `${age ? age + ' Yrs' : '--'} / ${gender}`;
 
     const newPatient: PatientRecord = {
-      id: patientId.trim() || getNextPatientId(),
+      id: patientId.trim() || getLocalFallbackId(),
       name: name.trim(),
       phone: phone.trim(),
       age: age.trim() ? age.trim() : '35',

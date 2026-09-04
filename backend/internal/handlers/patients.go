@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -86,6 +87,22 @@ func (d *Deps) GetPatient(c *gin.Context) {
 		return
 	}
 	httpx.OK(c, p)
+}
+
+// NextPatientID handles GET /api/patients/next-id. It atomically reserves
+// the next sequential patient ID number from patient_id_seq (see migration
+// 0009) so two callers on different terminals can never be handed the same
+// number — client-side "scan the loaded list for the highest number"
+// generation raced across concurrent devices and produced duplicate IDs,
+// which the patients.id primary key then silently rejected on save.
+func (d *Deps) NextPatientID(c *gin.Context) {
+	var next int64
+	err := d.DB.QueryRow(c.Request.Context(), `SELECT nextval('patient_id_seq')`).Scan(&next)
+	if err != nil {
+		httpx.Internal(c, "Failed to reserve next patient ID")
+		return
+	}
+	httpx.OK(c, gin.H{"id": strconv.FormatInt(next, 10)})
 }
 
 // CreatePatient handles POST /api/patients.

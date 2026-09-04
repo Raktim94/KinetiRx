@@ -215,6 +215,17 @@ function crud<T extends { id?: string }>(basePath: string): CrudClient<T> {
 export const medicinesApi = crud<Medicine>('/api/medicines');
 export const medicineGroupsApi = crud<MedicineGroup>('/api/medicine-groups');
 export const patientsApi = crud<PatientRecord>('/api/patients');
+
+// Atomically reserves the next sequential patient ID number from the
+// backend (patient_id_seq — see backend/migrations/0009_patient_id_sequence)
+// instead of computing "highest number in the locally loaded list + 1"
+// client-side, which let two terminals compute the same "next" ID and had
+// the loser silently fail to save (the create request hit patients.id's
+// primary key and was rejected, but the UI had already optimistically added
+// it to local state — see useSyncedList).
+export const nextPatientIdApi = {
+  reserve: () => request<{ id: string }>('/api/patients/next-id'),
+};
 export const dueKhataApi = crud<PatientDue>('/api/due-khata');
 
 // The `DueKhataTab` / `POSTab` components (pre-existing, unmodified here)

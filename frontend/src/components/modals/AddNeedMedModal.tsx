@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Distributor, InvoiceConfig, Medicine, NeededMedItem, NeededMedOrder, PatientRecord } from '../../types';
 import { getTodayISODate } from '../../utils/dateUtils';
-import { getNextSequentialPatientId } from '../../utils/patientUtils';
+import { reserveNextPatientId } from '../../utils/patientUtils';
 import { getCurrencySymbol } from '../../utils/currency';
 
 interface AddNeedMedModalProps {
@@ -192,14 +192,17 @@ export const AddNeedMedModal: React.FC<AddNeedMedModalProps> = ({
     }
   };
 
-  const handleQuickCreatePatient = (e: React.FormEvent) => {
+  const handleQuickCreatePatient = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPatientName.trim() || !newPatientPhone.trim()) {
       alert('Please enter Patient Name and Phone');
       return;
     }
 
-    const nextId = getNextSequentialPatientId(patients);
+    // Reserved atomically from the backend (falls back to a local guess if
+    // offline) so two terminals quick-creating a patient at the same time
+    // can never be handed the same ID — see reserveNextPatientId.
+    const nextId = await reserveNextPatientId(patients);
     const createdPatient: PatientRecord = {
       id: nextId,
       name: newPatientName.trim(),

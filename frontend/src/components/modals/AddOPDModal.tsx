@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Plus, Stethoscope, Trash2, X } from 'lucide-react';
 import { OPDVisit, PatientRecord } from '../../types';
 import { defaultDoctors, loadDoctors, saveDoctors } from '../../data/doctors';
@@ -6,6 +6,7 @@ import {
   findPatientById,
   findPatientByPhone,
   getNextSequentialPatientId,
+  reserveNextPatientId,
 } from '../../utils/patientUtils';
 
 interface AddOPDModalProps {
@@ -44,6 +45,24 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
   const [btest, setBtest] = useState('');
   const [matchedPatient, setMatchedPatient] = useState<PatientRecord | null>(null);
 
+  // Tracks the last value we auto-filled, so a background server
+  // reservation never clobbers an ID already matched to an existing patient
+  // or typed by hand.
+  const autoFilledIdRef = useRef(patientId);
+
+  // Atomically reserves a new patient ID from the backend (falls back to the
+  // local guess if offline — see reserveNextPatientId), only replacing the
+  // field if it still holds the last value we auto-filled.
+  const assignNewPatientId = () => {
+    const fallback = getNextSequentialPatientId(patients);
+    setPatientId(fallback);
+    autoFilledIdRef.current = fallback;
+    void reserveNextPatientId(patients).then(id => {
+      setPatientId(current => (current === autoFilledIdRef.current ? id : current));
+      autoFilledIdRef.current = id;
+    });
+  };
+
   // Sync next sequential patient ID and fresh doctor list whenever the modal opens
   useEffect(() => {
     if (isOpen) {
@@ -53,7 +72,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
         setDocSelect(freshDocs.length > 0 ? freshDocs[0] : 'CUSTOM');
       }
       if (!phone.trim() && !matchedPatient) {
-        setPatientId(getNextSequentialPatientId(patients));
+        assignNewPatientId();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,7 +130,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
     } else {
       setMatchedPatient(null);
       // Automatically assign next sequential series ID for new mobile
-      setPatientId(getNextSequentialPatientId(patients));
+      assignNewPatientId();
     }
   };
 
@@ -211,7 +230,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
     setCustomDoc('');
     setIsManagingDoctors(false);
     setMatchedPatient(null);
-    setPatientId(getNextSequentialPatientId(patients));
+    assignNewPatientId();
   };
 
   return (

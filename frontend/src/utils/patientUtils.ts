@@ -1,4 +1,5 @@
 import { PatientRecord } from '../types';
+import { nextPatientIdApi } from '../lib/api';
 
 /**
  * Clean phone numbers to pure numeric digits
@@ -36,6 +37,28 @@ export function getNextSequentialPatientId(patients: PatientRecord[] = []): stri
     });
   }
   return String(maxNum + 1);
+}
+
+/**
+ * Atomically reserves the next sequential patient ID from the backend
+ * (patient_id_seq — see backend/migrations/0009_patient_id_sequence),
+ * falling back to the local highest-number-in-list guess only if the
+ * request fails (e.g. offline). Prefer this over
+ * getNextSequentialPatientId() anywhere the ID is about to be assigned to a
+ * *new* patient record — scanning a locally loaded list for "highest number
+ * seen + 1" let two devices compute the same ID and collide on the
+ * patients.id primary key, with the loser's record silently failing to
+ * persist (see useSyncedList: a failed create only surfaces an error toast,
+ * it doesn't roll back the optimistic local state).
+ */
+export async function reserveNextPatientId(patients: PatientRecord[] = []): Promise<string> {
+  try {
+    const { id } = await nextPatientIdApi.reserve();
+    return id;
+  } catch (err) {
+    console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
+    return getNextSequentialPatientId(patients);
+  }
 }
 
 /**

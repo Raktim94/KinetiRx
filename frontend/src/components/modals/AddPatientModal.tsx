@@ -52,31 +52,17 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
   // never clobbers an ID the pharmacist has already started editing by hand.
   const autoFilledIdRef = useRef(patientId);
 
+  // Shows a fresh local guess whenever the modal opens — deliberately no
+  // server call here. The real, collision-safe ID from patient_id_seq is
+  // only reserved once, in handleSubmit, right before a new patient is
+  // actually saved. Reserving eagerly on every open (the old behavior)
+  // burned a real sequence number even when the modal was opened and then
+  // cancelled, which is why the suggested ID kept changing across opens.
   useEffect(() => {
     if (!isOpen) return;
     const fallback = getLocalFallbackId();
     setPatientId(fallback);
     autoFilledIdRef.current = fallback;
-
-    let cancelled = false;
-    nextPatientIdApi
-      .reserve()
-      .then(({ id }) => {
-        if (cancelled) return;
-        const reserved = `P/${id}`;
-        setPatientId(current => (current === autoFilledIdRef.current ? reserved : current));
-        autoFilledIdRef.current = reserved;
-      })
-      .catch(err => {
-        // Offline or backend unreachable — keep the local fallback so
-        // registration still works; small residual collision risk only
-        // applies in this degraded case.
-        console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
-      });
-
-    return () => {
-      cancelled = true;
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
@@ -92,7 +78,7 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       alert('Please enter patient name');
@@ -103,13 +89,27 @@ export const AddPatientModal: React.FC<AddPatientModalProps> = ({
       return;
     }
 
+    // Field is still on our own unconfirmed guess — reserve the real,
+    // collision-safe ID now, right before it's actually persisted.
+    let finalId = patientId.trim() || getLocalFallbackId();
+    if (patientId === autoFilledIdRef.current) {
+      try {
+        const { id } = await nextPatientIdApi.reserve();
+        finalId = `P/${id}`;
+        setPatientId(finalId);
+        autoFilledIdRef.current = finalId;
+      } catch (err) {
+        console.warn('Could not reserve a server-assigned patient ID, using local fallback:', err);
+      }
+    }
+
     const finalDoc = docSelect === 'CUSTOM' ? customDoc.trim() || 'Other Doctor' : docSelect;
     const today = getTodayISODate();
     const parsedDue = parseFloat(initialDue) || 0;
     const formattedAgeGender = `${age ? age + ' Yrs' : '--'} / ${gender}`;
 
     const newPatient: PatientRecord = {
-      id: patientId.trim() || getLocalFallbackId(),
+      id: finalId,
       name: name.trim(),
       phone: phone.trim(),
       age: age.trim() ? age.trim() : '35',

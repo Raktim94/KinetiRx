@@ -45,22 +45,23 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
   const [btest, setBtest] = useState('');
   const [matchedPatient, setMatchedPatient] = useState<PatientRecord | null>(null);
 
-  // Tracks the last value we auto-filled, so a background server
-  // reservation never clobbers an ID already matched to an existing patient
-  // or typed by hand.
+  // Tracks the last value we auto-filled, so we can tell whether the field
+  // still holds our own guess (vs. one matched to an existing patient, or
+  // typed by hand) when the visit is actually saved.
   const autoFilledIdRef = useRef(patientId);
 
-  // Atomically reserves a new patient ID from the backend (falls back to the
-  // local guess if offline — see reserveNextPatientId), only replacing the
-  // field if it still holds the last value we auto-filled.
-  const assignNewPatientId = () => {
-    const fallback = getNextSequentialPatientId(patients);
-    setPatientId(fallback);
-    autoFilledIdRef.current = fallback;
-    void reserveNextPatientId(patients).then(id => {
-      setPatientId(current => (current === autoFilledIdRef.current ? id : current));
-      autoFilledIdRef.current = id;
-    });
+  // Refreshes the locally-guessed "next" ID shown while filling the form.
+  // Deliberately does NOT touch the server: the real, collision-safe number
+  // is only reserved once, in handleSubmit, right before a genuinely new
+  // patient is actually saved. This used to call reserveNextPatientId()
+  // (a real patient_id_seq consumption) every time the modal opened *and*
+  // on every keystroke of an unmatched phone number — burning through real
+  // ID numbers for a value nobody ended up using, which is why the
+  // suggested ID kept jumping around while typing.
+  const refreshLocalIdGuess = () => {
+    const guess = getNextSequentialPatientId(patients);
+    setPatientId(guess);
+    autoFilledIdRef.current = guess;
   };
 
   // Sync next sequential patient ID and fresh doctor list whenever the modal opens
@@ -72,11 +73,11 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
         setDocSelect(freshDocs.length > 0 ? freshDocs[0] : 'CUSTOM');
       }
       if (!phone.trim() && !matchedPatient) {
-        assignNewPatientId();
+        refreshLocalIdGuess();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, patients]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -129,8 +130,8 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
       }
     } else {
       setMatchedPatient(null);
-      // Automatically assign next sequential series ID for new mobile
-      assignNewPatientId();
+      // Show a fresh local guess for a new mobile number — no server call.
+      refreshLocalIdGuess();
     }
   };
 
@@ -164,7 +165,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       alert('Please enter patient name');
@@ -176,7 +177,15 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
     }
 
     const finalDoctor = docSelect === 'CUSTOM' ? (customDoc.trim() || 'Consultant Doctor') : docSelect;
-    const finalPatientId = patientId.trim() || getNextSequentialPatientId(patients);
+    let finalPatientId = patientId.trim() || getNextSequentialPatientId(patients);
+    // Field is still on our own unconfirmed guess for a patient that isn't
+    // already known — reserve the real, collision-safe ID now, right before
+    // it's actually persisted.
+    if (!matchedPatient && patientId === autoFilledIdRef.current) {
+      finalPatientId = await reserveNextPatientId(patients);
+      setPatientId(finalPatientId);
+      autoFilledIdRef.current = finalPatientId;
+    }
 
     const newVisit: OPDVisit = {
       id: 'OPD-' + Date.now(),
@@ -230,7 +239,7 @@ export const AddOPDModal: React.FC<AddOPDModalProps> = ({
     setCustomDoc('');
     setIsManagingDoctors(false);
     setMatchedPatient(null);
-    assignNewPatientId();
+    refreshLocalIdGuess();
   };
 
   return (

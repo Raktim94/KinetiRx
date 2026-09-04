@@ -9,6 +9,7 @@ import {
   Pencil,
   Phone,
   Plus,
+  ScanLine,
   Search,
   Trash2,
   TrendingDown,
@@ -22,6 +23,7 @@ import { exportToCSV, formatWhatsAppPhone } from '../../utils/exportCsv';
 import { getCurrencySymbol } from '../../utils/currency';
 import { AddPatientModal } from '../modals/AddPatientModal';
 import { EditPatientModal } from '../modals/EditPatientModal';
+import { ScanPatientIdModal } from '../modals/ScanPatientIdModal';
 
 interface PatientsTabProps {
   invoiceConfig?: InvoiceConfig;
@@ -43,6 +45,7 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
   const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
   const [search, setSearch] = useState('');
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
+  const [isScanIdOpen, setIsScanIdOpen] = useState(false);
   const [patientToEdit, setPatientToEdit] = useState<PatientRecord | null>(null);
   const [filterDueOnly, setFilterDueOnly] = useState(false);
 
@@ -136,6 +139,11 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
           <button onClick={handleExportCSV} className="btn-secondary btn-sm">
             <Download className="w-3.5 h-3.5 text-primary" />
             <span>Export Excel</span>
+          </button>
+
+          <button onClick={() => setIsScanIdOpen(true)} className="btn-secondary btn-sm">
+            <ScanLine className="w-3.5 h-3.5 text-primary" />
+            <span>Scan Patient ID</span>
           </button>
 
           <button
@@ -332,6 +340,14 @@ export const PatientsTab: React.FC<PatientsTabProps> = ({
             setPatients(prev => prev.map(p => (p.id === updated.id ? updated : p)));
           }
         }}
+      />
+
+      {/* 5C. SCAN PATIENT ID MODAL (offline OCR) */}
+      <ScanPatientIdModal
+        isOpen={isScanIdOpen}
+        onClose={() => setIsScanIdOpen(false)}
+        patients={patients}
+        onFound={onViewPatientProfile}
       />
     </div>
   );

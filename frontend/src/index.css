@@ -6,6 +6,56 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
+  Self-hosted type faces (files vendored under public/fonts/, latin subset
+  only — this product is English-only, see the 1.4.1 release notes on
+  removing Bengali text). Previously loaded from a Google Fonts CDN
+  <link> in index.html: harmless when the browser has internet access, but
+  this app is pitched as self-hosted with "no third-party SaaS dependency
+  for core operations" (see README) and is commonly run on a LAN-only
+  CasaOS/NAS box with restricted or no outbound internet — there, the CDN
+  request silently fails and every heading/label/number falls back to a
+  generic system font, which is what made the UI look visibly "off" versus
+  its intended design. Vendoring the files removes that dependency
+  entirely; rendering is identical to the CDN version since these are the
+  exact same files Google Fonts itself serves.
+*/
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/fraunces.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/ibmplexsans.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibmplexmono-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibmplexmono-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibmplexmono-600.woff2") format("woff2");
+}
+
+/*
   Design tokens — "Apothecary Modern": a matte harbor-blue/seafoam/bone
   palette on a warm neutral ground, no gradients, no saturated/neon
   accents. Defined once as real (runtime-switchable) CSS custom
@@ -222,6 +272,64 @@
       color-mix(in srgb, var(--glass-highlight) 60%, transparent) 0%,
       transparent 55%
     );
+  }
+
+  /*
+    Entrance/exit animation primitives (the `tailwindcss-animate` plugin's
+    convention — composable enter/exit utilities driven by CSS custom
+    properties feeding one shared keyframe each) — used across every modal
+    in the app (`animate-in fade-in zoom-in-95`, 26 files) but the plugin
+    was never actually installed or registered, so Tailwind generated no
+    CSS for any of these class names: every modal has been popping open
+    instantly with no fade or scale-in at all. Hand-rolled here (same
+    variable names/behavior as the real plugin) rather than adding the
+    dependency, since only these two entrance effects are actually used.
+  */
+  @keyframes kinetirx-enter {
+    from {
+      opacity: var(--tw-enter-opacity, 1);
+      transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0)
+        scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1));
+    }
+  }
+  @keyframes kinetirx-exit {
+    to {
+      opacity: var(--tw-exit-opacity, 1);
+      transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0)
+        scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1));
+    }
+  }
+  .animate-in {
+    animation-name: kinetirx-enter;
+    animation-duration: 150ms;
+    animation-timing-function: ease-out;
+    animation-fill-mode: both;
+    --tw-enter-opacity: initial;
+    --tw-enter-scale: initial;
+    --tw-enter-translate-x: initial;
+    --tw-enter-translate-y: initial;
+  }
+  .animate-out {
+    animation-name: kinetirx-exit;
+    animation-duration: 150ms;
+    animation-timing-function: ease-in;
+    animation-fill-mode: both;
+    --tw-exit-opacity: initial;
+    --tw-exit-scale: initial;
+    --tw-exit-translate-x: initial;
+    --tw-exit-translate-y: initial;
+  }
+  .fade-in {
+    --tw-enter-opacity: 0;
+  }
+  .fade-out {
+    --tw-exit-opacity: 0;
+  }
+  .zoom-in-95 {
+    --tw-enter-scale: 0.95;
+  }
+  .zoom-out-95 {
+    --tw-exit-scale: 0.95;
   }
 }
 

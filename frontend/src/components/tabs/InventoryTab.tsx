@@ -24,6 +24,7 @@ import { getCurrencySymbol } from '../../utils/currency';
 import { BarcodeModal } from '../modals/BarcodeModal';
 import { ImportStockModal } from '../modals/ImportStockModal';
 import { EditStockModal } from '../modals/EditStockModal';
+import { useBarcodeScanner } from '../../hooks/useBarcodeScanner';
 
 interface InventoryTabProps {
   invoiceConfig?: InvoiceConfig;
@@ -60,6 +61,27 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
   const [editTargetId, setEditTargetId] = useState<string | null>(null);
   const editTarget = medicines.find(m => m.id === editTargetId) || null;
   const currencySymbol = getCurrencySymbol(invoiceConfig?.currency);
+  const [scanFeedback, setScanFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  // Scan-to-restock: a USB/handheld barcode scanner acts as a fast keyboard
+  // (see useBarcodeScanner) — scanning an item already on the shelf jumps
+  // straight into its Edit Stock form so staff only has to bump the
+  // quantity and save, instead of hunting for it by name in a long list.
+  const handleInventoryScan = (code: string) => {
+    const trimmed = code.trim();
+    const match = medicines.find(m => m.barcode === trimmed);
+    if (match) {
+      setEditTargetId(match.id);
+      setScanFeedback({ ok: true, msg: `Found: ${match.name} — update quantity and save.` });
+    } else {
+      setScanFeedback({
+        ok: false,
+        msg: `No stock item has barcode ${trimmed} yet — use "+ Add New Stock" to register it, then assign this barcode from its barcode icon.`,
+      });
+    }
+    window.setTimeout(() => setScanFeedback(null), 5000);
+  };
+  useBarcodeScanner({ onScan: handleInventoryScan, enabled: true });
 
   const filtered = medicines.filter(m => {
     const q = search.toLowerCase();
@@ -150,6 +172,19 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({
 
   return (
     <div className="space-y-6">
+      {scanFeedback && (
+        <div
+          className={`p-3 rounded-2xl border text-xs font-semibold flex items-center gap-2 ${
+            scanFeedback.ok
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+              : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300'
+          }`}
+        >
+          <BarcodeIcon className="w-3.5 h-3.5 shrink-0" />
+          <span>{scanFeedback.msg}</span>
+        </div>
+      )}
+
       {/* Header bar */}
       <div className="p-6 rounded-3xl bg-surface backdrop-blur-xl border border-border shadow-xl flex justify-between items-center flex-wrap gap-4 text-text">
         <div>

@@ -1,26 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  AlertCircle,
   Building2,
   Calendar,
+  Camera,
   Check,
+  CheckCircle2,
   Edit3,
   FileSpreadsheet,
   Filter,
+  Loader2,
   Mail,
   MapPin,
   Phone,
   Plus,
+  ScanLine,
   Search,
   ShieldCheck,
   Sparkles,
   Trash2,
   Truck,
+  Upload,
   User,
   X,
 } from 'lucide-react';
 import { Distributor } from '../../types';
 import { exportToCSV } from '../../utils/exportCsv';
 import { getTodayISODate } from '../../utils/dateUtils';
+import { recognizeIdText } from '../../utils/patientIdOcr';
+import { extractDistributorFields } from '../../utils/distributorOcr';
 
 interface DistributorModalProps {
   isOpen: boolean;
@@ -48,6 +56,155 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
   const [sourceFilter, setSourceFilter] = useState<'all' | 'ocr' | 'manual'>('all');
   const [selectedDistributor, setSelectedDistributor] = useState<Distributor | null>(null);
   const [editingDistributor, setEditingDistributor] = useState<Distributor | null>(null);
+
+  // Scan-to-register: OCRs a photo/upload of the distributor's own
+  // registration document (letterhead, visiting card, DL certificate — no
+  // medicine line items, unlike the Inward OCR bill flow) and registers the
+  // distributor directly, without going through the manual Quick Add form.
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [scanSuccess, setScanSuccess] = useState<{ distributor: Distributor; updated: boolean } | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleStopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  const handleStartCamera = async () => {
+    try {
+      setScanError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      });
+      streamRef.current = stream;
+      setIsCameraActive(true);
+      if (videoRef.current) videoRef.current.srcObject = stream;
+    } catch (err) {
+      console.error('Camera access denied or unavailable:', err);
+      setScanError('Camera unavailable — use "Upload Photo" instead.');
+    }
+  };
+
+  const closeScanner = () => {
+    handleStopCamera();
+    setIsScannerOpen(false);
+    setIsScanning(false);
+    setScanStatus(null);
+    setScanError(null);
+  };
+
+  // Registers (or, if this distributor already exists by GSTIN/name, merges
+  // into) the scanned document — mirrors the dedupe-by-GSTIN-or-name logic
+  // InwardOCRTab uses when a purchase bill's letterhead matches a distributor
+  // already in the directory, so the two OCR entry points behave consistently.
+  const runOcrAndRegister = async (imageSrc: string) => {
+    setIsScanning(true);
+    setScanError(null);
+    setScanStatus('Reading document offline (no internet needed)…');
+    try {
+      const text = await recognizeIdText(imageSrc);
+      const fields = extractDistributorFields(text);
+
+      if (!fields.name) {
+        setScanStatus(null);
+        setScanError("Couldn't read a distributor name from this document — try a clearer, well-lit photo, or enter details manually below.");
+        return;
+      }
+
+      const cleanName = fields.name.trim().toUpperCase();
+      let registered: Distributor | null = null;
+      let wasUpdate = false;
+
+      setDistributors(prev => {
+        const existingIdx = prev.findIndex(
+          d =>
+            d.name.trim().toLowerCase() === cleanName.toLowerCase() ||
+            (fields.gstin && d.gstin && d.gstin.trim().toLowerCase() === fields.gstin.trim().toLowerCase())
+        );
+
+        if (existingIdx >= 0) {
+          wasUpdate = true;
+          const updated = [...prev];
+          updated[existingIdx] = {
+            ...updated[existingIdx],
+            phone: fields.phone || updated[existingIdx].phone,
+            addr: fields.addr || updated[existingIdx].addr,
+            gstin: fields.gstin || updated[existingIdx].gstin,
+            dlNo: fields.dlNo || updated[existingIdx].dlNo,
+            email: fields.email || updated[existingIdx].email,
+            contactPerson: fields.contactPerson || updated[existingIdx].contactPerson,
+          };
+          registered = updated[existingIdx];
+          return updated;
+        }
+
+        const newDist: Distributor = {
+          id: 'DIST-' + Date.now(),
+          name: cleanName,
+          gstin: fields.gstin || 'N/A',
+          phone: fields.phone || 'N/A',
+          addr: fields.addr || 'N/A',
+          dlNo: fields.dlNo,
+          email: fields.email,
+          contactPerson: fields.contactPerson,
+          registeredDate: getTodayISODate(),
+          source: 'OCR Registration Form',
+        };
+        registered = newDist;
+        return [newDist, ...prev];
+      });
+
+      setScanStatus(null);
+      if (registered) setScanSuccess({ distributor: registered, updated: wasUpdate });
+    } catch (err) {
+      console.error('Offline distributor OCR failed:', err);
+      setScanStatus(null);
+      setScanError('OCR failed to process this image. Please try again.');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleScanCaptureSnapshot = () => {
+    if (!videoRef.current) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth || 1280;
+    canvas.height = videoRef.current.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    const base64 = canvas.toDataURL('image/jpeg');
+    handleStopCamera();
+    void runOcrAndRegister(base64);
+  };
+
+  const handleScanFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = event => {
+      const base64 = event.target?.result as string;
+      void runOcrAndRegister(base64);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  useEffect(() => {
+    if (!isOpen) closeScanner();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  useEffect(() => () => handleStopCamera(), []);
 
   if (!isOpen) return null;
 
@@ -154,15 +311,16 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
       (d.dlNo && d.dlNo.toLowerCase().includes(term)) ||
       (d.contactPerson && d.contactPerson.toLowerCase().includes(term));
 
+    const isOcrSourced = d.source === 'OCR Purchase Bill' || d.source === 'OCR Registration Form';
     const matchesSource =
       sourceFilter === 'all' ||
-      (sourceFilter === 'ocr' && d.source === 'OCR Purchase Bill') ||
-      (sourceFilter === 'manual' && d.source !== 'OCR Purchase Bill');
+      (sourceFilter === 'ocr' && isOcrSourced) ||
+      (sourceFilter === 'manual' && !isOcrSourced);
 
     return matchesSearch && matchesSource;
   });
 
-  const ocrCount = distributors.filter(d => d.source === 'OCR Purchase Bill').length;
+  const ocrCount = distributors.filter(d => d.source === 'OCR Purchase Bill' || d.source === 'OCR Registration Form').length;
   const manualCount = distributors.length - ocrCount;
 
   return (
@@ -217,24 +375,125 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
           </div>
         </div>
 
+        {/* Scan-to-Register success/error notices (own panel, outside the form below) */}
+        {scanSuccess && (
+          <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs flex items-start justify-between gap-3 backdrop-blur-xl">
+            <div className="flex items-start gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                <b>{scanSuccess.updated ? 'Updated' : 'Registered'}</b> "{scanSuccess.distributor.name}" from the scanned
+                document (GSTIN: {scanSuccess.distributor.gstin}, Phone: {scanSuccess.distributor.phone}).
+              </span>
+            </div>
+            <button onClick={() => setScanSuccess(null)} className="text-emerald-600 dark:text-emerald-400 hover:text-text p-1 shrink-0">
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Quick Add Form */}
         <form
           onSubmit={handleAddDistributor}
           className="bg-surface p-4 rounded-2xl border border-border space-y-3 backdrop-blur-md"
         >
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <p className="font-bold text-primary text-xs flex items-center gap-1.5">
               <Plus className="w-4 h-4 text-primary" />
               <span>Register New Supplier / Distributor:</span>
             </p>
-            <button
-              type="button"
-              onClick={() => setShowExtraFields(!showExtraFields)}
-              className="text-[11px] text-text-muted hover:text-primary underline cursor-pointer"
-            >
-              {showExtraFields ? '- Hide optional fields' : '+ Add DL No, Email, Contact Person'}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setScanSuccess(null);
+                  setIsScannerOpen(v => !v);
+                }}
+                className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition cursor-pointer ${
+                  isScannerOpen
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25'
+                }`}
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                <span>{isScannerOpen ? 'Close Scanner' : 'Scan Document (OCR)'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowExtraFields(!showExtraFields)}
+                className="text-[11px] text-text-muted hover:text-primary underline cursor-pointer"
+              >
+                {showExtraFields ? '- Hide optional fields' : '+ Add DL No, Email, Contact Person'}
+              </button>
+            </div>
           </div>
+
+          {isScannerOpen && (
+            <div className="p-4 rounded-2xl bg-bg border border-amber-500/30 space-y-3">
+              <p className="text-text-muted">
+                Point the camera at (or upload a photo of) the distributor's letterhead, visiting card, or DL
+                certificate. Recognition runs fully offline on-device — no internet or API key required — and the
+                distributor is registered automatically as soon as a name is read.
+              </p>
+
+              {isCameraActive ? (
+                <div className="space-y-3">
+                  <div className="rounded-2xl overflow-hidden border border-border aspect-video bg-black max-w-md mx-auto">
+                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    <button type="button" onClick={handleScanCaptureSnapshot} className="btn-primary py-2 px-4 rounded-xl">
+                      <Camera className="w-4 h-4" />
+                      <span>Capture &amp; Register</span>
+                    </button>
+                    <button type="button" onClick={handleStopCamera} className="btn-secondary py-2 px-4 rounded-xl">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+                  <button
+                    type="button"
+                    onClick={handleStartCamera}
+                    className="btn-secondary flex flex-col items-center gap-2 py-5 rounded-2xl"
+                  >
+                    <Camera className="w-5 h-5 text-primary" />
+                    <span>Use Camera</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="btn-secondary flex flex-col items-center gap-2 py-5 rounded-2xl"
+                  >
+                    <Upload className="w-5 h-5 text-primary" />
+                    <span>Upload Photo</span>
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handleScanFileUpload}
+                  />
+                </div>
+              )}
+
+              {isScanning && (
+                <div className="flex items-center gap-2 text-primary justify-center py-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{scanStatus}</span>
+                </div>
+              )}
+
+              {scanError && (
+                <div className="flex items-start gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-3 text-rose-700 dark:text-rose-400">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{scanError}</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
             <div>
@@ -446,10 +705,10 @@ export const DistributorModal: React.FC<DistributorModalProps> = ({
                     </td>
 
                     <td className="p-3">
-                      {d.source === 'OCR Purchase Bill' ? (
+                      {d.source === 'OCR Purchase Bill' || d.source === 'OCR Registration Form' ? (
                         <span className="inline-flex items-center gap-1 bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">
                           <Sparkles className="w-2.5 h-2.5" />
-                          <span>Auto OCR Scan</span>
+                          <span>{d.source === 'OCR Registration Form' ? 'Auto OCR: Reg. Form' : 'Auto OCR: Bill'}</span>
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full text-[10px] font-medium">

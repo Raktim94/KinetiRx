@@ -56,4 +56,20 @@ ALTER TABLE patients_due  ALTER CONSTRAINT patients_due_patient_id_fkey  NOT DEF
 ALTER TABLE sales_history ALTER CONSTRAINT sales_history_patient_id_fkey NOT DEFERRABLE;
 ALTER TABLE needed_meds   ALTER CONSTRAINT needed_meds_patient_id_fkey   NOT DEFERRABLE;
 
-SELECT setval('patient_id_seq', COALESCE((SELECT MAX(id::int) FROM patients), 0), true);
+-- setval's second argument must be >= the sequence's MINVALUE (1 by
+-- default) — a fresh install with zero patients would otherwise crash-loop
+-- forever on "setval: value 0 is out of bounds for sequence" every single
+-- time (MAX(id::int) is NULL on an empty table, COALESCE'd down to 0).
+-- With no patients yet, the *next* nextval() call should return 1, which
+-- needs setval(..., 1, false) (is_called=false), not setval(..., 0, true).
+DO $$
+DECLARE
+  highest_id int;
+BEGIN
+  SELECT MAX(id::int) INTO highest_id FROM patients;
+  IF highest_id IS NULL THEN
+    PERFORM setval('patient_id_seq', 1, false);
+  ELSE
+    PERFORM setval('patient_id_seq', highest_id, true);
+  END IF;
+END $$;

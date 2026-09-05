@@ -10,6 +10,21 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.2
+
+Fixed every fresh install crash-looping forever at startup with `startup:
+failed to apply migrations: apply migration 0010_renumber_patients: ERROR:
+setval: value 0 is out of bounds for sequence "patient_id_seq"`.
+`0010_renumber_patients` (added in 1.6.0) unconditionally called
+`setval('patient_id_seq', COALESCE(MAX(id::int), 0), true)` — on a brand
+new install with zero patients, `MAX(id::int)` is `NULL`, `COALESCE`s down
+to `0`, and Postgres sequences reject `0` as below their default `MINVALUE`
+of `1`. Every 1.6.0/1.6.1 install with no pre-existing patients hit this
+unconditionally; an install already carrying real patient data (an
+in-place upgrade) never did, since `MAX(id::int)` was never `NULL` for it —
+which is why this went unnoticed until now. Fixed by special-casing the
+zero-patients case to `setval('patient_id_seq', 1, false)` instead.
+
 ## 1.6.1
 
 Fixed two UI bugs that made the app look visibly different from its intended

@@ -10,6 +10,31 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.3
+
+Fixed on-device OCR purchase-bill scanning (Inward Stock — the fallback
+used whenever `GEMINI_API_KEY` isn't configured) silently corrupting live
+inventory on real scanned distributor invoices. Verified against two real
+GST purchase bills: a misread decimal point on a photographed table
+(Tesseract reading "205.31" as "20531") produced a row that would have
+added 20,531 units of one medicine to stock, and the whole invoice's
+computed total came out to ~₹3.2 crore for what was actually a ₹5,879
+bill — because the parser took the two largest numbers on a garbled line
+as MRP/rate with no plausibility check, and the result auto-commits
+straight to stock. A second bug let the invoice's own "LESS RET/CR NOTE"
+footer line get scraped in as a fake extra medicine when OCR garbled text
+in front of it.
+
+Both are fixed: implausible quantities/prices (qty > 2000, MRP or rate
+over ₹5,000 — already 5x the highest genuine value in the real sample
+invoices) are now rejected instead of committed, with the count of
+skipped lines surfaced in the existing "double-check before trusting
+this" notice so nothing silently disappears without a trace. This does
+not make on-device OCR perfectly accurate on a photographed dense
+table — item names and some batch numbers can still come out garbled,
+which is why that notice exists — it stops a bad read from silently
+wrecking real stock/pricing data.
+
 ## 1.6.2
 
 Fixed every fresh install crash-looping forever at startup with `startup:

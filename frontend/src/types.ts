@@ -224,7 +224,7 @@ export interface Distributor {
   email?: string;
   contactPerson?: string;
   registeredDate?: string;
-  source?: 'OCR Purchase Bill' | 'Manual Registration';
+  source?: 'OCR Purchase Bill' | 'OCR Registration Form' | 'Manual Registration';
 }
 
 export interface CurrentUser {

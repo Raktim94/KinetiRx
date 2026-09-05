@@ -276,58 +276,123 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
         } else if (!isLabeledFormat && !nonItemLinePattern.test(line) && /[A-Za-z]{3,}/.test(line) && /\d/.test(line)) {
           // Whitespace-tabular row — the shape raw OCR of a printed
           // distributor invoice table produces, e.g.:
-          // "5 10'S S-VOCITA LS TAB 300490 205.31 77S25T01 04/27 205.31 156.43 4.00 0.00 5% 450.52"
+          // "3 10'S S-VOCITA LS TAB 300490 205.31 77S25T01 04/27 205.31 156.43 4.00 0.00 5% 450.52"
           // (Qty, Pack, Description, HSN, OMRP, Batch, ExpDt, MRP, Rate,
           // Disc%, Scheme%, GST%, Amount), often with leftover "|"/"["/"]"
-          // table-border marks OCR picks up between columns. Column
-          // order/spacing is unreliable, so this only pulls out what's
-          // unambiguous by shape (a date-like expiry, an alphanumeric
-          // batch, the medicine name) and best-guesses MRP/Rate from the
-          // price-range numbers found — same "never block, fill the rest
-          // with sane defaults" contract as the labeled-field branch above.
+          // table-border marks OCR picks up between columns.
+          //
+          // The expiry date is the one column whose shape is completely
+          // unambiguous (dd/mm-style, month 1-12), so it anchors everything
+          // else: on a real Indian pharma invoice MRP and Rate are always
+          // the two numbers immediately after it, in that order — this was
+          // verified against real scanned bills from multiple distributors.
+          // Picking "the two largest numbers in the whole line" instead
+          // (an earlier version of this parser) silently grabbed Amount
+          // and OMRP instead of MRP/Rate whenever a line had more than two
+          // price-shaped numbers (which is every line in this exact
+          // column layout) — inflating totalCost by 40-60% and was never
+          // caught because each individual number still looked plausible.
+          // Only when no date token is found does this fall back to that
+          // old magnitude-guess, so a differently-laid-out invoice still
+          // gets *something* rather than the row being dropped outright.
           const cleanedLine = line.replace(/[|[\]]/g, ' ');
           const tokens = cleanedLine.split(/\s+/).filter(Boolean);
-          const numTokens: number[] = [];
-          let batch = '';
-          let exp = '';
-          const nameTokens: string[] = [];
 
-          tokens.forEach(tok => {
-            const clean = tok.replace(/[%,]/g, '');
-            if (/^\d{1,2}[/-]\d{2,4}$/.test(tok)) {
-              exp = tok.replace(/-/g, '/');
-            } else if (!batch && /^[A-Za-z0-9]{5,12}$/.test(tok) && /[A-Za-z]/.test(tok) && /\d/.test(tok)) {
-              batch = tok;
-            } else if (/^-?\d+(\.\d+)?$/.test(clean)) {
-              numTokens.push(parseFloat(clean));
-            } else if (tok.length >= 3 && /^[A-Za-z][A-Za-z'-]*$/.test(tok)) {
-              // Short (<=2 char) alphabetic tokens are almost always OCR
-              // noise from a garbled numeric/pack column, not part of a
-              // brand name, so they're excluded here to keep the name clean.
-              nameTokens.push(tok);
+          // Month must be 1-12: without this, a dosage fraction embedded in
+          // the drug name itself — e.g. "CILACAR T 20/40 TAB" — matches a
+          // bare dd/mm pattern and gets mistaken for the expiry date.
+          const expDatePattern = /^(0?[1-9]|1[0-2])[/-]\d{2,4}$/;
+          const expIdx = tokens.findIndex(tok => expDatePattern.test(tok));
+          const exp = expIdx >= 0 ? tokens[expIdx].replace(/-/g, '/') : '';
+
+          // HSN codes on these invoices are always a bare 6-digit integer
+          // (e.g. "300490", "300660") — distinct in shape from every price
+          // column, which is always a decimal (even "0.00"), so this never
+          // collides with OMRP/MRP/Rate.
+          const hsnIdx = tokens.findIndex((tok, i) => i >= 2 && /^\d{6}$/.test(tok));
+          const hsn = hsnIdx >= 0 ? tokens[hsnIdx] : '';
+
+          // Batch numbers are mixed alnum on most bills (e.g. "77S25T01")
+          // but purely numeric on some (e.g. "73240024") — a bare digit
+          // batch is indistinguishable by shape from a price column, so it
+          // only counts once we know it sits right before the expiry date
+          // (its fixed position in this layout). Candidates are only
+          // searched for *after* the HSN column, never in the qty/pack/name
+          // region before it — a dosage token embedded in the drug name
+          // itself (e.g. "PENTIDS 400MG TAB") otherwise matches this same
+          // alnum shape and gets mistaken for the batch, truncating the name.
+          let batch = hsnIdx >= 0
+            ? tokens.find(
+                (tok, i) => i > hsnIdx && /^[A-Za-z0-9]{5,12}$/.test(tok) && /[A-Za-z]/.test(tok) && /\d/.test(tok)
+              ) || ''
+            : tokens.find(
+                (tok, i) => i >= 2 && /^[A-Za-z0-9]{5,12}$/.test(tok) && /[A-Za-z]/.test(tok) && /\d/.test(tok)
+              ) || '';
+          if (!batch && expIdx > 2) {
+            const candidate = tokens[expIdx - 1];
+            if (candidate && candidate !== tokens[hsnIdx]) batch = candidate;
+          }
+
+          // Name is everything between the Pack column (always token[1])
+          // and the first of HSN/Batch/ExpDt found — deliberately including
+          // short/numeric-looking tokens ("D3", "LS", "MP", "20/40", "5mg")
+          // that the old shape-only filter dropped, since those are
+          // frequently the dosage/formulation suffix distinguishing two
+          // otherwise-identical drug names (e.g. "GEMER DS 4" vs "GEMER-P2").
+          const nameEndIdx = [hsnIdx, batch ? tokens.indexOf(batch) : -1, expIdx]
+            .filter(i => i > 1)
+            .reduce((min, i) => Math.min(min, i), tokens.length);
+          const rawName = tokens.slice(2, nameEndIdx).join(' ').trim();
+
+          const toNum = (tok: string) => parseFloat(tok.replace(/[%,]/g, ''));
+          const isNumericTok = (tok: string) => /^-?\d+(\.\d+)?%?$/.test(tok);
+
+          let mrp: number | undefined;
+          let rate: number | undefined;
+          let disc = 0;
+          let scheme = '0.00';
+          let gst = 12;
+          let dmrp = 0;
+
+          if (expIdx >= 0) {
+            const postExp = tokens.slice(expIdx + 1).filter(isNumericTok);
+            if (postExp[0] !== undefined) mrp = toNum(postExp[0]);
+            if (postExp[1] !== undefined) rate = toNum(postExp[1]);
+            if (postExp[2] !== undefined) disc = toNum(postExp[2]);
+            if (postExp[3] !== undefined) scheme = toNum(postExp[3]).toFixed(2);
+            // GST% is the only post-expiry column that reliably carries a
+            // literal "%" in the OCR text (Disc/Scheme usually print as a
+            // bare decimal on these bills) — Scheme still wins the position
+            // above when no "%" token is present at all.
+            const gstTok = postExp.find(tok => tok.includes('%'));
+            if (gstTok) gst = toNum(gstTok);
+            if (hsnIdx >= 0 && tokens[hsnIdx + 1] && isNumericTok(tokens[hsnIdx + 1]) && tokens[hsnIdx + 1] !== batch) {
+              dmrp = toNum(tokens[hsnIdx + 1]);
             }
-          });
+          }
 
-          const rawName = nameTokens.join(' ').trim();
-          if (rawName.length >= 3 && numTokens.length >= 2) {
-            const qty = Math.round(numTokens[0]) || 10;
-            const priceCandidates = numTokens.slice(1).filter(n => n > 1 && n < 100000);
+          if (mrp === undefined || rate === undefined) {
+            // No expiry-date anchor found in this line — fall back to the
+            // old best-effort guess (largest two price-shaped numbers)
+            // rather than dropping a row from a differently-laid-out bill.
+            const priceCandidates = tokens.filter(isNumericTok).map(toNum).filter(n => n > 1 && n < 100000);
             const sortedDesc = [...priceCandidates].sort((a, b) => b - a);
-            const mrp = sortedDesc[0] ?? 75;
-            const rate = sortedDesc[1] ?? Math.round(mrp * 0.75 * 100) / 100;
+            mrp = mrp ?? sortedDesc[0] ?? 75;
+            rate = rate ?? sortedDesc[1] ?? Math.round(mrp * 0.75 * 100) / 100;
+          }
+
+          if (rawName.length >= 2) {
+            const qty = Math.round(toNum(tokens[0])) || 10;
 
             // Plausibility guard: a single invoice line for one SKU is
             // never actually thousands of units, and ₹5,000/strip is
             // already 5x the highest genuine MRP seen across real sample
             // invoices (~₹1,000) — values past these bounds are OCR
             // misreads (almost always a dropped decimal point), not real
-            // data.
-            // values past these bounds are OCR misreads (almost always a
-            // dropped decimal point), not real data. Reproduced against a
-            // real scanned bill where "205.31" was read as "20531" and
-            // would otherwise have silently added 20,531 units to stock.
-            // Reject the whole row rather than commit a guessed number to
-            // a live pharmacy's inventory/billing records.
+            // data. Reproduced against a real scanned bill where "205.31"
+            // was read as "20531" and would otherwise have silently added
+            // 20,531 units to stock. Reject the whole row rather than
+            // commit a guessed number to a live pharmacy's inventory.
             const qtyPlausible = qty >= 1 && qty <= 2000;
             const mrpPlausible = mrp >= 0.5 && mrp <= 5000;
             const ratePlausible = rate >= 0.5 && rate <= 5000;
@@ -338,16 +403,16 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
 
             items.push({
               name: rawName.toUpperCase(),
-              pack: '10*T',
-              hsn: '300490',
-              dmrp: 0,
+              pack: tokens[1] || '10*T',
+              hsn: hsn || '300490',
+              dmrp,
               batch: batch || 'B-' + Math.floor(1000 + Math.random() * 9000),
               exp: exp || '2028-12',
               mrp,
               rate,
-              disc: 0,
-              scheme: '0.00',
-              gst: 12,
+              disc,
+              scheme,
+              gst,
               qty,
               salt: 'Pharma Formulation',
               company: distributor.split(' ')[0] || 'Pharma',

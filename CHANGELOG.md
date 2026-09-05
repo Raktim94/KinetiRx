@@ -10,6 +10,34 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.4
+
+Added offline OCR "Scan Document" registration for distributors: point the
+camera at (or upload a photo of) a distributor's own letterhead, visiting
+card, or DL certificate and it registers automatically — no purchase
+invoice or line items needed, unlike the existing Inward Stock bill-scan
+flow. Runs fully offline on-device, same pipeline as patient-ID scanning.
+Merges into an existing distributor (matched by GSTIN or name) instead of
+creating a duplicate.
+
+Also fixes a real accuracy bug in the Inward Stock on-device OCR fallback
+(used when no `GEMINI_API_KEY` is set), found while testing against two
+real distributor invoices: the whitespace-tabular parser picked "the two
+largest numbers on the line" as MRP/Rate, which actually grabbed
+Amount+OMRP instead whenever a row had more than two price-shaped numbers
+— true on every line of the exact column layout (Qty/Pack/Description/
+HSN/OMRP/Batch/ExpDt/MRP/Rate/Disc%/Scheme%/GST%/Amount) the parser's own
+code comment targets. This inflated computed stock cost by 40-60% while
+each individual number still looked plausible, so the 1.6.3 implausible-
+value guard never caught it. HSN and GST% were also hardcoded regardless
+of the invoice's real per-row values, and a dosage number embedded in a
+drug name (e.g. "PENTIDS 400MG TAB") could be mistaken for the batch
+number and truncate the name. Rewritten to anchor on the expiry-date token
+(the one column with an unambiguous shape) and derive HSN/Batch/MRP/Rate
+positionally relative to it. Re-verified against the same two real
+invoices — computed totals now match each invoice's printed Gross Amount
+exactly.
+
 ## 1.6.3
 
 Fixed on-device OCR purchase-bill scanning (Inward Stock — the fallback

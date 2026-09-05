@@ -87,6 +87,7 @@ interface ScannedInvoiceData {
   totalCost: number;
   items: ScannedInvoiceItem[];
   isNewDistributor?: boolean;
+  skippedRowCount?: number;
 }
 
 interface InwardOCRTabProps {
@@ -158,8 +159,12 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
   // than a medicine row — checked before treating any line as an item, in
   // both the labeled-field and whitespace-tabular branches below, so scanned
   // address/GST-summary lines don't get mistaken for a purchased item.
+  // No leading `^`: OCR often prepends garbled noise before the real
+  // keyword (e.g. a signature scrawl smearing into "...LESS RET/CR NOTE"),
+  // which would otherwise slip past an anchored match and get scraped in
+  // as a fake medicine line — reproduced against a real scanned invoice.
   const nonItemLinePattern =
-    /^(qty|packing|description|hsn|omrp|batch|exp\s?dt|mrp|rate|disc|schem|gst\s?%|amount|gross\s?amount|net\s?am[tn]|less\s?discount|add\s?[cs]gst|[cs]gst\s?@|rupees|no\.\s?of\s?items|challan|jurisdiction|for\s+new|subject\s+to|e\.\s?&\s?o\.?e|m\/s|gstin|dl\s?no|ph(one)?[:.]|email|cash|user\s?:|time\s?:|inv\s?no|date\s?:|gst\s?invoice)/i;
+    /(qty|packing|description|hsn|omrp|batch|exp\s?dt|mrp|rate|disc|schem|gst\s?%|amount|gross\s?amount|net\s?am[tn]|\bless\b|add\s?[cs]gst|[cs]gst\s?@|rupees|no\.\s?of\s?items|challan|jurisdiction|for\s+new|subject\s+to|e\.\s?&\s?o\.?e|m\/s|gstin|dl\s?no|ph(one)?[:.]|email|cash|user\s?:|time\s?:|inv\s?no|date\s?:|gst\s?invoice)/i;
 
   const parseInvoiceTextLocally = (text: string): ScannedInvoiceData | null => {
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
@@ -172,6 +177,13 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     let invNo = 'INV-' + Math.floor(100000 + Math.random() * 900000);
     let invDate = getTodayISODate();
     const items: ScannedInvoiceItem[] = [];
+    // Counts rows that looked like a medicine line but produced numbers
+    // outside any plausible range for retail pharma pricing/quantity —
+    // almost always OCR dropping a decimal point off a photographed
+    // table (e.g. "205.31" read as "20531"). Surfaced to the user rather
+    // than silently either committing a corrupted stock entry or silently
+    // dropping a real line with no trace.
+    let skippedRowCount = 0;
 
     // Whole-text scan for a structurally valid GSTIN and an Indian mobile
     // number — these have a fixed, unambiguous format, so this catches them
@@ -304,6 +316,26 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             const mrp = sortedDesc[0] ?? 75;
             const rate = sortedDesc[1] ?? Math.round(mrp * 0.75 * 100) / 100;
 
+            // Plausibility guard: a single invoice line for one SKU is
+            // never actually thousands of units, and ₹5,000/strip is
+            // already 5x the highest genuine MRP seen across real sample
+            // invoices (~₹1,000) — values past these bounds are OCR
+            // misreads (almost always a dropped decimal point), not real
+            // data.
+            // values past these bounds are OCR misreads (almost always a
+            // dropped decimal point), not real data. Reproduced against a
+            // real scanned bill where "205.31" was read as "20531" and
+            // would otherwise have silently added 20,531 units to stock.
+            // Reject the whole row rather than commit a guessed number to
+            // a live pharmacy's inventory/billing records.
+            const qtyPlausible = qty >= 1 && qty <= 2000;
+            const mrpPlausible = mrp >= 0.5 && mrp <= 5000;
+            const ratePlausible = rate >= 0.5 && rate <= 5000;
+            if (!qtyPlausible || !mrpPlausible || !ratePlausible) {
+              skippedRowCount++;
+              return;
+            }
+
             items.push({
               name: rawName.toUpperCase(),
               pack: '10*T',
@@ -340,6 +372,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       invDate,
       totalCost,
       items,
+      skippedRowCount,
     };
   };
 
@@ -584,12 +617,22 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       setScannedResult(finalInvoiceData);
       setIsCommitted(false);
 
+      // Rows with an implausible qty/mrp/rate (see parseInvoiceTextLocally)
+      // are rejected rather than committed — surfaced here so the user
+      // knows the bill had lines OCR couldn't read reliably, distinct from
+      // the general "double-check the numbers" fallback warning below.
+      const skippedNote =
+        finalInvoiceData.skippedRowCount && finalInvoiceData.skippedRowCount > 0
+          ? ` ${finalInvoiceData.skippedRowCount} line${finalInvoiceData.skippedRowCount === 1 ? '' : 's'} on the bill could not be read reliably and ${finalInvoiceData.skippedRowCount === 1 ? 'was' : 'were'} skipped — check the physical bill and add ${finalInvoiceData.skippedRowCount === 1 ? 'it' : 'them'} manually.`
+          : '';
+
       // Auto-commit immediately to provide instant real-time sync
       handleCommitToStock(
         finalInvoiceData,
         usedOnDeviceFallback
-          ? '⚠ Read via offline on-device OCR (no AI key configured) — double-check quantities, prices, and batch numbers below before billing against this stock.'
-          : undefined
+          ? '⚠ Read via offline on-device OCR (no AI key configured) — double-check quantities, prices, and batch numbers below before billing against this stock.' +
+              skippedNote
+          : skippedNote || undefined
       );
     } catch (err: any) {
       console.error('Invoice processing failed:', err);

@@ -18,12 +18,20 @@ CasaOS and ZimaOS can both install directly from a compose file URL — you
 don't need to wait for this to land in the official app store:
 
 1. In CasaOS/ZimaOS, go to **App Store → + (top right) → Install a customized app** (CasaOS) or the equivalent **Custom Install / Install via Compose** option in ZimaOS.
-2. Paste this URL (or the raw file contents):
+2. Paste this URL:
 
    ```
    https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/docker-compose.yml
    ```
 
+   Pasting the raw file *contents* instead of the URL also works, but paste
+   from the [raw view](https://raw.githubusercontent.com/Raktim94/KinetiRx/main/casaos/docker-compose.yml),
+   not GitHub's syntax-highlighted file view — copying from the highlighted
+   view can silently substitute non-breaking spaces for the YAML indentation,
+   which fails CasaOS's paste validation with a generic "Please confirm the
+   input content" error instead of installing. `release_notes` is kept to
+   just the current version (see [CHANGELOG.md](../CHANGELOG.md) for full
+   history) partly to keep this paste short enough not to trip that path.
 3. Install. CasaOS pulls the pre-built `ghcr.io/raktim94/kinetirx-backend`
    and `ghcr.io/raktim94/kinetirx-frontend` images — there is no build step,
    so it works even though CasaOS never touches this repo's source. **Both
@@ -62,7 +70,7 @@ default — it's created from the app's own first-run signup screen instead
 KinetiRx is a three-container app (`postgres` + `backend` + `frontend`),
 same as the plain [`docker-compose.yml`](../deploy/docker-compose.yml) at
 `deploy/` — see [Architecture](../README.md#architecture) for why. The
-manifest declares `main: kinetirx-frontend` since that's the browsable
+manifest declares `main: frontend` since that's the browsable
 service; CasaOS uses this to know which container's port to open when you
 click the app.
 
@@ -73,7 +81,10 @@ not `:latest`, tags). To publish a new version:
 
 1. Bump the version everywhere it's referenced — the two `image:` tags in
    this file, `version:` and `update_at:` under `x-casaos:`, and
-   `release_notes.en_US`.
+   `release_notes.en_US` (replace it with just the new version's note —
+   don't append to the history here, add the full entry to
+   [`../CHANGELOG.md`](../CHANGELOG.md) instead; keeping this field short
+   is what keeps the paste-content install path working).
 2. Build and push both images multi-arch (`linux/amd64` **and**
    `linux/arm64` — a lot of CasaOS/ZimaOS boxes are ARM SBCs), e.g.:
    ```

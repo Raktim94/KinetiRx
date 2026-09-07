@@ -10,6 +10,26 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.5
+
+Fixed the Inward Stock offline OCR fallback silently registering purchases
+under a generic "SUPPLIER DISTRIBUTOR" placeholder instead of the real
+distributor name. The distributor-letterhead detection only accepted an
+exact-shape match on the very first recognized line; real on-device OCR of
+a photographed bill routinely prepends/appends stray punctuation to that
+line (commas, em-dashes, misread border rules) or garbles it outright and
+pushes the real letterhead text down a line or two, and both silently fell
+through to the placeholder. Rewritten to search the first 8 lines, strip
+OCR noise characters from each candidate instead of requiring it to
+already be clean, and prefer a line containing a distributor-shaped
+keyword (DISTRIBUTOR, PHARMA, REMEDIES, etc.) over whichever
+plausible-looking line comes first — since a bill's buyer name is just as
+likely to survive OCR cleanly and would otherwise win by appearing first.
+Verified against the real tesseract.js output for two real distributor
+invoices: one now resolves to the exact correct name, the other to a
+close, easily-corrected match — both a large improvement over the
+placeholder they produced before.
+
 ## 1.6.4
 
 Added offline OCR "Scan Document" registration for distributors: point the

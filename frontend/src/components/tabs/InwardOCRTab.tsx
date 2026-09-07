@@ -194,12 +194,61 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     const phoneMatch = text.match(/(?:\+?91[\s-]?|0)?\b([6-9]\d{9})\b/);
     if (phoneMatch) phone = phoneMatch[1];
 
-    // Distributor letterhead is almost always the first non-empty line of a
-    // scanned/printed bill (top-to-bottom OCR reading order).
-    const firstLine = lines[0];
-    if (firstLine && /^[A-Za-z][A-Za-z .&'-]{4,60}$/.test(firstLine) && !/gst\s?invoice/i.test(firstLine)) {
-      distributor = firstLine.replace(/\s+/g, ' ').trim();
+    // Distributor letterhead is almost always near the top of a
+    // scanned/printed bill, but on-device OCR of a real photographed bill
+    // routinely prepends/appends stray punctuation to that line (commas,
+    // em-dashes, misread border rules — e.g. ", NEW UMA MEDICINE
+    // DISTRIBUTOR ——") or garbles the line entirely and pushes the real
+    // letterhead text to line 2 or 3 instead. Requiring an exact-shape
+    // match on `lines[0]` alone (the old behavior) silently fell back to
+    // the "SUPPLIER DISTRIBUTOR" placeholder on both of these real cases —
+    // reproduced against two real distributor invoices where the true
+    // letterhead ended up on lines[0] and lines[1] respectively, each with
+    // noise the strict first-line regex rejected outright.
+    const distributorKeyword =
+      /\b(DISTRIBUTOR|DISTRIBUTORS|PHARMA|REMEDIES|AGENC(Y|IES)|MEDICOS|ENTERPRISE|PHARMACEUTICALS|HEALTHCARE|LABORATOR(Y|IES))\b/i;
+    const cleanLetterheadCandidate = (line: string) =>
+      line
+        // Collapse any run of characters that isn't a letter/space/the
+        // handful of punctuation marks a real business name can contain
+        // (& . ' -) into a single space, rather than only trimming the
+        // start/end of the line — a misread border mid-line would
+        // otherwise permanently disqualify an otherwise-correct line.
+        .replace(/[^A-Za-z&.'-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    // A short (<=2 char) leading token gets dropped only when it's NOT
+    // all-uppercase: real Indian business names routinely start with
+    // initials ("S. K. TRADERS") in the same all-caps style as the rest of
+    // the letterhead, while OCR noise tokens picked up from a misread
+    // border/rule ("n", "pe", "oh") come out lowercase/mixed-case — this
+    // clears the noise without eating a genuine initial.
+    const dropLeadingNoiseWords = (cleaned: string) => {
+      const words = cleaned.split(' ');
+      while (words.length > 1 && words[0].length <= 2 && words[0] !== words[0].toUpperCase()) {
+        words.shift();
+      }
+      return words.join(' ');
+    };
+
+    let distributorFound = false;
+    let fallbackCandidate = '';
+    for (const rawLine of lines.slice(0, 8)) {
+      if (nonItemLinePattern.test(rawLine)) continue;
+      const cleaned = dropLeadingNoiseWords(cleanLetterheadCandidate(rawLine));
+      if (!cleaned || cleaned.length < 5 || cleaned.length > 60 || !/[A-Za-z]{3,}/.test(cleaned)) continue;
+      // Prefer a line that actually contains a distributor-shaped keyword
+      // over the first plausible-looking line, since a photographed bill's
+      // buyer name (e.g. "M/s MRS MEDICAL") is just as likely to survive
+      // OCR cleanly and would otherwise win by appearing first.
+      if (distributorKeyword.test(cleaned)) {
+        distributor = cleaned;
+        distributorFound = true;
+        break;
+      }
+      if (!fallbackCandidate) fallbackCandidate = cleaned;
     }
+    if (!distributorFound && fallbackCandidate) distributor = fallbackCandidate;
 
     lines.forEach(line => {
       const lower = line.toLowerCase();

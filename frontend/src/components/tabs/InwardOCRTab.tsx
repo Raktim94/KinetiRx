@@ -355,6 +355,22 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           const cleanedLine = line.replace(/[|[\]]/g, ' ');
           const tokens = cleanedLine.split(/\s+/).filter(Boolean);
 
+          // A genuine row in this column layout (Qty/Pack/Description/HSN/
+          // OMRP/Batch/ExpDt/MRP/Rate/Disc%/Scheme%/GST%/Amount) always has
+          // well over half a dozen tokens, even when OCR mangles individual
+          // characters within them. The outer gate above only checks for
+          // "one digit plus 3+ letters somewhere in the line", which a short
+          // burst of OCR noise off a logo/letterhead/border can satisfy just
+          // as easily as a real row — reproduced against a real scanned bill
+          // where garbled header noise ("4 a TEE") was accepted as a genuine
+          // line and silently created a fake "TEE" SKU (qty 4, rate ₹3) in
+          // live stock. Reject the line outright rather than guess columns
+          // out of too few tokens to plausibly be a real invoice row.
+          if (tokens.length < 6) {
+            skippedRowCount++;
+            return;
+          }
+
           // Month must be 1-12: without this, a dosage fraction embedded in
           // the drug name itself — e.g. "CILACAR T 20/40 TAB" — matches a
           // bare dd/mm pattern and gets mistaken for the expiry date.

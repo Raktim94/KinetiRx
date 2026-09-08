@@ -10,6 +10,32 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.7
+
+Fixed two real accuracy bugs in the on-device (fully offline, no API key)
+OCR fallback used by both Inward Stock bill scanning and patient-ID/phone
+scanning, found from two real distributor invoice photos that came back
+almost entirely garbled (distributor read as "C UMA MEDICINE DISTRIBUTOR"
+instead of "NEW UMA...", item names like "TEE", scrambled batch/rate
+columns):
+
+1. The image sent to Tesseract was only ever downscaled, never upscaled —
+   a bill photographed at a normal distance (long edge well under the
+   1600px cap) went to OCR at its native low resolution with color-channel
+   JPEG noise still in place. Now normalizes to grayscale and upscales up
+   to 2x (capped at 3200px long edge) before OCR. Verified against both
+   real invoices: the same two bills that previously produced "N/A"
+   distributor/GSTIN/phone and unreadable item names now correctly read
+   the distributor name and every item name legibly.
+2. The line-item parser's "does this line look like a table row" check
+   only required one digit plus 3+ letters anywhere in the line — a short
+   burst of OCR noise off the letterhead/logo could satisfy that as easily
+   as a real row, and one real bill's garbled header noise ("4 a TEE") was
+   silently accepted as a genuine line and created a fake "TEE" medicine
+   (qty 4, ₹3 rate) in live stock. Now requires at least 6 tokens, well
+   below what any real row in this column layout actually has (12-13),
+   before attempting to parse a line as an item.
+
 ## 1.6.6
 
 Added an opt-in free/unlimited cloud OCR option for Inward Stock bill

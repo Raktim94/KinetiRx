@@ -529,6 +529,19 @@ export interface BackupStatus {
   nextDueAt?: string;
 }
 
+export interface AIProviderConfigStatus {
+  configured: boolean;
+  baseUrl?: string;
+  model?: string;
+  updatedAt?: string;
+}
+
+export interface AIProviderConfigInput {
+  baseUrl: string;
+  model: string;
+  apiKey: string;
+}
+
 async function requestBlob(path: string, options: RequestInit = {}): Promise<{ blob: Blob; filename: string }> {
   const token = currentToken();
   const headers: Record<string, string> = { ...((options.headers as Record<string, string>) || {}) };
@@ -613,4 +626,11 @@ export const backupApi = {
     }
     return body as { restored: boolean };
   },
+};
+
+export const aiProviderApi = {
+  getConfig: () => request<AIProviderConfigStatus>('/api/ai-config'),
+  saveConfig: (input: AIProviderConfigInput) =>
+    request<AIProviderConfigStatus>('/api/ai-config', { method: 'POST', body: JSON.stringify(input) }),
+  deleteConfig: () => request<void>('/api/ai-config', { method: 'DELETE' }),
 };

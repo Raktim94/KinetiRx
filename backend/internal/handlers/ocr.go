@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -82,9 +83,11 @@ type parseBillRequest struct {
 	DistributorHint string `json:"distributorHint"`
 }
 
-// ParseBill handles POST /api/ocr/parse-bill. When GEMINI_API_KEY is not
-// configured it returns a fallback response so the frontend can fall back to
-// its own built-in parsing engine, matching the old prototype's behavior.
+// ParseBill handles POST /api/ocr/parse-bill. When no AI provider is
+// configured (Settings -> AI OCR / Vision Model, or the legacy
+// GEMINI_API_KEY environment variable) it returns a fallback response so the
+// frontend falls back to its own built-in offline parsing engine, matching
+// the old prototype's behavior.
 func (d *Deps) ParseBill(c *gin.Context) {
 	var req parseBillRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -92,47 +95,26 @@ func (d *Deps) ParseBill(c *gin.Context) {
 		return
 	}
 
-	if d.GeminiAPIKey == "" {
-		httpx.OK(c, gin.H{
-			"success":  false,
-			"fallback": true,
-			"message":  "GEMINI_API_KEY not configured on server. Using built-in pharmaceutical OCR engine.",
-		})
-		return
-	}
-
-	var contents []geminiContent
+	var promptText string
 	switch {
 	case req.ImageBase64 != "":
-		mimeType := req.MimeType
-		if mimeType == "" {
-			mimeType = "image/jpeg"
-		}
-		base64Data := dataURLPrefix.ReplaceAllString(req.ImageBase64, "")
-		contents = []geminiContent{{
-			Role: "user",
-			Parts: []geminiPart{
-				{Text: ocrBillPrompt},
-				{InlineData: &geminiInlineData{MimeType: mimeType, Data: base64Data}},
-			},
-		}}
+		promptText = ocrBillPrompt
 	case req.TextContent != "":
-		contents = []geminiContent{{
-			Role:  "user",
-			Parts: []geminiPart{{Text: ocrBillPrompt + "\n\nInvoice Text Content:\n" + req.TextContent}},
-		}}
+		promptText = ocrBillPrompt + "\n\nInvoice Text Content:\n" + req.TextContent
 	default:
 		httpx.BadRequest(c, "No imageBase64 or textContent provided")
 		return
 	}
 
-	responseText, err := d.callGemini(c.Request.Context(), geminiRequest{
-		Contents: contents,
-		GenerationConfig: geminiGenerationConfig{
-			Temperature:      0.1,
-			ResponseMimeType: "application/json",
-		},
-	})
+	responseText, err := d.runAIPrompt(c.Request.Context(), promptText, req.ImageBase64, req.MimeType, true)
+	if errors.Is(err, ErrAINotConfigured) {
+		httpx.OK(c, gin.H{
+			"success":  false,
+			"fallback": true,
+			"message":  "No AI provider configured on server. Using built-in pharmaceutical OCR engine.",
+		})
+		return
+	}
 	if err != nil {
 		httpx.Error(c, 500, "ocr_extraction_failed", "Failed to process purchase bill OCR: "+err.Error())
 		return

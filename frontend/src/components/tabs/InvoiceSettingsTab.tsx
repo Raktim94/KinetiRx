@@ -38,6 +38,7 @@ import {
 import { PrinterFormat, resolvePrinterFormat } from '../../utils/receiptPrint';
 import { CURRENCY_OPTIONS, getCurrencySymbol } from '../../utils/currency';
 import { isPuterOcrEnabled, setPuterOcrEnabled } from '../../utils/puterOcr';
+import { AIProviderPanel } from '../AIProviderPanel';
 
 const PRINTER_FORMAT_OPTIONS: { value: PrinterFormat; label: string; hint: string }[] = [
   { value: 'thermal_80mm', label: '80mm Thermal Receipt', hint: 'Standard-width till roll — most common counter printers' },
@@ -1027,6 +1028,8 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
             />
           </button>
         </div>
+
+        <AIProviderPanel />
       </div>
 
       {/* DEDICATED RESET & 5-DAY BACKUP HIGHLIGHT CARD */}

@@ -189,6 +189,17 @@ func RegisterRoutes(r *gin.Engine, d *Deps) {
 		authed.POST("/ocr/parse-bill", middleware.RequirePermission(models.TabType("inward-ocr")), d.ParseBill)
 		authed.POST("/ai/ask", d.AskAI) // any authenticated employee may consult the assistant
 
+		// Operator-supplied OpenAI-compatible AI provider config (Settings ->
+		// AI OCR / Vision Model) — admin only, since it holds a live API key
+		// and controls where bill images get sent.
+		aic := authed.Group("/ai-config")
+		aic.Use(middleware.RequireAdmin())
+		{
+			aic.GET("", d.GetAIProviderConfig)
+			aic.POST("", d.PutAIProviderConfig)
+			aic.DELETE("", d.DeleteAIProviderConfig)
+		}
+
 		// Master Security PIN — a second factor for the highest-risk admin
 		// actions (System Reset). Verify is rate-limited on top of its own
 		// per-account lockout since a 4-digit PIN is inherently brute-forceable.

@@ -10,6 +10,32 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.9
+
+Added a Settings section ("AI OCR / Vision Model") to configure accurate
+AI-vision purchase-bill scanning and the clinical assistant without
+touching server environment variables: any OpenAI-compatible endpoint —
+Gemini's own OpenAI-compat endpoint, OpenAI itself, OpenRouter, Groq, a
+local Ollama vision model, etc. — not just Google's native Gemini API.
+
+- New `ai_provider_config` table stores the operator-entered base URL,
+  model, and API key; the key is AES-256-GCM encrypted at rest using the
+  same `BACKUP_ENCRYPTION_KEY` that already protects the S3 backup secret
+  (one operator-supplied key now protects every secret this app stores,
+  rather than a second one being required).
+- New admin-only `GET/POST/DELETE /api/ai-config` endpoints; saving tests
+  the endpoint with a live request first, so a typo in the URL/model/key
+  is caught immediately rather than at the next bill scan.
+- Bill scanning and the assistant now resolve the AI backend in priority
+  order: the Settings-configured provider, then the legacy `GEMINI_API_KEY`
+  environment variable (unchanged, still zero-config), then offline
+  fallback — an existing deployment that only ever set the env var keeps
+  working exactly as before.
+- Verified end-to-end against a real Docker Compose stack: fresh migration
+  applies cleanly, save-and-test / status / delete all round-trip
+  correctly through encryption, and both OCR bill scanning and the AI
+  assistant correctly route through the configured provider.
+
 ## 1.6.8
 
 Follow-up to 1.6.7 after re-testing the offline OCR fallback against the

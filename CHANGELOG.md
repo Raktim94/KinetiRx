@@ -10,6 +10,18 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.6
+
+Added an opt-in free/unlimited cloud OCR option for Inward Stock bill
+scanning, backed by [Puter.js](https://developer.puter.com/tutorials/free-unlimited-ocr-api/)
+(`js.puter.com`, no API key or backend wiring — the end user's own free
+Puter account covers usage). Off by default; toggle it from the Supplier
+Purchase Bill Auto-Scan (OCR) tab or from Settings. When enabled, a scan
+tries the paid server AI first, then Puter.js, then falls back to fully
+offline on-device OCR — each result is flagged with which path produced
+it so it's clear when to double-check the numbers before billing against
+that stock.
+
 ## 1.6.5
 
 Fixed the Inward Stock offline OCR fallback silently registering purchases

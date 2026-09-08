@@ -55,6 +55,7 @@ import { formatFullDateWithDay, getTodayISODate } from '../../utils/dateUtils';
 import { ocrApi } from '../../lib/api';
 import { getCurrencySymbol } from '../../utils/currency';
 import { recognizeIdText } from '../../utils/patientIdOcr';
+import { isPuterOcrEnabled, recognizeWithPuter, setPuterOcrEnabled } from '../../utils/puterOcr';
 
 interface ScannedInvoiceItem {
   id?: string;
@@ -117,6 +118,13 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
+  const [puterOcrEnabled, setPuterOcrEnabledState] = useState<boolean>(isPuterOcrEnabled());
+
+  const handleTogglePuterOcr = () => {
+    const next = !puterOcrEnabled;
+    setPuterOcrEnabledState(next);
+    setPuterOcrEnabled(next);
+  };
 
   // Active scanned result workspace
   const [scannedResult, setScannedResult] = useState<ScannedInvoiceData | null>(null);
@@ -694,10 +702,26 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       // or exact batch codes off a photographed table, so anything it
       // produces is worth a manual once-over before trusting the numbers.
       let usedOnDeviceFallback = false;
+      // Puter.js (free, unlimited, cloud OCR — opt-in) sits between the
+      // paid server AI and the fully-offline Tesseract fallback: better
+      // read quality than on-device OCR, but still a third-party result
+      // worth a manual once-over, so it gets its own confidence note below.
+      let usedPuterOcr = false;
 
       if (!extractedData && payload.textContent) {
         extractedData = parseInvoiceTextLocally(payload.textContent);
-      } else if (!extractedData && payload.imageBase64) {
+      } else if (!extractedData && payload.imageBase64 && puterOcrEnabled) {
+        try {
+          setStatusMessage('Running free Puter.js OCR... this can take a few seconds.');
+          const recognizedText = await recognizeWithPuter(payload.imageBase64);
+          extractedData = parseInvoiceTextLocally(recognizedText);
+          usedPuterOcr = !!extractedData;
+        } catch (puterErr) {
+          console.warn('Puter.js OCR failed, falling back to on-device OCR:', puterErr);
+        }
+      }
+
+      if (!extractedData && payload.imageBase64) {
         try {
           setStatusMessage('Running on-device OCR (offline)... this can take a few seconds.');
           const recognizedText = await recognizeIdText(payload.imageBase64);
@@ -746,6 +770,8 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
         usedOnDeviceFallback
           ? '⚠ Read via offline on-device OCR (no AI key configured) — double-check quantities, prices, and batch numbers below before billing against this stock.' +
               skippedNote
+          : usedPuterOcr
+          ? '⚡ Read via free Puter.js OCR — double-check quantities, prices, and batch numbers below before billing against this stock.' + skippedNote
           : skippedNote || undefined
       );
     } catch (err: any) {
@@ -1179,6 +1205,48 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
               <span>Paste Text / Clipboard</span>
             </button>
           </div>
+        </div>
+
+        {/* PUTER.JS FREE UNLIMITED OCR TOGGLE */}
+        <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex-wrap">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-text flex items-center gap-1.5 flex-wrap">
+                <span>Free Unlimited OCR (Puter.js)</span>
+              </p>
+              <p className="text-[10.5px] text-text-muted leading-relaxed">
+                Uses{' '}
+                <a
+                  href="https://developer.puter.com/tutorials/free-unlimited-ocr-api/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-primary inline-flex items-center gap-0.5"
+                >
+                  Puter.js
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>{' '}
+                as a free cloud OCR fallback before dropping to fully offline scanning. First use may prompt a free Puter sign-in popup. Also toggleable from Settings.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={puterOcrEnabled}
+            onClick={handleTogglePuterOcr}
+            className={`shrink-0 w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+              puterOcrEnabled ? 'bg-amber-500' : 'bg-border'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+                puterOcrEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
         </div>
 
         {/* METHOD 1: FILE DRAG & DROP UPLOADER */}

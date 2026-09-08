@@ -7,6 +7,7 @@ import {
   Clock,
   Database,
   Download,
+  ExternalLink,
   FileSpreadsheet,
   FileText,
   Filter,
@@ -23,6 +24,7 @@ import {
   Store,
   Trash2,
   Upload,
+  Zap,
 } from 'lucide-react';
 import { InvoiceConfig, InvoicePrintData, SalesRecord } from '../../types';
 import {
@@ -35,6 +37,7 @@ import {
 } from '../../utils/exportCsv';
 import { PrinterFormat, resolvePrinterFormat } from '../../utils/receiptPrint';
 import { CURRENCY_OPTIONS, getCurrencySymbol } from '../../utils/currency';
+import { isPuterOcrEnabled, setPuterOcrEnabled } from '../../utils/puterOcr';
 
 const PRINTER_FORMAT_OPTIONS: { value: PrinterFormat; label: string; hint: string }[] = [
   { value: 'thermal_80mm', label: '80mm Thermal Receipt', hint: 'Standard-width till roll — most common counter printers' },
@@ -63,6 +66,13 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
   const currencySymbol = getCurrencySymbol(invoiceConfig.currency);
   const [purgeNotice, setPurgeNotice] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [puterOcrEnabled, setPuterOcrEnabledState] = useState<boolean>(isPuterOcrEnabled());
+
+  const handleTogglePuterOcr = () => {
+    const next = !puterOcrEnabled;
+    setPuterOcrEnabledState(next);
+    setPuterOcrEnabled(next);
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle Logo File Upload (supports JPG, PNG, WEBP, SVG)
@@ -970,6 +980,53 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
             </button>
           </div>
         </form>
+      </div>
+
+      {/* 4. SUPPLIER BILL AUTO-SCAN (OCR) SETTINGS */}
+      <div className="p-6 rounded-3xl bg-surface/90 backdrop-blur-2xl border border-border shadow-2xl space-y-4">
+        <h3 className="text-base font-bold text-text flex items-center gap-2">
+          <Camera className="w-4.5 h-4.5 text-primary" />
+          Supplier Purchase Bill Auto-Scan (OCR)
+        </h3>
+
+        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex-wrap">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+              <Zap className="w-4.5 h-4.5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-text">Free Unlimited OCR (Puter.js)</p>
+              <p className="text-[11px] text-text-muted leading-relaxed mt-0.5 max-w-2xl">
+                When scanning a supplier's purchase bill, try{' '}
+                <a
+                  href="https://developer.puter.com/tutorials/free-unlimited-ocr-api/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-primary inline-flex items-center gap-0.5"
+                >
+                  Puter.js
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>{' '}
+                as a free, unlimited cloud OCR reader before dropping to fully offline scanning. Off by default; the first scan after enabling may show a free Puter account sign-in popup. Also toggleable from the Supplier Purchase Bill Auto-Scan (OCR) tab itself.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={puterOcrEnabled}
+            onClick={handleTogglePuterOcr}
+            className={`shrink-0 w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+              puterOcrEnabled ? 'bg-amber-500' : 'bg-border'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
+                puterOcrEnabled ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* DEDICATED RESET & 5-DAY BACKUP HIGHLIGHT CARD */}

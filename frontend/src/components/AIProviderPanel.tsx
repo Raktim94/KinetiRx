@@ -87,17 +87,22 @@ export const AIProviderPanel: React.FC = () => {
             <h4 className="text-sm font-bold text-text">AI OCR / Vision Model</h4>
             <p className="text-[11px] text-text-muted max-w-xl">
               Accurate purchase-bill scanning and the clinical assistant, via any OpenAI-compatible endpoint —
-              Gemini's own{' '}
+              Gemini, OpenAI, OpenRouter, Groq, or a local Ollama vision model. Not just Google's native API.
+              For Gemini, paste{' '}
+              <code className="bg-surface border border-border rounded px-1 py-0.5 text-text">
+                https://generativelanguage.googleapis.com/v1beta/openai
+              </code>{' '}
+              as the Base URL below — not a docs page link (
               <a
                 href="https://ai.google.dev/gemini-api/docs/openai"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-primary inline-flex items-center gap-0.5"
               >
-                OpenAI-compat endpoint
+                Gemini OpenAI-compat docs
                 <ExternalLink className="w-2.5 h-2.5" />
               </a>
-              , OpenAI itself, OpenRouter, Groq, or a local Ollama vision model. Not just Google's native API.
+              , for reference only — pasting this link itself as the Base URL will fail).
             </p>
           </div>
         </div>

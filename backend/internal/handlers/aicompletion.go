@@ -112,7 +112,26 @@ func (d *Deps) callChatCompletion(ctx context.Context, cfg aiprovider.Config, sy
 
 	var parsed chatCompletionResponse
 	if err := json.Unmarshal(respBody, &parsed); err != nil {
-		return "", fmt.Errorf("parse AI endpoint response: %w", err)
+		// Some OpenAI-compatible providers — confirmed for Gemini's own
+		// OpenAI-compat endpoint — wrap an error response in a JSON array
+		// instead of the bare object every other part of this API returns.
+		// Try that shape before giving up, so a bad key/model/quota error
+		// still surfaces the provider's actual message below instead of a
+		// raw unmarshal failure.
+		var arr []chatCompletionResponse
+		if arrErr := json.Unmarshal(respBody, &arr); arrErr == nil && len(arr) > 0 {
+			parsed = arr[0]
+		} else {
+			// Not JSON at all — almost always means the Base URL points at a
+			// documentation page or website rather than the actual API
+			// endpoint (e.g. pasting https://ai.google.dev/gemini-api/docs/openai
+			// instead of https://generativelanguage.googleapis.com/v1beta/openai).
+			snippet := string(respBody)
+			if len(snippet) > 200 {
+				snippet = snippet[:200] + "…"
+			}
+			return "", fmt.Errorf("endpoint did not return JSON (got: %q) — double-check the Base URL is the actual API endpoint, not a documentation or website link", snippet)
+		}
 	}
 	if resp.StatusCode != http.StatusOK {
 		if parsed.Error != nil {

@@ -10,6 +10,30 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.10
+
+Fixed two real bugs in the AI OCR / Vision Model feature added in 1.6.9,
+found immediately by a real user configuring their own Gemini key:
+
+1. The Settings panel showed a "Gemini OpenAI-compat endpoint" link that
+   pointed at Google's *documentation page*
+   (`ai.google.dev/gemini-api/docs/openai`) right next to the Base URL
+   field — easy to mistake for the value to paste. Pasting that link as
+   the Base URL sent every request to a website instead of the API,
+   which failed with an opaque "invalid character '<' looking for
+   beginning of value" (the site's HTML response). The panel now shows
+   the actual endpoint URL as copyable text and calls out the docs link
+   as reference-only.
+2. Separately, and more importantly: Gemini's OpenAI-compat endpoint
+   wraps error responses in a JSON *array* (`[{"error":{...}}]`) instead
+   of the bare object every other part of this API uses. Any real error
+   from Gemini — bad key, wrong model, quota exceeded, not just the docs-
+   link mistake above — hit the same raw unmarshal failure instead of
+   surfacing Gemini's actual message ("Please pass a valid API key",
+   etc). Both shapes are now handled, and a genuinely non-JSON response
+   gets a clear "double-check the Base URL" hint instead of a raw parse
+   error. Added regression tests for both response shapes.
+
 ## 1.6.9
 
 Added a Settings section ("AI OCR / Vision Model") to configure accurate

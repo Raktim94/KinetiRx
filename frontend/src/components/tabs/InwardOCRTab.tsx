@@ -213,8 +213,16 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     // reproduced against two real distributor invoices where the true
     // letterhead ended up on lines[0] and lines[1] respectively, each with
     // noise the strict first-line regex rejected outright.
+    // No trailing `\b`/full-word requirement: OCR on a real photographed
+    // letterhead routinely drops or mangles the last character or two of a
+    // word (verified against a real bill where "NEW UMA MEDICINE
+    // DISTRIBUTOR" came back as "...DISTRIBUTq", the trailing "OR" lost) —
+    // a strict full-word match missed that despite the line being otherwise
+    // correct, and fell through to a worse fallback candidate. These stems
+    // are distinctive enough that a prefix match still won't false-positive
+    // on an ordinary business/person name.
     const distributorKeyword =
-      /\b(DISTRIBUTOR|DISTRIBUTORS|PHARMA|REMEDIES|AGENC(Y|IES)|MEDICOS|ENTERPRISE|PHARMACEUTICALS|HEALTHCARE|LABORATOR(Y|IES))\b/i;
+      /\b(DISTRIBUT|PHARMA|REMED|AGENC|MEDICOS|ENTERPRISE|PHARMACEUTICAL|HEALTHCARE|LABORATOR)/i;
     const cleanLetterheadCandidate = (line: string) =>
       line
         // Collapse any run of characters that isn't a letter/space/the
@@ -371,6 +379,22 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             return;
           }
 
+          // A garbled table-HEADER row (Qty/Packing/Description/HSN/OMRP/
+          // Batch/ExpDt/...) can still land 6+ short tokens after OCR mangles
+          // every keyword beyond nonItemLinePattern's recognition, and by
+          // chance one of those fragments can contain a 3-letter run (e.g.
+          // "PRY") that satisfies the outer gate too — reproduced against a
+          // real scanned bill where "OY OY 9 PY 0 PRY PY" (the header row)
+          // was accepted as a genuine line. Every real data row, however,
+          // always carries at least one price column printed to 2 decimal
+          // places (MRP/Rate/Amount, even "0.00") — a header row never has
+          // one. Require it as a cheap, reliable real-row signal before
+          // trying to parse columns out of the line at all.
+          if (!tokens.some(tok => /^\d+\.\d{1,2}$/.test(tok))) {
+            skippedRowCount++;
+            return;
+          }
+
           // Month must be 1-12: without this, a dosage fraction embedded in
           // the drug name itself — e.g. "CILACAR T 20/40 TAB" — matches a
           // bare dd/mm pattern and gets mistaken for the expiry date.
@@ -415,6 +439,21 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           const nameEndIdx = [hsnIdx, batch ? tokens.indexOf(batch) : -1, expIdx]
             .filter(i => i > 1)
             .reduce((min, i) => Math.min(min, i), tokens.length);
+
+          // If none of HSN/Batch/ExpDt were found at all, nameEndIdx never
+          // got bounded down from tokens.length — meaning "the name" would
+          // be every remaining token on the line, price columns included.
+          // Reproduced against a real scanned bill where exactly this
+          // happened and created a medicine literally named "SVOCITA LS TAR
+          // HOOTON 20831 77828701 04727 20831 15643 400 0.00 $% 40 52" (the
+          // entire raw line). Without at least one real anchor there's no
+          // reliable column boundary at all, for the name or the prices
+          // that would be guessed below — reject the row outright.
+          if (nameEndIdx >= tokens.length) {
+            skippedRowCount++;
+            return;
+          }
+
           const rawName = tokens.slice(2, nameEndIdx).join(' ').trim();
 
           const toNum = (tok: string) => parseFloat(tok.replace(/[%,]/g, ''));
@@ -454,18 +493,47 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             rate = rate ?? sortedDesc[1] ?? Math.round(mrp * 0.75 * 100) / 100;
           }
 
-          if (rawName.length >= 2) {
+          // A real medicine name always has at least 3 actual letters — the
+          // previous `rawName.length >= 2` bar counted stray 2-char OCR
+          // fragments like "UR," (a mangled remnant of a real drug name,
+          // its real column boundaries lost) as an acceptable name and
+          // committed it as a live medicine. Requiring 3+ letters (not just
+          // 3+ characters — punctuation/digits alone shouldn't count) is
+          // well below the shortest real brand name on either real sample
+          // invoice (5+ letters each).
+          const rawNameLetterCount = (rawName.match(/[A-Za-z]/g) || []).length;
+          if (rawNameLetterCount >= 3) {
             const qty = Math.round(toNum(tokens[0])) || 10;
+
+            // Recover a dropped decimal point on MRP/Rate specifically —
+            // not qty, which is a genuine small integer on every real
+            // sample invoice. Every real MRP/Rate on these bills is
+            // printed to exactly 2 decimal places; OCR merging "205.31"
+            // into "20531" (losing the point, not the digits) is common
+            // enough on real photographed bills that it isn't a rare edge
+            // case, and re-tested runs of the same real invoice show it
+            // happening on some passes and not others — a value over 5000
+            // is never a genuine strip price on any real sample seen
+            // (~₹1,000 max), so treating it as "the point that should be
+            // there landed 2 digits from the right" is a safe, narrow
+            // recovery: it only ever fires on a value that would otherwise
+            // be rejected outright, never overwrites an already-plausible
+            // reading.
+            if (mrp !== undefined && mrp > 5000 && mrp / 100 >= 0.5 && mrp / 100 <= 5000) {
+              mrp = Math.round(mrp) / 100;
+            }
+            if (rate !== undefined && rate > 5000 && rate / 100 >= 0.5 && rate / 100 <= 5000) {
+              rate = Math.round(rate) / 100;
+            }
 
             // Plausibility guard: a single invoice line for one SKU is
             // never actually thousands of units, and ₹5,000/strip is
             // already 5x the highest genuine MRP seen across real sample
-            // invoices (~₹1,000) — values past these bounds are OCR
-            // misreads (almost always a dropped decimal point), not real
-            // data. Reproduced against a real scanned bill where "205.31"
-            // was read as "20531" and would otherwise have silently added
-            // 20,531 units to stock. Reject the whole row rather than
-            // commit a guessed number to a live pharmacy's inventory.
+            // invoices (~₹1,000) — values past these bounds (that the
+            // decimal-recovery step above couldn't explain either) are
+            // still rejected rather than guessed at further. Reject the
+            // whole row rather than commit a guessed number to a live
+            // pharmacy's inventory.
             const qtyPlausible = qty >= 1 && qty <= 2000;
             const mrpPlausible = mrp >= 0.5 && mrp <= 5000;
             const ratePlausible = rate >= 0.5 && rate <= 5000;
@@ -492,6 +560,8 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
               rack: 'RACK-GEN',
               tabsPerStrip: 10,
             });
+          } else {
+            skippedRowCount++;
           }
         }
       }

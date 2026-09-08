@@ -10,6 +10,52 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.8
+
+Follow-up to 1.6.7 after re-testing the offline OCR fallback against the
+same two real invoices repeatedly: Tesseract's raw text output turned out
+to vary from run to run on the *identical* preprocessed image (confirmed
+by re-running it several times), so single-run testing wasn't catching
+every failure shape. Three more real bugs found and fixed from that wider
+testing:
+
+1. When a line's HSN/Batch/ExpDt column anchors were *all* unreadable, the
+   parser had no boundary to stop the "name" at and took every remaining
+   token on the line — reproduced against a real bill where this created a
+   medicine literally named "SVOCITA LS TAR HOOTON 20831 77828701 04727
+   20831 15643 400 0.00 $% 40 52" (the whole raw line, price columns
+   included). Now rejects the row instead of guessing without any anchor
+   at all.
+2. The same missing-anchor case was also silently turning the GST-summary
+   footer lines (SGST/CGST calculation rows) into fake medicine entries
+   whenever OCR happened to garble "SGST"/"CGST" past keyword recognition
+   but leave a plausible-looking decimal number nearby. Fixed by the same
+   anchor requirement above.
+3. MRP/Rate values over ₹5,000 (never genuine on any real sample invoice)
+   are now treated as a dropped decimal point and recovered by dividing by
+   100 — e.g. a misread "20831" becomes 208.31 — instead of always being
+   rejected outright, which is what was making the on-device fallback
+   produce zero usable items on some real OCR passes even after the 1.6.7
+   image-quality fix.
+4. The distributor-name letterhead match now accepts "DISTRIBUT" as a
+   prefix instead of requiring the exact full word "DISTRIBUTOR" — OCR
+   commonly drops the trailing 1-2 characters of a word on a real
+   photographed letterhead, which a full-word match was missing outright.
+
+**Known remaining limitation, not fixable by more parsing logic:** on a
+dense, small-print invoice table, Tesseract's underlying character
+recognition itself is sometimes simply wrong — no downstream heuristic can
+recover a value that was never read correctly in the first place, and
+which specific rows/fields come out wrong varies from scan to scan of the
+same bill. The on-device/free-OCR path (and the free Puter.js option added
+in 1.6.6) should still always be spot-checked against the physical bill
+before billing against the resulting stock, exactly as the in-app warning
+banner already says. For invoices photographed at this density, setting
+`GEMINI_API_KEY` (Settings) routes bill scanning through the AI vision
+model instead, which reads the table structure directly rather than
+recovering it from character-level OCR text — this is the only way to get
+consistently accurate extraction on bills like these.
+
 ## 1.6.7
 
 Fixed two real accuracy bugs in the on-device (fully offline, no API key)

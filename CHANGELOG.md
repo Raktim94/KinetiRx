@@ -10,6 +10,18 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.11
+
+Added a "Copy AI Prompt" button to the Inward OCR tab's Paste Text panel.
+Copies a ready-made extraction prompt to the clipboard, formatted to match
+`parseInvoiceTextLocally`'s labeled-line format exactly (`DISTRIBUTOR:`,
+`GSTIN:`, `Phone:`, `INV NO:` headers, then `Name, Qty: x, Rate: x, MRP: x,
+Batch: x, Exp: YYYY-MM, Pack: x` per item) — paste it into any free AI chat
+(ChatGPT, Gemini, Claude, Copilot, Meta AI, etc., no API key required)
+along with a photo or PDF of the bill, then paste the reply straight back
+into the box and it parses through with no manual reformatting. Backend
+unchanged; only the frontend image was rebuilt.
+
 ## 1.6.10
 
 Fixed two real bugs in the AI OCR / Vision Model feature added in 1.6.9,

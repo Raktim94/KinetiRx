@@ -57,6 +57,37 @@ import { getCurrencySymbol } from '../../utils/currency';
 import { recognizeIdText } from '../../utils/patientIdOcr';
 import { isPuterOcrEnabled, recognizeWithPuter, setPuterOcrEnabled } from '../../utils/puterOcr';
 
+// Copy/paste prompt for the "Paste Text" input method: the user pastes this
+// into any free AI chat (ChatGPT, Gemini, Claude, Copilot, Meta AI, etc. —
+// no API key needed, just the normal free web chat) along with a photo/PDF
+// of the bill, then pastes the AI's reply back into the textarea below. The
+// output format here is deliberately identical to parseInvoiceTextLocally's
+// labeled-line format (DISTRIBUTOR:/GSTIN:/Phone:/INV NO: headers, then
+// "Name, Qty: x, Rate: x, MRP: x, Batch: x, Exp: YYYY-MM, Pack: x" per item)
+// so the pasted reply parses straight through with no manual reformatting.
+const AI_EXTRACTION_PROMPT = `You are extracting data from a pharmacy purchase/supplier bill (photo or PDF) so it can be imported into inventory software.
+
+Read the attached bill and reply with ONLY the data below in this EXACT plain-text format — no markdown, no tables, no extra commentary before or after it:
+
+DISTRIBUTOR: <supplier/distributor company name printed on the bill>
+GSTIN: <GSTIN number, or N/A if not visible>
+Phone: <phone/mobile number, or N/A>
+INV NO: <invoice/bill number>
+Date: <invoice date, YYYY-MM-DD>
+
+Then list every medicine line item, one per line, numbered, in this exact format:
+1. <Medicine Name>, Qty: <quantity>, Rate: <purchase rate per unit>, MRP: <MRP>, Batch: <batch number>, Exp: <expiry as YYYY-MM>, Pack: <pack size e.g. 10*10>
+
+Rules:
+- One line per medicine, nothing else on that line.
+- Keep the exact labels "Qty:", "Rate:", "MRP:", "Batch:", "Exp:", "Pack:" with their colons.
+- Do not skip any item row, including ones with 0 discount or 0 scheme.
+- If a field isn't printed on the bill, write N/A for that field but keep the label.
+- Do not include totals, GST breakup, or terms & conditions as item lines.
+- Do not wrap the output in a code block or add any explanation before/after it.
+
+After you give me this, I will copy your entire reply and paste it into my inventory app.`;
+
 interface ScannedInvoiceItem {
   id?: string;
   name: string;
@@ -159,6 +190,26 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
 
   // Paste Text state
   const [pastedText, setPastedText] = useState('');
+  const [promptCopied, setPromptCopied] = useState(false);
+
+  const handleCopyAiPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(AI_EXTRACTION_PROMPT);
+    } catch {
+      // Clipboard API unavailable/blocked (older browser, insecure context) —
+      // fall back to the classic hidden-textarea + execCommand copy trick.
+      const helper = document.createElement('textarea');
+      helper.value = AI_EXTRACTION_PROMPT;
+      helper.style.position = 'fixed';
+      helper.style.opacity = '0';
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand('copy');
+      document.body.removeChild(helper);
+    }
+    setPromptCopied(true);
+    setTimeout(() => setPromptCopied(false), 2500);
+  };
 
   // -------------------------------------------------------------
   // HELPER: Local smart text parser for raw pasted invoice text
@@ -1401,6 +1452,19 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
         {/* METHOD 3: PASTE TEXT / RAW INVOICE DATA */}
         {activeInputMethod === 'paste' && (
           <div className="space-y-3">
+            <div className="p-3 rounded-2xl bg-primary/5 border border-primary/20 space-y-2">
+              <p className="text-xs text-text-muted leading-relaxed">
+                No clear scan? Copy this prompt, paste it into any free AI chat (ChatGPT, Gemini, Claude, Copilot, Meta AI — no API key needed) along with a photo or PDF of the bill, then copy the AI's reply back into the box below.
+              </p>
+              <button
+                type="button"
+                onClick={handleCopyAiPrompt}
+                className="px-4 py-2 bg-surface border border-primary/40 hover:border-primary text-primary rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              >
+                {promptCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{promptCopied ? 'Prompt Copied!' : 'Copy AI Prompt'}</span>
+              </button>
+            </div>
             <label className="text-xs font-bold text-text-muted flex items-center gap-1.5">
               <Clipboard className="w-3.5 h-3.5 text-primary" />
               <span>Paste OCR Text, Tabular CSV, or Wholesale Email Bill</span>

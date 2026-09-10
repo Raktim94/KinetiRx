@@ -12,6 +12,7 @@ import { InvoiceConfig, PatientRecord } from '../../types';
 import { formatPatientId, stripPatientIdPrefix } from '../../utils/patientUtils';
 import { exportToCSV, formatWhatsAppPhone } from '../../utils/exportCsv';
 import { getCurrencySymbol } from '../../utils/currency';
+import { getTodayISODate } from '../../utils/dateUtils';
 
 interface DueKhataTabProps {
   invoiceConfig?: InvoiceConfig;
@@ -68,7 +69,7 @@ export const DueKhataTab: React.FC<DueKhataTabProps> = ({
             .map(item => {
               if (item.id === patientId) {
                 const newDue = Math.max(0, item.totalDue - amount);
-                return { ...item, totalDue: newDue, lastDate: '2026-08-17' };
+                return { ...item, totalDue: newDue, lastDate: getTodayISODate() };
               }
               return item;
             })

@@ -10,6 +10,15 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.14
+
+Fixed the Due Khata **Collect** action (`DueKhataTab.tsx`'s `handleCollectDue`)
+recording a hardcoded stale date, `'2026-08-17'`, as the record's last
+transaction date on every collected payment instead of the actual date the
+payment was collected — the only write path in the app still using a literal
+date instead of the shared `getTodayISODate()` helper. Backend retagged from
+1.6.13 (no source change).
+
 ## 1.6.13
 
 Fixed distributor **Address** and **Drug License (DL) number** not being

@@ -25,7 +25,7 @@ services:
       - kinetirx_net
 
   backend:
-    image: ghcr.io/raktim94/kinetirx-backend:1.6.11
+    image: ghcr.io/raktim94/kinetirx-backend:1.6.13
     container_name: kinetirx-backend
     hostname: kinetirx-backend
     restart: unless-stopped
@@ -73,7 +73,7 @@ services:
             en_US: "Optional — required to save any secret from the app's own Settings screen: S3 Offsite Backup credentials, or an AI provider API key (Settings -> AI OCR / Vision Model) as an alternative to GEMINI_API_KEY above. Generate one with: openssl rand -hex 32. Leave blank if you don't need either."
 
   frontend:
-    image: ghcr.io/raktim94/kinetirx-frontend:1.6.12
+    image: ghcr.io/raktim94/kinetirx-frontend:1.6.13
     container_name: kinetirx-frontend
     hostname: kinetirx-frontend
     restart: unless-stopped
@@ -143,18 +143,18 @@ x-casaos:
   index: /
   port_map: "3080"
   scheme: http
-  version: "1.6.12"
+  version: "1.6.13"
   update_at: "2026-09-10"
   release_notes:
     en_US: >-
-      1.6.12: The free cloud OCR fallback (used automatically when the
-      server has no AI key configured) is now on by default instead of an
-      opt-in toggle, so a fresh install gets AI-quality bill extraction out
-      of the box whenever it's online — no setup needed. Also renamed
-      throughout the UI from "Free Unlimited OCR (Puter.js)" to plain
-      "Online OCR". Still toggleable off per-device from Settings or the
-      Inward OCR tab. Full history:
-      https://github.com/Raktim94/KinetiRx/blob/main/CHANGELOG.md
+      1.6.13: Fixed distributor Address and Drug License (DL) number not
+      being captured from purchase bills — the offline/online-OCR text
+      parser declared an "address" field but never actually extracted it
+      (always stayed N/A), and DL number wasn't extracted anywhere at all,
+      including the paid AI path and the Paste Text / Copy AI Prompt flow.
+      All four paths (server AI, free online OCR, offline OCR, paste-text)
+      now capture and save both fields onto the distributor record. Full
+      history: https://github.com/Raktim94/KinetiRx/blob/main/CHANGELOG.md
   website: "https://kinetirx.nodedr.com"
   repo: "https://github.com/Raktim94/KinetiRx"
   support: "https://github.com/Raktim94/KinetiRx/issues"

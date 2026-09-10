@@ -10,6 +10,32 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.13
+
+Fixed distributor **Address** and **Drug License (DL) number** not being
+captured from purchase bills, across all four extraction paths:
+
+- `InwardOCRTab.tsx`'s offline/online-OCR text parser (`parseInvoiceTextLocally`)
+  declared an `address` variable on `ScannedInvoiceData` and even merged it
+  into the distributor record on commit — but never actually extracted it
+  from the OCR'd text anywhere, so it always stayed `N/A` and the merge was
+  a no-op. `dlNo` didn't exist on the type at all, so DL number was silently
+  discarded even when a bill's "DL No:" line was visible in the recognized
+  text (it was actively pattern-matched as a *non-item* line and dropped,
+  never captured anywhere).
+- The server AI path (`backend/internal/handlers/ocr.go`'s Gemini prompt)
+  already asked for `address` correctly, but never asked for `dlNo` — added.
+- The "Copy AI Prompt" text (added in 1.6.11, for the free-AI-chat paste
+  workflow) never asked the AI to include Address or DL No, so that path
+  couldn't carry them either even when a user retyped them into the reply.
+  Added `Address:` and `DL No:` to the requested format, and the paste-text
+  labeled-line parser now recognizes both labels.
+
+All four paths (server AI, free online OCR, offline OCR, paste-text) now
+extract both fields and merge them onto the distributor record — updating an
+existing distributor's address/DL No when a newer bill has them, without
+clobbering a good existing value with a blank one.
+
 ## 1.6.12
 
 The free cloud OCR fallback (`utils/puterOcr.ts`, backed by Puter.js) is now

@@ -23,6 +23,7 @@ Key Requirements:
    - "gstin": Distributor's 15-character GSTIN number (e.g. "06AAGCB6632E1ZX", "19BUOPM8157K1ZP") or "N/A"
    - "phone": Contact phone / mobile / landline number of the distributor
    - "address": Complete physical address / depot / warehouse location of distributor
+   - "dlNo": Drug License / D.L. No. of the distributor, if printed on the bill, else "N/A"
    - "invNo": Invoice / Cash Memo / Bill No.
    - "invDate": Invoice date (in YYYY-MM-DD format)
    - "totalCost": Net payable / Gross total invoice value in INR
@@ -51,6 +52,7 @@ Return ONLY a valid JSON object with the following structure:
   "gstin": "string",
   "phone": "string",
   "address": "string",
+  "dlNo": "string",
   "invNo": "string",
   "invDate": "YYYY-MM-DD",
   "totalCost": 0.0,

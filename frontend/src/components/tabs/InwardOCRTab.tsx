@@ -71,6 +71,8 @@ Read the attached bill and reply with ONLY the data below in this EXACT plain-te
 DISTRIBUTOR: <supplier/distributor company name printed on the bill>
 GSTIN: <GSTIN number, or N/A if not visible>
 Phone: <phone/mobile number, or N/A>
+Address: <distributor's full printed address/depot location, or N/A>
+DL No: <drug license / D.L. number, or N/A>
 INV NO: <invoice/bill number>
 Date: <invoice date, YYYY-MM-DD>
 
@@ -113,6 +115,7 @@ interface ScannedInvoiceData {
   gstin: string;
   phone: string;
   address: string;
+  dlNo: string;
   invNo: string;
   invDate: string;
   totalCost: number;
@@ -232,6 +235,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     let gstin = 'N/A';
     let phone = 'N/A';
     let address = 'N/A';
+    let dlNo = 'N/A';
     let invNo = 'INV-' + Math.floor(100000 + Math.random() * 900000);
     let invDate = getTodayISODate();
     const items: ScannedInvoiceItem[] = [];
@@ -251,6 +255,19 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
     if (gstinMatch) gstin = gstinMatch[0];
     const phoneMatch = text.match(/(?:\+?91[\s-]?|0)?\b([6-9]\d{9})\b/);
     if (phoneMatch) phone = phoneMatch[1];
+
+    // Drug license numbers are near-freeform, so only trust an explicit
+    // "DL No" / "Drug Licence" label rather than guessing from a bare
+    // alphanumeric string (same approach as utils/distributorOcr.ts).
+    const dlMatch = text.match(/(?:drug\s*licen[cs]e|d\.?l\.?)\s*(?:no\.?)?\s*[:.-]?\s*([A-Za-z0-9/-]{5,20})/i);
+    if (dlMatch) dlNo = dlMatch[1];
+
+    // Address has no unambiguous format to scan for, so this only trusts an
+    // explicit "Address:" label appearing anywhere in the text (paste-text /
+    // AI-prompt convention) — the per-line loop below also catches it as the
+    // first token on its own line.
+    const addrMatch = text.match(/\baddress\s*[:.-]\s*(.+)/i);
+    if (addrMatch) address = addrMatch[1].trim();
 
     // Distributor letterhead is almost always near the top of a
     // scanned/printed bill, but on-device OCR of a real photographed bill
@@ -326,6 +343,12 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       } else if (lower.includes('phone:') || lower.includes('mobile:') || lower.includes('tel:')) {
         const match = line.match(/(?:phone|mobile|tel):\s*([\+0-9\s-]+)/i);
         if (match) phone = match[1].trim();
+      } else if (lower.includes('address:')) {
+        const val = line.split(':').slice(1).join(':').trim();
+        if (val) address = val;
+      } else if (lower.includes('dl no:') || lower.includes('dl no.') || lower.includes('license:') || lower.includes('licence:')) {
+        const match = line.match(/(?:dl\s*no\.?|licen[cs]e)\s*[:.-]?\s*([A-Za-z0-9/-]{3,20})/i);
+        if (match) dlNo = match[1].trim();
       } else if (lower.includes('inv no:') || lower.includes('invoice:')) {
         const match = line.match(/(?:inv no|invoice):\s*([A-Za-z0-9-]+)/i);
         if (match) invNo = match[1].trim();
@@ -626,6 +649,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       gstin,
       phone,
       address,
+      dlNo,
       invNo,
       invDate,
       totalCost,
@@ -674,6 +698,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           phone: data.phone && data.phone !== 'N/A' ? data.phone : updated[existingIdx].phone,
           addr: data.address && data.address !== 'N/A' ? data.address : updated[existingIdx].addr,
           gstin: data.gstin && data.gstin !== 'N/A' ? data.gstin : updated[existingIdx].gstin,
+          dlNo: data.dlNo && data.dlNo !== 'N/A' ? data.dlNo : updated[existingIdx].dlNo,
         };
         return updated;
       } else {
@@ -684,6 +709,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           gstin: data.gstin || 'N/A',
           phone: data.phone || 'N/A',
           addr: data.address || 'N/A',
+          dlNo: data.dlNo && data.dlNo !== 'N/A' ? data.dlNo : undefined,
           registeredDate: getTodayISODate(),
           source: 'OCR Purchase Bill',
         };
@@ -1246,7 +1272,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             </span>
           </div>
           <p className="text-sm text-text-muted mt-1 max-w-3xl leading-relaxed">
-            Upload ANY distributor purchase invoice (PDF, photo, scan, camera, or text). The system automatically registers the distributor's name, phone, address, and GSTIN, auto-adds missing medicines into the catalog layout, and updates existing stock balances.
+            Upload ANY distributor purchase invoice (PDF, photo, scan, camera, or text). The system automatically registers the distributor's name, phone, address, GSTIN, and drug license number (when printed on the bill), auto-adds missing medicines into the catalog layout, and updates existing stock balances.
           </p>
         </div>
 
@@ -1572,6 +1598,11 @@ INV NO: A002223, Date: 2026-08-19
               <p className="text-text-muted mt-0.5">
                 <b>Address:</b> {scannedResult.address}
               </p>
+              {scannedResult.dlNo && scannedResult.dlNo !== 'N/A' && (
+                <p className="text-text-muted font-mono mt-0.5">
+                  <b>DL No:</b> {scannedResult.dlNo}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 bg-bg/60 p-3.5 rounded-xl border border-border">

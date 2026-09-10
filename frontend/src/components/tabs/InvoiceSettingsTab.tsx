@@ -7,7 +7,6 @@ import {
   Clock,
   Database,
   Download,
-  ExternalLink,
   FileSpreadsheet,
   FileText,
   Filter,
@@ -996,19 +995,9 @@ export const InvoiceSettingsTab: React.FC<InvoiceSettingsTabProps> = ({
               <Zap className="w-4.5 h-4.5" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-text">Free Unlimited OCR (Puter.js)</p>
+              <p className="text-xs font-bold text-text">Online OCR</p>
               <p className="text-[11px] text-text-muted leading-relaxed mt-0.5 max-w-2xl">
-                When scanning a supplier's purchase bill, try{' '}
-                <a
-                  href="https://developer.puter.com/tutorials/free-unlimited-ocr-api/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-primary inline-flex items-center gap-0.5"
-                >
-                  Puter.js
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>{' '}
-                as a free, unlimited cloud OCR reader before dropping to fully offline scanning. Off by default; the first scan after enabling may show a free Puter account sign-in popup. Also toggleable from the Supplier Purchase Bill Auto-Scan (OCR) tab itself.
+                When scanning a supplier's purchase bill with an internet connection available, a free cloud OCR reader is tried before dropping to fully offline scanning. On by default; the first scan may show a free sign-in popup. Also toggleable from the Supplier Purchase Bill Auto-Scan (OCR) tab itself.
               </p>
             </div>
           </div>

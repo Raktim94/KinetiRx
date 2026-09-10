@@ -1,10 +1,12 @@
-// Optional, opt-in OCR path backed by Puter.js (https://developer.puter.com/tutorials/free-unlimited-ocr-api/).
-// Puter runs on a "User-Pays" model: no API key or backend wiring needed here —
-// the browser loads Puter's SDK from their CDN and the end user authenticates
+// "Online OCR" path backed by Puter.js (https://developer.puter.com/tutorials/free-unlimited-ocr-api/),
+// kept as an internal implementation detail — not named in the UI. Puter runs
+// on a "User-Pays" model: no API key or backend wiring needed here — the
+// browser loads Puter's SDK from their CDN and the end user authenticates
 // with their own (free) Puter account the first time it's used, so their
-// account covers the OCR call instead of this app's server. That's why it's
-// off by default and toggled per-device (localStorage), not synced through
-// InvoiceConfig like the rest of Settings.
+// account covers the OCR call instead of this app's server. On by default
+// (most installs have no GEMINI_API_KEY / AI provider configured, so this is
+// the only automatic path to AI-quality extraction) and toggled per-device
+// (localStorage), not synced through InvoiceConfig like the rest of Settings.
 
 const STORAGE_KEY = 'kinetirx_puter_ocr_enabled';
 const PUTER_SCRIPT_SRC = 'https://js.puter.com/v2/';
@@ -21,9 +23,10 @@ declare global {
 
 export function isPuterOcrEnabled(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === 'true';
+    // Defaults to on — only an explicit 'false' (user turned it off) disables it.
+    return localStorage.getItem(STORAGE_KEY) !== 'false';
   } catch {
-    return false;
+    return true;
   }
 }
 

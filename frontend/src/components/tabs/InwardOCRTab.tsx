@@ -14,7 +14,6 @@ import {
   DollarSign,
   Download,
   Edit3,
-  ExternalLink,
   Eye,
   FileCheck,
   FileSpreadsheet,
@@ -839,7 +838,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
       // or exact batch codes off a photographed table, so anything it
       // produces is worth a manual once-over before trusting the numbers.
       let usedOnDeviceFallback = false;
-      // Puter.js (free, unlimited, cloud OCR — opt-in) sits between the
+      // Online OCR (free, cloud-based, on by default) sits between the
       // paid server AI and the fully-offline Tesseract fallback: better
       // read quality than on-device OCR, but still a third-party result
       // worth a manual once-over, so it gets its own confidence note below.
@@ -849,12 +848,12 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
         extractedData = parseInvoiceTextLocally(payload.textContent);
       } else if (!extractedData && payload.imageBase64 && puterOcrEnabled) {
         try {
-          setStatusMessage('Running free Puter.js OCR... this can take a few seconds.');
+          setStatusMessage('Running online OCR... this can take a few seconds.');
           const recognizedText = await recognizeWithPuter(payload.imageBase64);
           extractedData = parseInvoiceTextLocally(recognizedText);
           usedPuterOcr = !!extractedData;
         } catch (puterErr) {
-          console.warn('Puter.js OCR failed, falling back to on-device OCR:', puterErr);
+          console.warn('Online OCR failed, falling back to on-device OCR:', puterErr);
         }
       }
 
@@ -908,7 +907,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           ? '⚠ Read via offline on-device OCR (no AI key configured) — double-check quantities, prices, and batch numbers below before billing against this stock.' +
               skippedNote
           : usedPuterOcr
-          ? '⚡ Read via free Puter.js OCR — double-check quantities, prices, and batch numbers below before billing against this stock.' + skippedNote
+          ? '⚡ Read via online OCR — double-check quantities, prices, and batch numbers below before billing against this stock.' + skippedNote
           : skippedNote || undefined
       );
     } catch (err: any) {
@@ -1344,7 +1343,7 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
           </div>
         </div>
 
-        {/* PUTER.JS FREE UNLIMITED OCR TOGGLE */}
+        {/* ONLINE OCR TOGGLE */}
         <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex-wrap">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
@@ -1352,20 +1351,10 @@ export const InwardOCRTab: React.FC<InwardOCRTabProps> = ({
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold text-text flex items-center gap-1.5 flex-wrap">
-                <span>Free Unlimited OCR (Puter.js)</span>
+                <span>Online OCR</span>
               </p>
               <p className="text-[10.5px] text-text-muted leading-relaxed">
-                Uses{' '}
-                <a
-                  href="https://developer.puter.com/tutorials/free-unlimited-ocr-api/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:text-primary inline-flex items-center gap-0.5"
-                >
-                  Puter.js
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>{' '}
-                as a free cloud OCR fallback before dropping to fully offline scanning. First use may prompt a free Puter sign-in popup. Also toggleable from Settings.
+                When there's an internet connection, the bill is read by a free cloud OCR service before dropping to fully offline scanning. First use may prompt a free sign-in popup. Also toggleable from Settings.
               </p>
             </div>
           </div>

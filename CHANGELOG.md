@@ -10,6 +10,24 @@ show a generic "Please confirm the input content" error instead of installing).
 This file is the source of truth for history; the manifest keeps only the
 latest entry plus a link back here.
 
+## 1.6.12
+
+The free cloud OCR fallback (`utils/puterOcr.ts`, backed by Puter.js) is now
+**on by default** instead of an opt-in toggle. Previously, a fresh install
+with no `GEMINI_API_KEY` / AI provider configured would silently fall
+straight through to the least-accurate fully-offline Tesseract OCR on every
+upload unless the owner found and flipped the toggle in Settings or the
+Inward OCR tab — most installs never did, so most bills were being read by
+the path the changelog itself flags as unreliable on dense tables. Now the
+free cloud OCR path is tried automatically whenever there's an internet
+connection, before falling back to fully offline scanning; still toggleable
+off per-device if preferred.
+
+Also renamed throughout the UI: "Free Unlimited OCR (Puter.js)" → "Online
+OCR". The underlying provider (Puter.js) is no longer named in user-facing
+text — it remains an internal implementation detail. Frontend-only change;
+backend unchanged.
+
 ## 1.6.11
 
 Added a "Copy AI Prompt" button to the Inward OCR tab's Paste Text panel.

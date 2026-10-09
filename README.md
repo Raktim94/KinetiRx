@@ -298,3 +298,8 @@ or redistribution.
     · <a href="https://kinetirx.nodedr.com">kinetirx.nodedr.com</a>
   </sub>
 </p>
+
+
+## Case study
+
+Read the [KinetiRx case study](https://www.raktimranjit.com/projects/kinetirx) for the product background and design decisions.

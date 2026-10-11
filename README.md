@@ -12,7 +12,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-active--development-blue" alt="Status" />
-  <img src="https://img.shields.io/badge/license-unspecified-lightgrey" alt="License" />
+  <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License" />
   <img src="https://img.shields.io/badge/backend-Go%20%2B%20Gin-00ADD8" alt="Backend" />
   <img src="https://img.shields.io/badge/frontend-React%2019%20%2B%20Vite-646CFF" alt="Frontend" />
   <img src="https://img.shields.io/badge/self--hosted-CasaOS%20%7C%20ZimaOS%20%7C%20Docker-1f6feb" alt="Self-hosted" />
@@ -284,9 +284,7 @@ docker compose -f deploy/docker-compose.yml --env-file deploy/.env \
 
 ## License
 
-No license file is currently included in this repository — all rights
-reserved by default until one is added. Contact the maintainer before reuse
-or redistribution.
+This project is licensed under the GNU Affero General Public License v3.0. See [`LICENSE`](LICENSE) for the full text. If you modify KinetiRx and make it available to users over a network, the AGPL-3.0 requires you to offer those users the corresponding source code.
 
 ---
 

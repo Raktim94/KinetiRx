@@ -20,6 +20,7 @@
 
 <p align="center">
   <a href="https://kinetirx.nodedr.com">Website</a> ·
+  <a href="https://www.raktimranjit.com/projects/kinetirx">Case study</a> ·
   <a href="backend/API.md">API Docs</a> ·
   <a href="https://github.com/Raktim94/KinetiRx/wiki">Wiki</a> ·
   <a href="https://github.com/Raktim94/KinetiRx/issues">Report an Issue</a>

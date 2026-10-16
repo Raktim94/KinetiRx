@@ -26,6 +26,11 @@
   <a href="https://github.com/Raktim94/KinetiRx/issues">Report an Issue</a>
 </p>
 
+<p align="center">
+  <img src="docs/assets/hero-animated.svg" alt="KinetiRx: animated overview with an illustrative sample screen" width="100%">
+</p>
+
+
 ---
 
 KinetiRx runs your pharmacy's day-to-day operations — point-of-sale billing,
@@ -104,6 +109,11 @@ no client-side-only access control.
 | AI tooling | Optional MCP (Model Context Protocol) server — lets Claude or any MCP-aware assistant operate a running KinetiRx instance through tool calls |
 
 ## Quick start (Docker Compose)
+
+<p align="center">
+  <img src="docs/assets/install-animated.svg" alt="Animated terminal: clone the repo and run install.sh" width="100%">
+</p>
+
 
 ```bash
 git clone https://github.com/Raktim94/KinetiRx.git

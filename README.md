@@ -11,7 +11,6 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/status-active--development-blue" alt="Status" />
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License" />
   <img src="https://img.shields.io/badge/backend-Go%20%2B%20Gin-00ADD8" alt="Backend" />
   <img src="https://img.shields.io/badge/frontend-React%2019%20%2B%20Vite-646CFF" alt="Frontend" />

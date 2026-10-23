@@ -2,6 +2,6 @@
 set -e
 systemctl daemon-reload >/dev/null 2>&1 || true
 if [ "$1" = purge ]; then
-  echo "kinetirx: your data stays in Docker volumes (kinetirx_postgres_data) and your settings in /etc/kinetirx/kinetirx.env. Remove them only if you are sure." >&2
+  echo "kinetirx: your data stays in Docker volumes (kinetirx_postgres_data) and your settings and generated passwords in /etc/kinetirx/kinetirx.env, so a later reinstall picks up where you left off. To delete everything for good: sudo docker compose --project-name kinetirx down -v ; sudo rm -rf /etc/kinetirx" >&2
 fi
 exit 0

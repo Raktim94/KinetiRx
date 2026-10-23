@@ -43,3 +43,4 @@ jobs:
           sudo apt-get remove -y kinetirx
           ! systemctl is-active --quiet kinetirx.service
           sudo apt-get purge -y kinetirx
+          test -f /etc/kinetirx/kinetirx.env

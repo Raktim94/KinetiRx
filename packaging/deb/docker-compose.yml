@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kinetirx-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kinetirx
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?missing POSTGRES_PASSWORD in /etc/kinetirx/kinetirx.env}
+      POSTGRES_DB: kinetirx
+    volumes:
+      - kinetirx_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kinetirx -d kinetirx"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  backend:
+    image: ghcr.io/raktim94/kinetirx-backend:@VERSION@
+    container_name: kinetirx-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://kinetirx:${POSTGRES_PASSWORD}@postgres:5432/kinetirx?sslmode=disable"
+      JWT_SECRET: ${JWT_SECRET:?missing JWT_SECRET in /etc/kinetirx/kinetirx.env}
+      BACKUP_ENCRYPTION_KEY: ${BACKUP_ENCRYPTION_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      KINETIRX_ADMIN_PASSWORD: ${KINETIRX_ADMIN_PASSWORD:-}
+      PORT: "8080"
+      GIN_MODE: release
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3080}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+  frontend:
+    image: ghcr.io/raktim94/kinetirx-frontend:@VERSION@
+    container_name: kinetirx-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${HTTP_PORT:-3080}:80"
+volumes:
+  kinetirx_postgres_data:

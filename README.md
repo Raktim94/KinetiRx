@@ -311,3 +311,7 @@ This project is licensed under the GNU Affero General Public License v3.0. See [
 ## Case study
 
 Read the [KinetiRx case study](https://www.raktimranjit.com/projects/kinetirx) for the product background and design decisions.
+
+## Commercial licence
+
+Licensed under the AGPL-3.0. A [commercial licence](COMMERCIAL-LICENSE.md) is available on request for use without the AGPL obligations. The KinetiRx name and logo are not covered by the AGPL.

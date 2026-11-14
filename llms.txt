@@ -1,0 +1,13 @@
+# KinetiRx (Pharma Care Pro)
+
+> Self-hosted pharmacy and small-clinic management by NodeDR: billing, batch and expiry stock, patient records, dues and OPD scheduling. Has a JWT-authenticated REST API and a local stdio MCP server. No scoped API keys or webhooks: not suited to public-website integration. Handles sensitive patient data.
+
+## Integrate
+- [AI integration prompt (read the Do-not list)](https://github.com/Raktim94/KinetiRx/blob/main/prompts/AI_INTEGRATION_PROMPT.md)
+- [Backend API](https://github.com/Raktim94/KinetiRx/blob/main/backend/API.md)
+- [MCP server](https://github.com/Raktim94/KinetiRx/blob/main/mcp-server/README.md)
+
+## Product
+- [Product site](https://kinetirx.nodedr.com)
+- [Repository](https://github.com/Raktim94/KinetiRx)
+- [NodeDR AI integration catalog](https://www.nodedr.com/ai-integrations)

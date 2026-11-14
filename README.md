@@ -45,6 +45,10 @@ Built for independent pharmacies and small clinics that want a real,
 auditable system of record instead of a spreadsheet — and that would rather
 self-host than hand patient and financial data to a SaaS vendor.
 
+## Integrate with AI Coding Agents
+
+KinetiRx handles sensitive patient data and has no scoped API keys, so integration is intentionally narrow. Read [`prompts/AI_INTEGRATION_PROMPT.md`](prompts/AI_INTEGRATION_PROMPT.md) (capability map, data-protection rules, least-privilege MCP setup). See also [`AGENTS.md`](AGENTS.md) and [`llms.txt`](llms.txt).
+
 ## Table of contents
 
 - [Features](#features)

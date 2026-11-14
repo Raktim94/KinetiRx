@@ -45,6 +45,14 @@ claude mcp add kinetirx \
 
 Tools: `list_medicines`, `get_medicine`, `search_medicine_stock`*, `get_low_stock_medicines`*, `list_patients`, `get_patient`, `get_patient_due_khata_balance`*, `create_sale`, `get_daily_register`, `list_expenses`, `add_expense`, `list_distributors`, `get_dashboard_summary`* (*derived client-side from several endpoints). **`create_sale` and `add_expense` are MUTATING**: `create_sale` writes to an append-only table with no update/delete, so a mistake can only be corrected by another entry. Require the user's explicit confirmation of the exact amounts and items every time. `list_patients`/`get_patient` return personal data: use only when the user asks and keep results out of logs.
 
+## Tested live (local build, synthetic data only, 2026-11-14)
+
+- First-run `POST /api/auth/setup` created the admin; an admin created a `staff` employee with permissions `inventory`, `daily-calc`, `expenses`. That account (flagged `mustChangePassword`) could still log in and run the MCP server, so the temporary-password flag did not block it.
+- The MCP server listed exactly 13 tools. Read tools worked for that account (`list_medicines`, `get_low_stock_medicines`, `get_daily_register`). `list_patients` returned `403` (no `patients` permission) and `create_sale` returned `403` (no `pos` permission), so the least-privilege setup above works as described.
+- **There is no read-only permission.** The same account's `add_expense` succeeded and wrote a real row, because holding the `expenses` permission means read and write. To keep an assistant read-only, do not grant `pos` or `expenses`; grant only the permissions whose tools you need and accept that each is read/write.
+- Argument names to know: `create_sale` needs `date`, `mode` and items with `name`, `qty`, `price`, `total`; `add_expense` needs `date`, `desc`, `amt`. Both carry `readOnlyHint:false`.
+- Not verified: Docker/Compose MCP profile, OCR/AI endpoints, any patient-data path.
+
 ## If a developer insists on a custom integration
 1. Run it inside the pharmacy's network, server-side, with a dedicated least-privilege employee account; store its password in the environment, never in code.
 2. Log in, hold the JWT in memory, re-login on `401` (12 h expiry).

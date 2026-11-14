@@ -41,7 +41,7 @@ claude mcp add kinetirx \
   -e KINETIRX_MCP_PASSWORD='<set in your shell, not in chat>' \
   -- /absolute/path/to/mcp-server/kinetirx-mcp
 ```
-(`claude mcp add` is standard Claude Code syntax; not run against a live KinetiRx while writing this. A Docker form and a Compose `mcp` profile are in `mcp-server/README.md`.)
+(the `claude mcp add -e … -- <binary>` form was verified with another stdio MCP server and showed connected; the KinetiRx server itself was tested directly over stdio. A Docker form and a Compose `mcp` profile are in `mcp-server/README.md`.)
 
 Tools: `list_medicines`, `get_medicine`, `search_medicine_stock`*, `get_low_stock_medicines`*, `list_patients`, `get_patient`, `get_patient_due_khata_balance`*, `create_sale`, `get_daily_register`, `list_expenses`, `add_expense`, `list_distributors`, `get_dashboard_summary`* (*derived client-side from several endpoints). **`create_sale` and `add_expense` are MUTATING**: `create_sale` writes to an append-only table with no update/delete, so a mistake can only be corrected by another entry. Require the user's explicit confirmation of the exact amounts and items every time. `list_patients`/`get_patient` return personal data: use only when the user asks and keep results out of logs.
 
